@@ -135,11 +135,34 @@
    TYPOGRAPHY
    ========================= */
 @media (max-width: 768px) {
-  h1, h2, h3 {
+  h1,
+  h2,
+  h3 {
     font-size: 18px;
   }
 
   .ant-typography {
     font-size: 14px;
+  }
+}
+
+/* =========================
+   LAYOUT / HEADER / SIDER
+   ========================= */
+/* Тут только чуть уменьшаем паддинги,
+   НЕ трогаем .ant-space, чтобы не ломать бургер и колокольчик */
+@media (max-width: 768px) {
+  .ant-layout {
+    min-height: 100vh;
+  }
+
+  .ant-layout-header {
+    padding: 8px 12px !important;
+    height: auto;
+    line-height: normal;
+  }
+
+  .ant-layout-content {
+    padding: 12px !important;
   }
 }

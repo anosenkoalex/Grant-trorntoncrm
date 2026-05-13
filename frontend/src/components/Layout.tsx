@@ -1,4 +1,5 @@
-import { BellOutlined } from '@ant-design/icons';
+// frontend/src/components/Layout.tsx
+import { BellOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import {
   Badge,
   Button,
@@ -12,7 +13,7 @@ import {
 } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { fetchNotifications } from '../api/client.js';
@@ -25,6 +26,22 @@ const AppLayout = () => {
   const location = useLocation();
   const { t } = useTranslation();
   const { logout, user, profile, isFetchingProfile } = useAuth();
+
+  const [isMobile, setIsMobile] = useState(false);
+  const [isSiderCollapsed, setIsSiderCollapsed] = useState(true);
+
+  // Определяем мобильный режим по ширине окна
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 992; // breakpoint ~ lg
+      setIsMobile(mobile);
+      setIsSiderCollapsed(mobile); // на мобилке по дефолту скрываем
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const notificationsQuery = useQuery({
     queryKey: ['notifications', 'me'],
@@ -39,20 +56,15 @@ const AppLayout = () => {
   const isWorker = user?.role === 'USER';
   const isDevUser = user?.email === 'dev@armico.local';
 
-  // 👇 НЕ ПОКАЗЫВАЕМ EMAIL ДЛЯ SUPER_ADMIN (и вообще если нет fullName)
-  // Для админа без имени показываем "Администратор"
   const displayName = useMemo(() => {
     const fullName = (profile?.fullName ?? '').trim();
     if (fullName) return fullName;
 
-    // если это супер-админ — не светим email
     if (isAdmin) return t('layout.adminFallbackName', 'Администратор');
 
-    // для остальных — можно показывать email (если имени нет)
     return (profile?.email ?? '').trim();
   }, [profile?.fullName, profile?.email, isAdmin, t]);
 
-  // Навигация нужна только для админов/менеджеров/dev
   const navigationItems = useMemo(() => {
     if (!(isAdmin || isManager || isDevUser)) return [];
 
@@ -66,31 +78,11 @@ const AppLayout = () => {
 
     if (isAdmin || isManager) {
       items.push(
-        {
-          key: 'assignments',
-          path: '/assignments',
-          label: t('layout.assignments'),
-        },
-        {
-          key: 'planner',
-          path: '/planner',
-          label: t('layout.planner'),
-        },
-        {
-          key: 'workplaces',
-          path: '/workplaces',
-          label: t('layout.workplaces'),
-        },
-        {
-          key: 'users',
-          path: '/users',
-          label: t('layout.users'),
-        },
-        {
-          key: 'statistics',
-          path: '/statistics',
-          label: t('layout.statistics'),
-        },
+        { key: 'assignments', path: '/assignments', label: t('layout.assignments') },
+        { key: 'planner', path: '/planner', label: t('layout.planner') },
+        { key: 'workplaces', path: '/workplaces', label: t('layout.workplaces') },
+        { key: 'users', path: '/users', label: t('layout.users') },
+        { key: 'statistics', path: '/statistics', label: t('layout.statistics') },
       );
     }
 
@@ -116,7 +108,7 @@ const AppLayout = () => {
   }, [location.pathname, navigationItems]);
 
   const notificationsOverlay = (
-    <div className="w-96 max-h-80 bg-white rounded-lg shadow-lg px-4 py-3 overflow-y-auto">
+    <div className="w-[90vw] sm:w-96 max-h-80 bg-white rounded-lg shadow-lg px-4 py-3 overflow-y-auto">
       <Typography.Title level={5} style={{ marginBottom: 8 }}>
         {t('notifications.title', 'Уведомления')}
       </Typography.Title>
@@ -139,10 +131,8 @@ const AppLayout = () => {
             (payload.userEmail as string | undefined) ??
             '';
 
-          const workplaceCode =
-            (payload.workplaceCode as string | undefined) ?? '';
-          const workplaceName =
-            (payload.workplaceName as string | undefined) ?? '';
+          const workplaceCode = (payload.workplaceCode as string | undefined) ?? '';
+          const workplaceName = (payload.workplaceName as string | undefined) ?? '';
 
           const workplaceLabel = [workplaceCode, workplaceName]
             .filter(Boolean)
@@ -174,7 +164,6 @@ const AppLayout = () => {
               'Назначение отменено',
             );
           } else if (item.type === 'ASSIGNMENT_UPDATED' && adjustmentType) {
-            // Специальные заголовки для корректировок графика
             if (adjustmentType === 'REQUESTED') {
               title = t(
                 'notifications.scheduleCorrectionRequestedShort',
@@ -235,47 +224,39 @@ const AppLayout = () => {
     </div>
   );
 
-  // ===== ЛЕЙАУТ ДЛЯ РАБОТНИКА (USER): НИКАКОГО МЕНЮ, ТОЛЬКО ОДНА СТРАНИЦА =====
+  // ===== Лейаут для обычного работника =====
   if (isWorker && !isAdmin && !isManager && !isDevUser) {
     return (
       <Layout className="min-h-screen">
-        <Header className="bg-white px-6 flex items-center justify-between shadow-sm">
-          <Space size="middle">
-            <Typography.Text className="font-medium">
-              {t('layout.welcome')}{' '}
-              {displayName}
+        <Header className="bg-white px-4 sm:px-6 flex items-center justify-between shadow-sm">
+          <Space size="middle" className="flex-1 min-w-0">
+            <Typography.Text className="font-medium truncate">
+              {t('layout.welcome')} {displayName}
             </Typography.Text>
             {isFetchingProfile && <Spin size="small" />}
           </Space>
-          <Space size="large">
+          <Space size="middle" wrap>
             <Dropdown
               trigger={['click']}
               dropdownRender={() => notificationsOverlay}
               placement="bottomRight"
             >
-              <Badge
-                count={notifications.length}
-                overflowCount={99}
-                offset={[-4, 4]}
-              >
+              <Badge count={notifications.length} overflowCount={99} offset={[-4, 4]}>
                 <Button
                   type="text"
                   shape="circle"
                   icon={<BellOutlined />}
                   aria-label="Notifications"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
                 />
               </Badge>
             </Dropdown>
-            <Button onClick={logout}>{t('layout.logout')}</Button>
+            <Button size="middle" onClick={logout}>
+              {t('layout.logout')}
+            </Button>
           </Space>
         </Header>
-        <Content className="p-6 bg-gray-100 min-h-0">
-          <div className="bg-white rounded-lg shadow-sm p-6 min-h-[70vh]">
+        <Content className="px-3 py-4 sm:p-6 bg-gray-100 min-h-0">
+          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 min-h-[60vh]">
             {isFetchingProfile && !profile ? <Skeleton active /> : <Outlet />}
           </div>
         </Content>
@@ -283,10 +264,26 @@ const AppLayout = () => {
     );
   }
 
-  // ===== АДМИН / МЕНЕДЖЕР / DEV — С САЙДБАРОМ, КАК РАНЬШЕ =====
+  // ===== Админ / менеджер / dev =====
   return (
     <Layout className="min-h-screen">
-      <Sider breakpoint="lg">
+      <Sider
+        width={240}
+        collapsedWidth={isMobile ? 0 : 80}
+        collapsed={isMobile && isSiderCollapsed}
+        trigger={null}
+        style={
+          isMobile
+            ? {
+                position: 'fixed',
+                left: isSiderCollapsed ? -260 : 0,
+                top: 0,
+                bottom: 0,
+                zIndex: 1000,
+              }
+            : {}
+        }
+      >
         <div className="text-white text-lg font-semibold px-4 py-3">
           Grant Thornton
         </div>
@@ -299,53 +296,56 @@ const AppLayout = () => {
             label: item.label,
           }))}
           onClick={(info) => {
-            const target = navigationItems.find(
-              (item) => item.key === info.key,
-            );
+            const target = navigationItems.find((item) => item.key === info.key);
             if (target) {
               navigate(target.path);
+            }
+            if (isMobile) {
+              setIsSiderCollapsed(true);
             }
           }}
         />
       </Sider>
       <Layout>
-        <Header className="bg-white px-6 flex items-center justify-between shadow-sm">
-          <Space size="middle">
-            <Typography.Text className="font-medium">
-              {t('layout.welcome')}{' '}
-              {displayName}
+        <Header className="bg-white px-4 sm:px-6 flex items-center justify-between shadow-sm">
+          <Space size="middle" className="flex-1 min-w-0">
+            {/* Бургер всегда в DOM, а показываем его через CSS (lg:hidden) */}
+            {navigationItems.length > 0 && (
+              <Button
+                type="text"
+                className="inline-flex items-center justify-center mr-2 lg:hidden"
+                icon={isSiderCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                onClick={() => setIsSiderCollapsed((prev) => !prev)}
+                aria-label="Toggle navigation"
+              />
+            )}
+            <Typography.Text className="font-medium truncate">
+              {t('layout.welcome')} {displayName}
             </Typography.Text>
             {isFetchingProfile && <Spin size="small" />}
           </Space>
-          <Space size="large">
+          <Space size="middle" wrap>
             <Dropdown
               trigger={['click']}
               dropdownRender={() => notificationsOverlay}
               placement="bottomRight"
             >
-              <Badge
-                count={notifications.length}
-                overflowCount={99}
-                offset={[-4, 4]}
-              >
+              <Badge count={notifications.length} overflowCount={99} offset={[-4, 4]}>
                 <Button
                   type="text"
                   shape="circle"
                   icon={<BellOutlined />}
                   aria-label="Notifications"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
                 />
               </Badge>
             </Dropdown>
-            <Button onClick={logout}>{t('layout.logout')}</Button>
+            <Button size="middle" onClick={logout}>
+              {t('layout.logout')}
+            </Button>
           </Space>
         </Header>
-        <Content className="p-6 bg-gray-100 min-h-0">
-          <div className="bg-white rounded-lg shadow-sm p-6 min-h-[70vh]">
+        <Content className="px-3 py-4 sm:p-6 bg-gray-100 min-h-0">
+          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 min-h-[60vh]">
             {isFetchingProfile && !profile ? <Skeleton active /> : <Outlet />}
           </div>
         </Content>

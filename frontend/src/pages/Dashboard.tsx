@@ -5,6 +5,7 @@ import {
   Card,
   Col,
   Flex,
+  Grid,
   List,
   Row,
   Spin,
@@ -26,6 +27,8 @@ import {
   type Notification,
 } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.js';
+
+const { useBreakpoint } = Grid;
 
 type AnyResponse =
   | any[]
@@ -87,6 +90,9 @@ const Dashboard = () => {
 
   const role = profile?.role ?? user?.role ?? 'USER';
   const isAdmin = role === 'SUPER_ADMIN';
+
+  const screens = useBreakpoint();
+  const isMobileScreen = !screens.md; // всё, что меньше md – считаем мобилкой/планшетом
 
   // USER вообще не видит Dashboard
   if (role === 'USER') {
@@ -190,11 +196,17 @@ const Dashboard = () => {
       (payload.userEmail as string | undefined) ??
       '';
 
-    const workplaceCode: string = (payload.workplaceCode as string | undefined) ?? '';
-    const workplaceName: string = (payload.workplaceName as string | undefined) ?? '';
-    const workplaceLabel = [workplaceCode, workplaceName].filter(Boolean).join(' — ');
+    const workplaceCode: string =
+      (payload.workplaceCode as string | undefined) ?? '';
+    const workplaceName: string =
+      (payload.workplaceName as string | undefined) ?? '';
+    const workplaceLabel = [workplaceCode, workplaceName]
+      .filter(Boolean)
+      .join(' — ');
 
-    const whoAndWhere = [employeeName, workplaceLabel].filter(Boolean).join(' — ');
+    const whoAndWhere = [employeeName, workplaceLabel]
+      .filter(Boolean)
+      .join(' — ');
 
     // если у бэка уже есть title/body — используем как fallback
     const fallbackTitle: string =
@@ -209,9 +221,13 @@ const Dashboard = () => {
     } else if (type === 'ASSIGNMENT_MOVED') {
       title = t('notifications.assignmentMovedShort', 'Назначение изменено');
     } else if (type === 'ASSIGNMENT_CANCELLED') {
-      title = t('notifications.assignmentCancelledShort', 'Назначение отменено');
+      title = t(
+        'notifications.assignmentCancelledShort',
+        'Назначение отменено',
+      );
     } else if (type === 'ASSIGNMENT_UPDATED') {
-      const adjustmentType: string | undefined = payload.adjustmentType ?? undefined;
+      const adjustmentType: string | undefined =
+        payload.adjustmentType ?? undefined;
 
       if (adjustmentType === 'REQUESTED') {
         title = t(
@@ -229,7 +245,10 @@ const Dashboard = () => {
           'Корректировка графика отклонена',
         );
       } else {
-        title = t('notifications.assignmentUpdatedShort', 'Назначение обновлено');
+        title = t(
+          'notifications.assignmentUpdatedShort',
+          'Назначение обновлено',
+        );
       }
     }
 
@@ -239,8 +258,7 @@ const Dashboard = () => {
     else if (type.startsWith('WORKPLACE_')) targetPath = '/workplaces';
     else if (type.startsWith('USER_')) targetPath = '/users';
 
-    const description =
-      whoAndWhere || fallbackBody || null;
+    const description = whoAndWhere || fallbackBody || null;
 
     return { title, description, createdAt, targetPath };
   };
@@ -261,7 +279,9 @@ const Dashboard = () => {
           description={
             <Flex vertical gap={4}>
               {view.description ? (
-                <Typography.Text type="secondary">{view.description}</Typography.Text>
+                <Typography.Text type="secondary">
+                  {view.description}
+                </Typography.Text>
               ) : null}
               <Typography.Text type="secondary" style={{ fontSize: 12 }}>
                 {view.createdAt}
@@ -282,7 +302,8 @@ const Dashboard = () => {
       const workplaceTitle = workplace
         ? `${workplace.code ? `${workplace.code} — ` : ''}${workplace.name}`
         : '';
-      const userName = item.meta.user?.fullName ?? item.meta.user?.email ?? undefined;
+      const userName =
+        item.meta.user?.fullName ?? item.meta.user?.email ?? undefined;
 
       return (
         <List.Item key={`${item.type}-${item.meta.id}-${item.at}`}>
@@ -293,9 +314,13 @@ const Dashboard = () => {
             })}
             description={
               <Flex vertical gap={4}>
-                {userName ? <Typography.Text>{userName}</Typography.Text> : null}
+                {userName ? (
+                  <Typography.Text>{userName}</Typography.Text>
+                ) : null}
                 {workplaceTitle ? (
-                  <Typography.Text type="secondary">{workplaceTitle}</Typography.Text>
+                  <Typography.Text type="secondary">
+                    {workplaceTitle}
+                  </Typography.Text>
                 ) : null}
                 <Typography.Text type="secondary">{date}</Typography.Text>
               </Flex>
@@ -313,10 +338,14 @@ const Dashboard = () => {
     return (
       <List.Item key={`${item.type}-${item.meta.id}-${item.at}`}>
         <List.Item.Meta
-          title={t(`dashboard.feed.workplace.${action}` as const, { workplace: title })}
+          title={t(`dashboard.feed.workplace.${action}` as const, {
+            workplace: title,
+          })}
           description={
             <Flex vertical gap={4}>
-              {title ? <Typography.Text>{title}</Typography.Text> : null}
+              {title ? (
+                <Typography.Text>{title}</Typography.Text>
+              ) : null}
               <Typography.Text type="secondary">{date}</Typography.Text>
             </Flex>
           }
@@ -335,19 +364,80 @@ const Dashboard = () => {
 
   const name = safeName(profile as any, role);
 
-  const clickableCardStyle: React.CSSProperties = {
-    cursor: 'pointer',
-  };
+  // ===== компонент карточки статистики (десктоп / мобилка разные) =====
+  const StatCard: React.FC<{
+    title: string;
+    value: number;
+    loading: boolean;
+    onClick: () => void;
+  }> = ({ title, value, loading, onClick }) => {
+    if (isMobileScreen) {
+      // компактный вариант для телефона
+      return (
+        <Card
+          hoverable
+          size="small"
+          onClick={onClick}
+          style={{ cursor: 'pointer', borderRadius: 12 }}
+        >
+          <Flex align="center" justify="space-between" gap={12}>
+            <div>
+              <Typography.Text type="secondary">{title}</Typography.Text>
+              {loading ? (
+                <div style={{ marginTop: 4 }}>
+                  <Spin size="small" />
+                </div>
+              ) : (
+                <Typography.Title
+                  level={3}
+                  style={{ margin: 0, lineHeight: 1.1 }}
+                >
+                  {value}
+                </Typography.Title>
+              )}
+            </div>
+            <RightOutlined style={{ fontSize: 16, color: '#999' }} />
+          </Flex>
+        </Card>
+      );
+    }
 
-  const statValueStyle: React.CSSProperties = {
-    fontSize: 28,
-    lineHeight: '32px',
-    fontWeight: 600,
+    // обычный “широкий” вариант
+    return (
+      <Card
+        title={title}
+        hoverable
+        onClick={onClick}
+        style={{ cursor: 'pointer' }}
+        extra={<RightOutlined />}
+      >
+        {loading ? (
+          <Flex justify="center" className="py-6">
+            <Spin />
+          </Flex>
+        ) : (
+          <Statistic
+            value={value}
+            valueStyle={{
+              fontSize: 28,
+              lineHeight: '32px',
+              fontWeight: 600,
+            }}
+          />
+        )}
+      </Card>
+    );
   };
 
   return (
-    <Flex vertical gap={16}>
-      <Typography.Title level={2}>
+    <Flex vertical gap={isMobileScreen ? 12 : 16}>
+      <Typography.Title
+        level={isMobileScreen ? 3 : 2}
+        style={{
+          marginBottom: isMobileScreen ? 4 : 8,
+          lineHeight: isMobileScreen ? 1.2 : undefined,
+        }}
+      >
         {t('dashboard.greeting', { name })}
       </Typography.Title>
 
@@ -356,61 +446,40 @@ const Dashboard = () => {
         <>
           <Row gutter={[16, 16]}>
             <Col xs={24} md={8}>
-              <Card
-                title={t('dashboard.activeAssignments', 'Активные назначения')}
-                style={clickableCardStyle}
-                hoverable
+              <StatCard
+                title={t(
+                  'dashboard.activeAssignments',
+                  'Активные назначения',
+                )}
+                value={activeAssignmentsCount}
+                loading={activeAssignmentsCountQuery.isLoading}
                 onClick={() => navigate('/assignments')}
-                extra={<RightOutlined />}
-              >
-                {activeAssignmentsCountQuery.isLoading ? (
-                  <Flex justify="center" className="py-6">
-                    <Spin />
-                  </Flex>
-                ) : (
-                  <Statistic value={activeAssignmentsCount} valueStyle={statValueStyle} />
-                )}
-              </Card>
+              />
             </Col>
 
             <Col xs={24} md={8}>
-              <Card
+              <StatCard
                 title={t('dashboard.usersCount', 'Сотрудники')}
-                style={clickableCardStyle}
-                hoverable
+                value={usersCount}
+                loading={usersCountQuery.isLoading}
                 onClick={() => navigate('/users')}
-                extra={<RightOutlined />}
-              >
-                {usersCountQuery.isLoading ? (
-                  <Flex justify="center" className="py-6">
-                    <Spin />
-                  </Flex>
-                ) : (
-                  <Statistic value={usersCount} valueStyle={statValueStyle} />
-                )}
-              </Card>
+              />
             </Col>
 
             <Col xs={24} md={8}>
-              <Card
+              <StatCard
                 title={t('dashboard.workplacesCount', 'Рабочие места')}
-                style={clickableCardStyle}
-                hoverable
+                value={workplacesCount}
+                loading={workplacesCountQuery.isLoading}
                 onClick={() => navigate('/workplaces')}
-                extra={<RightOutlined />}
-              >
-                {workplacesCountQuery.isLoading ? (
-                  <Flex justify="center" className="py-6">
-                    <Spin />
-                  </Flex>
-                ) : (
-                  <Statistic value={workplacesCount} valueStyle={statValueStyle} />
-                )}
-              </Card>
+              />
             </Col>
           </Row>
 
-          <Card title={t('dashboard.lastChanges', 'Последние события')}>
+          <Card
+            title={t('dashboard.lastChanges', 'Последние события')}
+            size={isMobileScreen ? 'small' : 'default'}
+          >
             {notificationsQuery.isLoading ? (
               <Flex justify="center" className="py-8">
                 <Spin />
@@ -420,14 +489,21 @@ const Dashboard = () => {
                 {t('dashboard.noFeed', 'Событий пока нет')}
               </Typography.Text>
             ) : (
-              <List dataSource={notifications} renderItem={renderNotification} split />
+              <List
+                dataSource={notifications}
+                renderItem={renderNotification}
+                split
+              />
             )}
           </Card>
         </>
       ) : (
         <>
-          {/* MANAGER: оставляем как было у тебя (фид/прочие блоки) */}
-          <Card title={t('dashboard.feedTitle', 'Лента')}>
+          {/* MANAGER: оставляем как было (фид) */}
+          <Card
+            title={t('dashboard.feedTitle', 'Лента')}
+            size={isMobileScreen ? 'small' : 'default'}
+          >
             {feedQuery.isLoading ? (
               <Flex justify="center" className="py-8">
                 <Spin />

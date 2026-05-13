@@ -3,6 +3,12 @@
 @tailwind utilities;
 
 /* ===== BASE ===== */
+html,
+body,
+#root {
+  height: 100%;
+}
+
 body {
   background-color: #f5f5f5;
 }
@@ -54,31 +60,14 @@ body {
   margin-right: 0;
 }
 
-/* ===== MOBILE FIXES ===== */
+/* ===== MOBILE / SMALL SCREENS ===== */
 @media (max-width: 768px) {
-  /* ---------- LAYOUT ---------- */
-  .ant-layout {
-    flex-direction: column;
-  }
-
-  .ant-layout-sider {
-    position: fixed;
-    left: -260px;
-    top: 0;
-    bottom: 0;
-    z-index: 1000;
-    transition: left 0.25s ease;
-  }
-
-  .ant-layout-sider.ant-layout-sider-collapsed {
-    left: 0;
-  }
-
+  /* --- Контент --- */
   .ant-layout-content {
     padding: 12px !important;
   }
 
-  /* ---------- CARDS ---------- */
+  /* --- Карточки --- */
   .ant-card {
     margin-bottom: 12px;
   }
@@ -98,7 +87,7 @@ body {
     flex-wrap: wrap;
   }
 
-  /* ---------- FORMS ---------- */
+  /* --- Формы --- */
   .ant-form-inline {
     display: block !important;
   }
@@ -117,7 +106,7 @@ body {
     width: 100% !important;
   }
 
-  /* ---------- TABLE ---------- */
+  /* --- Таблицы --- */
   .ant-table-wrapper {
     overflow-x: auto;
   }
@@ -126,7 +115,7 @@ body {
     min-width: 720px;
   }
 
-  /* ---------- MODALS ---------- */
+  /* --- Модалки --- */
   .ant-modal {
     max-width: 96vw !important;
     margin: 0 auto;
@@ -138,13 +127,13 @@ body {
     overflow-y: auto;
   }
 
-  /* ---------- BUTTON GROUPS ---------- */
+  /* --- Группы кнопок / отступы --- */
   .ant-space {
     flex-wrap: wrap;
     gap: 6px;
   }
 
-  /* ---------- BADGES ---------- */
+  /* --- Бейджики --- */
   .ant-badge {
     align-self: flex-start;
   }

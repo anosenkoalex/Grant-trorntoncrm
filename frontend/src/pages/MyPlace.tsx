@@ -23,6 +23,7 @@ import {
   Checkbox,
   Divider,
   Alert,
+  Grid,
 } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import dayjs, { Dayjs } from 'dayjs';
@@ -50,6 +51,7 @@ import { useAuth } from '../context/AuthContext.js';
 
 const { Text } = Typography;
 const { RangePicker } = DatePicker;
+const { useBreakpoint } = Grid;
 
 const GRID_CELL_WIDTH = 80;
 const GRID_ROW_HEIGHT = 36;
@@ -189,6 +191,8 @@ function buildDateRangeKeys(from: Dayjs, to: Dayjs) {
 const MyPlacePage = () => {
   const { t } = useTranslation();
   const { user, profile } = useAuth();
+  const screens = useBreakpoint();
+  const isMobile = !screens.md;
   const currentUserId = profile?.id ?? (user as any)?.sub ?? (user as any)?.id ?? null;
 
   const [selectedAssignment, setSelectedAssignment] =
@@ -2061,7 +2065,7 @@ const rebuildRequestIntervalsFromPeriod = (
       </Flex>
 
 
-      {canViewPlannerGrid && (
+      {canViewPlannerGrid && !isMobile && (
         <Card
           style={{ marginTop: 24 }}
           title={t(
@@ -2308,6 +2312,23 @@ const rebuildRequestIntervalsFromPeriod = (
             )}
         </Card>
       )}
+
+{canViewPlannerGrid && isMobile && (
+  <Card
+    style={{ marginTop: 24 }}
+    title={t(
+      'myPlace.assignmentsGridTitleMobile',
+      'График назначений (лучше открыть на ноутбуке)',
+    )}
+  >
+    <Typography.Paragraph type="secondary">
+      {t(
+        'myPlace.assignmentsGridMobileHint',
+        'Сводный график назначений для всех сотрудников доступен в полном виде на ноутбуке или компьютере. Откройте CRM на большом экране для удобной работы с этим разделом.',
+      )}
+    </Typography.Paragraph>
+  </Card>
+)}
 
 
 

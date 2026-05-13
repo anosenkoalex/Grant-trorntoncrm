@@ -540,7 +540,7 @@ const UsersPage = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <Typography.Title level={3} className="!mb-0">
           {t('users.title')}
         </Typography.Title>
@@ -583,6 +583,8 @@ const UsersPage = () => {
         loading={usersQuery.isLoading}
         dataSource={visibleUsers}
         columns={columns}
+        size="small"
+        scroll={{ x: 720 }}
         pagination={{
           current: page,
           pageSize,

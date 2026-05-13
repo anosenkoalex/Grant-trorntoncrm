@@ -18,7 +18,9 @@ import {
   message,
   Row,
   Col,
+  Grid,
 } from 'antd';
+const { useBreakpoint } = Grid;
 import type { ColumnsType } from 'antd/es/table';
 import { PlusOutlined } from '@ant-design/icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -251,6 +253,9 @@ const AssignmentsPage = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const screens = useBreakpoint();
+  const isMobile = !screens.md;
 
   const [filters, setFilters] = useState<{
     userId?: string;
@@ -2118,7 +2123,15 @@ if (editingAssignment) {
     <Card
       title={t('assignments.manageTitle')}
       extra={
-        <Space>
+        <Space
+          wrap
+          size={8}
+          direction={isMobile ? 'vertical' : 'horizontal'}
+          style={{
+            width: isMobile ? '100%' : 'auto',
+            justifyContent: isMobile ? 'flex-start' : 'flex-end',
+          }}
+        >
           <Button
             type={showTrash ? 'default' : 'primary'}
             onClick={() => {
@@ -2238,15 +2251,17 @@ if (editingAssignment) {
       <div
         style={{
           display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-end',
+          flexDirection: isMobile ? 'column' : 'row',
+          justifyContent: isMobile ? 'flex-start' : 'space-between',
+          alignItems: isMobile ? 'stretch' : 'flex-end',
           marginBottom: 16,
           gap: 16,
           flexWrap: 'wrap',
         }}
       >
         <Form
-          layout="inline"
+          layout={isMobile ? 'vertical' : 'inline'}
+          style={{ width: isMobile ? '100%' : 'auto' }}
           onValuesChange={(_changedValues, allValues) => {
             setFilters({
               userId: allValues.userId,
@@ -2300,7 +2315,10 @@ if (editingAssignment) {
         {!showTrash && (
           <Typography.Text
             type="secondary"
-            style={{ whiteSpace: 'nowrap', marginBottom: 4 }}
+            style={{
+              whiteSpace: isMobile ? 'normal' : 'nowrap',
+              marginBottom: isMobile ? 0 : 4,
+            }}
           >
             Свободных сотрудников:{' '}
             {usersQuery.isLoading || assignmentsAllActiveQuery.isLoading
@@ -2328,6 +2346,7 @@ if (editingAssignment) {
         columns={columns}
         loading={assignmentsQuery.isLoading}
         rowSelection={rowSelection}
+        size={isMobile ? 'small' : 'middle'}
         pagination={{
           current: page,
           pageSize,

@@ -1,9 +1,12 @@
+// frontend/src/pages/Workplaces.tsx
 import { RightOutlined } from '@ant-design/icons';
 import {
   Button,
   Card,
   Form,
+  Grid,
   Input,
+  List,
   Modal,
   Result,
   Select,
@@ -35,6 +38,8 @@ import {
   type Assignment,
 } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.js';
+
+const { useBreakpoint } = Grid;
 
 type AssignmentsApiResponse =
   | PaginatedResponse<Assignment>
@@ -82,6 +87,9 @@ const WorkplacesPage = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { user, profile } = useAuth();
+
+  const screens = useBreakpoint();
+  const isMobile = !screens.md;
 
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>(
@@ -349,6 +357,7 @@ const WorkplacesPage = () => {
   }
 
   const pagination = workplacesQuery.data?.meta;
+  const workplacesData = workplacesQuery.data?.data ?? [];
 
   const assignmentColumns: ColumnsType<Assignment> = useMemo(
     () => [
@@ -396,7 +405,13 @@ const WorkplacesPage = () => {
 
           const popContent = (
             <div style={{ width: 520 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginBottom: 10,
+                }}
+              >
                 <Typography.Text strong>
                   {t('assignments.shifts', 'Смены')}
                 </Typography.Text>
@@ -432,7 +447,10 @@ const WorkplacesPage = () => {
                       <Typography.Text>
                         {d.isValid() ? d.format('DD.MM.YYYY') : '—'} — {start}–{end}
                       </Typography.Text>
-                      <Typography.Text type="secondary" style={{ whiteSpace: 'nowrap' }}>
+                      <Typography.Text
+                        type="secondary"
+                        style={{ whiteSpace: 'nowrap' }}
+                      >
                         {formatHours(h)}
                       </Typography.Text>
                     </div>
@@ -467,75 +485,171 @@ const WorkplacesPage = () => {
   const assignmentsData = assignmentsQuery.data?.data ?? [];
   const assignmentsMeta = assignmentsQuery.data?.meta;
 
+  const filtersControls = (
+    <Flex
+      wrap="wrap"
+      gap={8}
+      justify={isMobile ? 'flex-start' : 'flex-end'}
+      style={{ width: isMobile ? '100%' : 'auto' }}
+    >
+      <Input.Search
+        allowClear
+        placeholder={t('workplaces.searchPlaceholder')}
+        onSearch={(value) => {
+          setSearch(value);
+          setPage(1);
+        }}
+        style={{ width: isMobile ? '100%' : 220 }}
+      />
+      <Select
+        value={statusFilter}
+        onChange={(value: 'all' | 'active' | 'inactive') => {
+          setStatusFilter(value);
+          setPage(1);
+        }}
+        options={[
+          { value: 'all', label: t('workplaces.filters.all') },
+          { value: 'active', label: t('workplaces.filters.active') },
+          { value: 'inactive', label: t('workplaces.filters.inactive') },
+        ]}
+        style={{ width: isMobile ? '100%' : 160 }}
+      />
+      <Button
+        type="primary"
+        icon={<PlusOutlined />}
+        onClick={() => {
+          form.resetFields();
+          form.setFieldsValue({ isActive: true });
+          setEditingWorkplace(null);
+          setIsModalOpen(true);
+        }}
+        style={isMobile ? { width: '100%' } : undefined}
+      >
+        {t('workplaces.add')}
+      </Button>
+    </Flex>
+  );
+
   return (
     <Card
       title={t('workplaces.manageTitle')}
-      extra={
-        <Space>
-          <Input.Search
-            allowClear
-            placeholder={t('workplaces.searchPlaceholder')}
-            onSearch={(value) => {
-              setSearch(value);
-              setPage(1);
-            }}
-            style={{ width: 220 }}
-          />
-          <Select
-            value={statusFilter}
-            onChange={(value: 'all' | 'active' | 'inactive') => {
-              setStatusFilter(value);
-              setPage(1);
-            }}
-            options={[
-              { value: 'all', label: t('workplaces.filters.all') },
-              { value: 'active', label: t('workplaces.filters.active') },
-              { value: 'inactive', label: t('workplaces.filters.inactive') },
-            ]}
-            style={{ width: 160 }}
-          />
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => {
-              form.resetFields();
-              form.setFieldsValue({ isActive: true });
-              setEditingWorkplace(null);
-              setIsModalOpen(true);
-            }}
-          >
-            {t('workplaces.add')}
-          </Button>
-        </Space>
-      }
+      extra={!isMobile ? filtersControls : undefined}
     >
-      <Table
-        rowKey="id"
-        columns={columns}
-        dataSource={workplacesQuery.data?.data ?? []}
-        loading={workplacesQuery.isLoading}
-        pagination={{
-          current: page,
-          pageSize,
-          total: pagination?.total ?? 0,
-          onChange: (nextPage, nextSize) => {
-            setPage(nextPage);
-            setPageSize(nextSize ?? pageSize);
-          },
-          showSizeChanger: true,
-        }}
-        onRow={(record) => ({
-          onClick: (e) => {
-            const target = e.target as HTMLElement | null;
-            if (!target) return;
-            if (target.closest('button') || target.closest('a')) return;
-            openAssignmentsModal(record);
-          },
-        })}
-      />
+      {isMobile && <div style={{ marginBottom: 12 }}>{filtersControls}</div>}
+
+      {isMobile ? (
+        <List
+          dataSource={workplacesData}
+          loading={workplacesQuery.isLoading}
+          locale={{
+            emptyText: t('workplaces.empty', 'Рабочих мест пока нет'),
+          }}
+          renderItem={(record) => (
+            <List.Item key={record.id}>
+              <Card
+                size="small"
+                hoverable
+                onClick={() => openAssignmentsModal(record)}
+                style={{ width: '100%' }}
+              >
+                <Flex vertical gap={8}>
+                  <Flex justify="space-between" gap={8}>
+                    <Typography.Text strong>{record.code}</Typography.Text>
+                    <Tag color={record.isActive ? 'green' : 'default'}>
+                      {record.isActive
+                        ? t('common.active')
+                        : t('common.inactive')}
+                    </Tag>
+                  </Flex>
+                  {record.name && (
+                    <Typography.Text type="secondary">
+                      {record.name}
+                    </Typography.Text>
+                  )}
+                  <Flex wrap="wrap" gap={8}>
+                    <Button
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openAssignmentsModal(record);
+                      }}
+                    >
+                      {t('common.open', 'Открыть')} <RightOutlined />
+                    </Button>
+                    <Button
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingWorkplace(record);
+                        form.setFieldsValue({
+                          code: record.code,
+                          name: record.name,
+                          isActive: record.isActive,
+                          color: (record as any).color,
+                        });
+                        setIsModalOpen(true);
+                      }}
+                    >
+                      {t('common.edit')}
+                    </Button>
+                    <Button
+                      size="small"
+                      danger
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        Modal.confirm({
+                          title: t('workplaces.deleteConfirmTitle'),
+                          content: t('workplaces.deleteConfirmDescription', {
+                            code: record.code,
+                          }),
+                          okText: t('common.yes'),
+                          cancelText: t('common.cancel'),
+                          okButtonProps: { danger: true },
+                          onOk: () => deleteMutation.mutateAsync(record.id),
+                        });
+                      }}
+                    >
+                      {t('common.delete')}
+                    </Button>
+                  </Flex>
+                </Flex>
+              </Card>
+            </List.Item>
+          )}
+        />
+      ) : (
+        <Table
+          rowKey="id"
+          columns={columns}
+          dataSource={workplacesData}
+          loading={workplacesQuery.isLoading}
+          pagination={{
+            current: page,
+            pageSize,
+            total: pagination?.total ?? 0,
+            onChange: (nextPage, nextSize) => {
+              setPage(nextPage);
+              setPageSize(nextSize ?? pageSize);
+            },
+            showSizeChanger: true,
+          }}
+          onRow={(record) => ({
+            onClick: (e) => {
+              const target = e.target as HTMLElement | null;
+              if (!target) return;
+              if (target.closest('button') || target.closest('a')) return;
+              openAssignmentsModal(record);
+            },
+          })}
+        />
+      )}
 
       <Modal
-        title={editingWorkplace ? t('workplaces.editTitle') : t('workplaces.createTitle')}
+        title={
+          editingWorkplace
+            ? t('workplaces.editTitle')
+            : t('workplaces.createTitle')
+        }
         open={isModalOpen}
         onCancel={() => {
           setIsModalOpen(false);
@@ -593,7 +707,7 @@ const WorkplacesPage = () => {
           setSelectedWorkplace(null);
         }}
         footer={null}
-        width={920}
+        width={isMobile ? '100%' : 920}
         destroyOnClose
       >
         {assignmentsQuery.isLoading ? (
@@ -604,7 +718,10 @@ const WorkplacesPage = () => {
           <>
             <div style={{ marginBottom: 12 }}>
               <Typography.Text type="secondary">
-                {t('assignments.listForWorkplace', 'Назначения на это рабочее место')}
+                {t(
+                  'assignments.listForWorkplace',
+                  'Назначения на это рабочее место',
+                )}
               </Typography.Text>
             </div>
 
@@ -623,6 +740,7 @@ const WorkplacesPage = () => {
                 },
                 showSizeChanger: true,
               }}
+              scroll={isMobile ? { x: 720 } : undefined}
             />
           </>
         )}

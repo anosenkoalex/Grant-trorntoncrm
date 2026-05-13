@@ -17,7 +17,12 @@ import { useQuery } from '@tanstack/react-query';
 import dayjs, { Dayjs } from 'dayjs';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { fetchUsers, fetchStatistics, fetchWorkReports, fetchWorkplaces } from '../api/client.js';
+import {
+  fetchUsers,
+  fetchStatistics,
+  fetchWorkReports,
+  fetchWorkplaces,
+} from '../api/client.js';
 import type {
   AssignmentStatus,
   User,
@@ -95,7 +100,9 @@ const StatisticsPage = () => {
 
   const [reportUserId, setReportUserId] = useState<string | null>(null);
   const [reportUserName, setReportUserName] = useState<string>('');
-  const [selectedReportDate, setSelectedReportDate] = useState<Dayjs | null>(null);
+  const [selectedReportDate, setSelectedReportDate] = useState<Dayjs | null>(
+    null,
+  );
 
   if (!canViewStatistics) {
     return <Result status="403" title={t('admin.accessDenied')} />;
@@ -111,18 +118,23 @@ const StatisticsPage = () => {
     },
     enabled: canViewStatistics,
   });
-  
+
   /* ---------- справочник рабочих мест ---------- */
 
   const workplacesQuery = useQuery({
     queryKey: ['workplaces', 'all-for-statistics'],
     queryFn: async () => {
-      const res = await fetchWorkplaces({ page: 1, pageSize: 1000, isActive: true });
+      const res = await fetchWorkplaces({
+        page: 1,
+        pageSize: 1000,
+        isActive: true,
+      });
       return res.data.items;
     },
     enabled: canViewStatistics,
   });
-const effectiveFrom = filters.range?.[0] ?? defaultRange[0];
+
+  const effectiveFrom = filters.range?.[0] ?? defaultRange[0];
   const effectiveTo = filters.range?.[1] ?? defaultRange[1];
 
   /* ---------- основная статистика ---------- */
@@ -177,7 +189,7 @@ const effectiveFrom = filters.range?.[0] ?? defaultRange[0];
     }));
   }, [allRows]);
 
-    const workplaceNameById = useMemo(() => {
+  const workplaceNameById = useMemo(() => {
     const map: Record<string, string> = {};
 
     // из строк статистики
@@ -336,7 +348,6 @@ const effectiveFrom = filters.range?.[0] ?? defaultRange[0];
     return map;
   }, [filteredRows, reportUserId]);
 
-
   // Загрузка отчётных часов для выбранного пользователя (для календаря)
   const workReportsQuery = useQuery<WorkReport[]>({
     queryKey: [
@@ -355,8 +366,6 @@ const effectiveFrom = filters.range?.[0] ?? defaultRange[0];
       }),
     enabled: !!reportUserId,
   });
-
-  
 
   const handleExport = async () => {
     if (!statistics) {
@@ -404,28 +413,25 @@ const effectiveFrom = filters.range?.[0] ?? defaultRange[0];
       workReports.forEach((wr) => {
         if (!userNameById[wr.userId] && wr.user) {
           const full = (wr.user.fullName ?? '').trim();
-          userNameById[wr.user.id] =
-            full || wr.user.email || wr.user.id;
+          userNameById[wr.user.id] = full || wr.user.email || wr.user.id;
         }
       });
 
       // Карта названий рабочих мест
-      const workplaceNameById: Record<string, string> = {};
+      const workplaceNameByIdExport: Record<string, string> = {};
       allRows.forEach((row) => {
         if (row.workplaceId) {
-          workplaceNameById[row.workplaceId] =
+          workplaceNameByIdExport[row.workplaceId] =
             row.workplaceName ?? row.workplaceId;
-    
-    }
+        }
       });
       workReports.forEach((wr) => {
         if (wr.workplaceId) {
-          workplaceNameById[wr.workplaceId] =
+          workplaceNameByIdExport[wr.workplaceId] =
             wr.workplace?.name ?? wr.workplace?.code ?? wr.workplaceId;
         }
       });
 
-      
       // Собираем всех сотрудников для экспорта
       const userIds = new Set<string>();
 
@@ -455,7 +461,7 @@ const effectiveFrom = filters.range?.[0] ?? defaultRange[0];
         return;
       }
 
-// Плановые часы: userId -> date -> workplaceId -> hours
+      // Плановые часы: userId -> date -> workplaceId -> hours
       const planMap: Record<
         string,
         Record<string, Record<string, number>>
@@ -479,7 +485,9 @@ const effectiveFrom = filters.range?.[0] ?? defaultRange[0];
         const uid = wr.userId;
         const dateKey = wr.date;
 
-        let intervals: { workplaceId: string | null; hours: number | null }[] | null = null;
+        let intervals:
+          | { workplaceId: string | null; hours: number | null }[]
+          | null = null;
         const rawComment = (wr.comment ?? '').trim();
 
         if (rawComment.startsWith('{')) {
@@ -488,7 +496,9 @@ const effectiveFrom = filters.range?.[0] ?? defaultRange[0];
             if (parsed && Array.isArray(parsed.intervals)) {
               intervals = parsed.intervals.map((it: any) => ({
                 workplaceId:
-                  typeof it.workplaceId === 'string' ? it.workplaceId : wr.workplaceId ?? null,
+                  typeof it.workplaceId === 'string'
+                    ? it.workplaceId
+                    : wr.workplaceId ?? null,
                 hours:
                   typeof it.hours === 'number'
                     ? it.hours
@@ -571,10 +581,7 @@ const effectiveFrom = filters.range?.[0] ?? defaultRange[0];
       };
 
       // Заголовок: сотрудник + даты + итоги
-      const header = [
-        'Сотрудник',
-        ...days.map((d) => d.format('DD.MM')),
-      ];
+      const header = ['Сотрудник', ...days.map((d) => d.format('DD.MM'))];
 
       const lines: string[] = [];
       lines.push(header.map(escapeCsv).join(';'));
@@ -601,7 +608,8 @@ const effectiveFrom = filters.range?.[0] ?? defaultRange[0];
             const reported = reportedByWorkplace[wid] ?? 0;
             if (!planned && !reported) return;
             const wname =
-              workplaceNameById[wid] ?? (wid === 'unknown' ? 'Без рабочего места' : wid);
+              workplaceNameByIdExport[wid] ??
+              (wid === 'unknown' ? 'Без рабочего места' : wid);
             parts.push(
               `${wname}: план ${formatHours(planned)}, отчёт ${formatHours(
                 reported,
@@ -638,7 +646,7 @@ const effectiveFrom = filters.range?.[0] ?? defaultRange[0];
         const workplaceHeader: string[] = ['Сотрудник'];
         allWorkplaceIds.forEach((wid) => {
           const wname =
-            workplaceNameById[wid] ??
+            workplaceNameByIdExport[wid] ??
             (wid === 'unknown' ? 'Без рабочего места' : wid);
           workplaceHeader.push(wname);
         });
@@ -690,7 +698,8 @@ const effectiveFrom = filters.range?.[0] ?? defaultRange[0];
       setIsExporting(false);
     }
   };
-const workReportsByDate = useMemo(() => {
+
+  const workReportsByDate = useMemo(() => {
     const map: Record<string, number> = {};
     if (!workReportsQuery.data) return map;
     for (const wr of workReportsQuery.data) {
@@ -700,8 +709,6 @@ const workReportsByDate = useMemo(() => {
     return map;
   }, [workReportsQuery.data]);
 
-  
-  
   const daySummaryRows: DayWorkSummaryRow[] = useMemo(() => {
     if (!reportUserId || !selectedReportDate) {
       return [];
@@ -710,7 +717,10 @@ const workReportsByDate = useMemo(() => {
     const targetDate = selectedReportDate.format('YYYY-MM-DD');
 
     // Плановые часы по рабочим местам на выбранную дату (из назначений)
-    const plannedByWorkplace: Record<string, { workplaceName: string; hours: number }> = {};
+    const plannedByWorkplace: Record<
+      string,
+      { workplaceName: string; hours: number }
+    > = {};
 
     filteredRows.forEach((row) => {
       if (row.userId !== reportUserId) return;
@@ -838,7 +848,14 @@ const workReportsByDate = useMemo(() => {
     });
 
     return rows;
-  }, [reportUserId, selectedReportDate, filteredRows, workReportsQuery.data, workplaceNameById]);
+  }, [
+    reportUserId,
+    selectedReportDate,
+    filteredRows,
+    workReportsQuery.data,
+    workplaceNameById,
+  ]);
+
   const isLoading = statisticsQuery.isLoading || usersQuery.isLoading;
 
   /* ---------- колонки ---------- */
@@ -960,7 +977,6 @@ const workReportsByDate = useMemo(() => {
     },
   ];
 
-
   return (
     <Card title="Статистика назначений">
       {/* Фильтры */}
@@ -1031,6 +1047,7 @@ const workReportsByDate = useMemo(() => {
           />
         </Form.Item>
       </Form>
+
       <Button
         type="primary"
         onClick={handleExport}
@@ -1040,13 +1057,13 @@ const workReportsByDate = useMemo(() => {
         Скачать Excel
       </Button>
 
-
-
       {/* Список сотрудников */}
-      <Table
+      <Table<EmployeeRow>
         rowKey="userId"
         dataSource={employeesData}
         columns={employeesColumns}
+        size="small"
+        scroll={{ x: 800 }}
         loading={isLoading}
         locale={{
           emptyText: 'Нет данных за выбранный период',
@@ -1136,6 +1153,7 @@ const workReportsByDate = useMemo(() => {
                     dataSource={daySummaryRows}
                     columns={daySummaryColumns}
                     pagination={false}
+                    scroll={{ x: 600 }}
                   />
                 ) : (
                   <Typography.Text type="secondary">
@@ -1173,12 +1191,13 @@ const workReportsByDate = useMemo(() => {
             Нет данных по выбранному сотруднику за этот период.
           </Typography.Text>
         ) : (
-          <Table
+          <Table<StatisticsRow>
             rowKey="shiftId"
             size="small"
             dataSource={detailsRows}
             columns={detailColumns}
             pagination={false}
+            scroll={{ x: 800 }}
           />
         )}
       </Modal>

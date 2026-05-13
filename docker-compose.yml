@@ -31,11 +31,14 @@ services:
     restart: unless-stopped
 
   frontend:
-    build: ./frontend
+    image: nginx:alpine
     depends_on:
       - backend
     ports:
-      - '5173:5173'
+      - '5173:80'
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html:ro
+      - ./frontend/nginx-conf:/etc/nginx/conf.d:ro
     restart: unless-stopped
 
 volumes:

@@ -81,9 +81,31 @@ function buildLanes(
   return { laneById, lanesCount: laneEndTimes.length || 1 };
 }
 
+// Простейший хук, чтобы понимать, что мы на телефоне / узком экране
+const useIsMobile = (breakpoint = 768) => {
+  const [isMobile, setIsMobile] = useState<boolean>(
+    typeof window !== 'undefined' ? window.innerWidth <= breakpoint : false,
+  );
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handler = () => {
+      setIsMobile(window.innerWidth <= breakpoint);
+    };
+
+    handler();
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, [breakpoint]);
+
+  return isMobile;
+};
+
 const PlannerPage = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const isMobile = useIsMobile();
 
   const [mode, setMode] = useState<PlannerMode>('byUsers');
   const [page, setPage] = useState(1);
@@ -222,7 +244,7 @@ const PlannerPage = () => {
       ? t('planner.totalEmployees', 'Сотрудников в выборке')
       : t('planner.totalWorkplaces', 'Рабочих мест в выборке');
 
-  // refs для синхронизации вертикального скролла
+  // refs для синхронизации вертикального скролла (десктопный вид)
   const leftBodyRef = useRef<HTMLDivElement | null>(null);
   const rightBodyRef = useRef<HTMLDivElement | null>(null);
 
@@ -336,52 +358,71 @@ const PlannerPage = () => {
     return result;
   }, [matrix, fromDate, toDate, mode]);
 
+  const controlsExtra = (
+    <Space
+      direction={isMobile ? 'vertical' : 'horizontal'}
+      size={8}
+      style={{
+        width: isMobile ? '100%' : 'auto',
+        justifyContent: isMobile ? 'flex-start' : 'flex-end',
+        flexWrap: 'wrap',
+      }}
+    >
+      <Select<PlannerMode>
+        style={{ width: isMobile ? '100%' : 200, minWidth: 160 }}
+        value={mode}
+        onChange={(value) => {
+          setMode(value);
+          setPage(1);
+        }}
+        options={[
+          {
+            value: 'byUsers',
+            label: t('planner.byUsers', 'По сотрудникам'),
+          },
+          {
+            value: 'byWorkplaces',
+            label: t('planner.byWorkplaces', 'По рабочим местам'),
+          },
+        ]}
+      />
+      <RangePicker
+        style={{ width: isMobile ? '100%' : undefined, minWidth: 220 }}
+        value={fromDate && toDate ? [fromDate, toDate] : undefined}
+        format="DD.MM.YYYY"
+        onChange={(values) => {
+          if (!values || !values[0] || !values[1]) {
+            setFromDate(null);
+            setToDate(null);
+            setPage(1);
+            return;
+          }
+          setFromDate(values[0].startOf('day'));
+          setToDate(values[1].endOf('day'));
+          setPage(1);
+        }}
+      />
+      <Button
+        icon={<DownloadOutlined />}
+        onClick={handleDownloadExcel}
+        block={isMobile}
+      >
+        {t('planner.downloadExcel', 'Скачать Excel')}
+      </Button>
+    </Space>
+  );
+
   return (
     <Card
       title={t('planner.title', 'Планировщик')}
-      extra={
-        <Space>
-          <Select
-            style={{ width: 180 }}
-            value={mode}
-            onChange={(value: PlannerMode) => {
-              setMode(value);
-              setPage(1);
-            }}
-            options={[
-              {
-                value: 'byUsers',
-                label: t('planner.byUsers', 'По сотрудникам'),
-              },
-              {
-                value: 'byWorkplaces',
-                label: t('planner.byWorkplaces', 'По рабочим местам'),
-              },
-            ]}
-          />
-          <RangePicker
-            value={fromDate && toDate ? [fromDate, toDate] : undefined}
-            format="DD.MM.YYYY"
-            onChange={(values) => {
-              if (!values || !values[0] || !values[1]) {
-                setFromDate(null);
-                setToDate(null);
-                setPage(1);
-                return;
-              }
-              setFromDate(values[0].startOf('day'));
-              setToDate(values[1].endOf('day'));
-              setPage(1);
-            }}
-          />
-          <Button icon={<DownloadOutlined />} onClick={handleDownloadExcel}>
-            {t('planner.downloadExcel', 'Скачать Excel')}
-          </Button>
-        </Space>
-      }
+      extra={controlsExtra}
+      bodyStyle={isMobile ? { padding: 12 } : undefined}
     >
       {matrix && (
-        <Typography.Paragraph type="secondary" style={{ marginBottom: 16 }}>
+        <Typography.Paragraph
+          type="secondary"
+          style={{ marginBottom: 16, fontSize: isMobile ? 13 : undefined }}
+        >
           {totalLabel}: <strong>{matrix.total}</strong>.{' '}
           {t('planner.periodSummary', 'Период')}{' '}
           <strong>{dayjs(matrix.from).format('DD.MM.YYYY')}</strong> —{' '}
@@ -408,299 +449,423 @@ const PlannerPage = () => {
       )}
 
       {!!matrix && matrix.rows.length > 0 && fromDate && toDate && (
-        <div
-          style={{
-            marginTop: 16,
-            border: '1px solid #f0f0f0',
-            borderRadius: 8,
-            display: 'flex',
-          }}
-        >
-          {/* ЛЕВАЯ КОЛОНКА: имена / рабочие места */}
+        isMobile ? (
+          // Мобильный вид: карточки по сотруднику / рабочему месту
           <div
             style={{
-              flex: '0 0 260px',
-              borderRight: '1px solid #f0f0f0',
-              background: '#fff',
+              marginTop: 8,
               display: 'flex',
               flexDirection: 'column',
+              gap: 12,
             }}
           >
-            {/* шапка слева */}
-            <div
-              style={{
-                height: HEADER_HEIGHT,
-                padding: `${ROW_VERTICAL_PADDING}px 12px`,
-                borderBottom: '1px solid #f0f0f0',
-                fontWeight: 500,
-                background: '#fafafa',
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              {mode === 'byUsers'
-                ? t('planner.employee', 'Сотрудник')
-                : t('planner.workplace', 'Рабочее место')}
-            </div>
-            {/* список имён, скролл синхронизируется с правой частью */}
-            <div
-              ref={leftBodyRef}
-              onWheel={handleLeftWheel}
-              style={{
-                maxHeight: GRID_MAX_HEIGHT,
-                overflowY: 'hidden',
-              }}
-            >
-              {rowsWithLanes.map(({ row, lanesCount, displaySubtitle }) => (
-                <div
+            {rowsWithLanes.map(
+              ({ row, visibleSlots, displaySubtitle }) => (
+                <Card
                   key={row.key}
-                  style={{
-                    height:
-                      lanesCount * ROW_HEIGHT + ROW_VERTICAL_PADDING * 2,
-                    borderBottom: '1px solid #f0f0f0',
-                    padding: `${ROW_VERTICAL_PADDING}px 12px`,
-                    boxSizing: 'border-box',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                  }}
+                  size="small"
+                  style={{ borderRadius: 10 }}
+                  bodyStyle={{ padding: 12 }}
                 >
                   <Typography.Text strong>{row.title}</Typography.Text>
                   {displaySubtitle && (
-                    <div style={{ fontSize: 12, color: '#888' }}>
-                      {displaySubtitle}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* ПРАВАЯ ЧАСТЬ: календарь (вертикальный + горизонтальный скролл) */}
-          <div
-            ref={rightBodyRef}
-            onScroll={handleRightScroll}
-            style={{
-              flex: 1,
-              overflow: 'auto',
-              maxHeight: GRID_MAX_HEIGHT + HEADER_HEIGHT,
-              minWidth: 400,
-            }}
-          >
-            {/* шапка с датами */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: `repeat(${days.length}, ${CELL_WIDTH}px)`,
-                minWidth: days.length * CELL_WIDTH,
-                borderBottom: '1px solid #f0f0f0',
-                background: '#fafafa',
-                height: HEADER_HEIGHT,
-                alignItems: 'center',
-              }}
-            >
-              {days.map((d) => (
-                <div
-                  key={d.toISOString()}
-                  style={{
-                    padding: '0 4px',
-                    textAlign: 'center',
-                    fontSize: 12,
-                    borderLeft: '1px solid #f5f5f5',
-                  }}
-                >
-                  {d.format('DD.MM')}
-                </div>
-              ))}
-            </div>
-
-            {/* строки с сеткой и слотами */}
-            <div>
-              {rowsWithLanes.map(
-                ({ row, visibleSlots, laneById, lanesCount }) => (
-                  <div
-                    key={row.key}
-                    style={{
-                      position: 'relative',
-                      minWidth: days.length * CELL_WIDTH,
-                      padding: ROW_VERTICAL_PADDING,
-                      boxSizing: 'border-box',
-                      borderBottom: '1px solid #f0f0f0',
-                    }}
-                  >
-                    {/* сетка по дням */}
-                    <div
+                    <Typography.Paragraph
+                      type="secondary"
                       style={{
-                        position: 'absolute',
-                        top: ROW_VERTICAL_PADDING,
-                        left: 0,
-                        right: 0,
-                        bottom: ROW_VERTICAL_PADDING,
-                        display: 'grid',
-                        gridTemplateColumns: `repeat(${days.length}, ${CELL_WIDTH}px)`,
-                        gridAutoRows: ROW_HEIGHT,
+                        marginTop: 4,
+                        marginBottom: 8,
+                        fontSize: 12,
                       }}
                     >
-                      {days.map((d) => (
-                        <div
-                          key={d.toISOString()}
-                          style={{
-                            borderLeft: '1px solid #f5f5f5',
-                          }}
-                        />
-                      ))}
-                    </div>
+                      {displaySubtitle}
+                    </Typography.Paragraph>
+                  )}
 
-                    {/* слоты */}
-                    {visibleSlots.map((slot) => {
-                      const lane = laneById[slot.id] ?? 0;
+                  {visibleSlots.length === 0 ? (
+                    <Typography.Text
+                      type="secondary"
+                      style={{ fontSize: 12 }}
+                    >
+                      {t(
+                        'planner.noAssignmentsRow',
+                        'Нет назначений в выбранном периоде',
+                      )}
+                    </Typography.Text>
+                  ) : (
+                    <Space
+                      direction="vertical"
+                      size={8}
+                      style={{ width: '100%' }}
+                    >
+                      {visibleSlots.map((slot) => {
+                        const slotStart = dayjs(slot.from);
+                        const slotEnd = dayjs(slot.to ?? slot.from);
 
-                      const slotStart = clampDateToRange(
-                        dayjs(slot.from),
-                        fromDate,
-                        toDate,
-                      );
-                      const slotEnd = clampDateToRange(
-                        dayjs(slot.to ?? slot.from),
-                        fromDate,
-                        toDate,
-                      );
+                        const rawColor = slot.workplace?.color || undefined;
+                        const bgColor =
+                          rawColor || 'rgba(22,119,255,0.06)';
+                        const borderColor =
+                          rawColor || 'rgba(22,119,255,0.4)';
 
-                      const startIndex = slotStart
-                        .startOf('day')
-                        .diff(fromDate.startOf('day'), 'day');
-                      const endIndex =
-                        slotEnd
-                          .startOf('day')
-                          .diff(fromDate.startOf('day'), 'day') + 1;
-
-                      const left = startIndex * CELL_WIDTH;
-                      const width = Math.max(
-                        (endIndex - startIndex) * CELL_WIDTH - 4,
-                        24,
-                      );
-
-                      const baseStartTime = dayjs(slot.from).format('HH:mm');
-                      const baseEndTime = slot.to
-                        ? dayjs(slot.to).format('HH:mm')
-                        : '';
-
-                      // интервал по дням – только текущий месяц
-                      const perDayLines: string[] = [];
-                      let dayCursor = slotStart.startOf('day');
-                      const lastDay = slotEnd.startOf('day');
-                      const currentMonth = fromDate.month();
-                      const currentYear = fromDate.year();
-
-                      while (
-                        dayCursor.isBefore(lastDay) ||
-                        dayCursor.isSame(lastDay, 'day')
-                      ) {
-                        if (
-                          dayCursor.month() === currentMonth &&
-                          dayCursor.year() === currentYear
-                        ) {
-                          perDayLines.push(
-                            `${dayCursor.format(
-                              'DD.MM',
-                            )}: ${baseStartTime}–${baseEndTime || '...'}`,
-                          );
-                        }
-                        dayCursor = dayCursor.add(1, 'day');
-                      }
-
-                      if (perDayLines.length === 0) {
-                        perDayLines.push(
-                          `${slotStart.format('DD.MM')}: ${baseStartTime}–${
-                            baseEndTime || '...'
-                          }`,
-                        );
-                      }
-
-                      const tooltipTitle = (
-                        <div>
-                          <div>
-                            <strong>
-                              {slot.workplace?.code
-                                ? `${slot.workplace.code} — ${slot.workplace.name}`
-                                : slot.workplace?.name ?? row.title}
-                            </strong>
-                          </div>
-                          <div>
-                            {t('planner.period', 'Период')}:&nbsp;
-                            {slotStart.format('DD.MM.YYYY')} —{' '}
-                            {slotEnd.format('DD.MM.YYYY')}
-                          </div>
-                          <div style={{ marginTop: 4 }}>
-                            {t(
-                              'planner.dailyIntervals',
-                              'Интервалы по дням:',
-                            )}
-                          </div>
-                          {perDayLines.map((line) => (
-                            <div key={line}>{line}</div>
-                          ))}
-                        </div>
-                      );
-
-                      const rawColor = slot.workplace?.color || undefined;
-                      const bgColor = rawColor || '#e6f7ff';
-                      const borderColor = rawColor || '#91d5ff';
-
-                      return (
-                        <Tooltip
-                          key={slot.id}
-                          title={tooltipTitle}
-                          placement="right"
-                          overlayStyle={{ maxWidth: 360 }}
-                          overlayInnerStyle={{
-                            maxHeight: 400,
-                            overflowY: 'auto',
-                          }}
-                        >
+                        return (
                           <div
+                            key={slot.id}
                             style={{
-                              position: 'absolute',
-                              top:
-                                ROW_VERTICAL_PADDING +
-                                lane * ROW_HEIGHT +
-                                1,
-                              left,
-                              width,
-                              height: ROW_HEIGHT - 6,
                               borderRadius: 6,
-                              background: bgColor,
                               border: `1px solid ${borderColor}`,
-                              padding: '4px 6px',
-                              boxSizing: 'border-box',
-                              overflow: 'hidden',
-                              whiteSpace: 'nowrap',
-                              textOverflow: 'ellipsis',
-                              cursor: 'default',
+                              background: bgColor,
+                              padding: 8,
                             }}
                           >
-                            <span style={{ fontSize: 12 }}>
+                            <Typography.Text
+                              style={{
+                                fontSize: 13,
+                                fontWeight: 500,
+                              }}
+                            >
                               {slot.code
                                 ? `${slot.code} — ${slot.name}`
-                                : slot.name ?? ''}
-                            </span>
-                          </div>
-                        </Tooltip>
-                      );
-                    })}
+                                : slot.name ??
+                                  slot.workplace?.name ??
+                                  row.title}
+                            </Typography.Text>
 
-                    {/* заполнитель высоты */}
+                            <div
+                              style={{
+                                marginTop: 4,
+                                fontSize: 12,
+                                color: '#555',
+                              }}
+                            >
+                              <div>
+                                {t('planner.period', 'Период')}:&nbsp;
+                                {slotStart.format('DD.MM.YYYY HH:mm')} —{' '}
+                                {slotEnd.format('DD.MM.YYYY HH:mm')}
+                              </div>
+                              {slot.workplace && (
+                                <div style={{ marginTop: 2 }}>
+                                  {t(
+                                    'planner.workplace',
+                                    'Рабочее место',
+                                  )}
+                                  :&nbsp;
+                                  {slot.workplace.code
+                                    ? `${slot.workplace.code} — ${slot.workplace.name}`
+                                    : slot.workplace.name}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </Space>
+                  )}
+                </Card>
+              ),
+            )}
+          </div>
+        ) : (
+          // Десктопный вид: большая матрица
+          <div
+            style={{
+              marginTop: 16,
+              border: '1px solid #f0f0f0',
+              borderRadius: 8,
+              display: 'flex',
+            }}
+          >
+            {/* ЛЕВАЯ КОЛОНКА: имена / рабочие места */}
+            <div
+              style={{
+                flex: '0 0 260px',
+                borderRight: '1px solid #f0f0f0',
+                background: '#fff',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              {/* шапка слева */}
+              <div
+                style={{
+                  height: HEADER_HEIGHT,
+                  padding: `${ROW_VERTICAL_PADDING}px 12px`,
+                  borderBottom: '1px solid #f0f0f0',
+                  fontWeight: 500,
+                  background: '#fafafa',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                {mode === 'byUsers'
+                  ? t('planner.employee', 'Сотрудник')
+                  : t('planner.workplace', 'Рабочее место')}
+              </div>
+              {/* список имён, скролл синхронизируется с правой частью */}
+              <div
+                ref={leftBodyRef}
+                onWheel={handleLeftWheel}
+                style={{
+                  maxHeight: GRID_MAX_HEIGHT,
+                  overflowY: 'hidden',
+                }}
+              >
+                {rowsWithLanes.map(
+                  ({ row, lanesCount, displaySubtitle }) => (
                     <div
+                      key={row.key}
                       style={{
-                        height: lanesCount * ROW_HEIGHT,
+                        height:
+                          lanesCount * ROW_HEIGHT +
+                          ROW_VERTICAL_PADDING * 2,
+                        borderBottom: '1px solid #f0f0f0',
+                        padding: `${ROW_VERTICAL_PADDING}px 12px`,
+                        boxSizing: 'border-box',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
                       }}
-                    />
+                    >
+                      <Typography.Text strong>{row.title}</Typography.Text>
+                      {displaySubtitle && (
+                        <div style={{ fontSize: 12, color: '#888' }}>
+                          {displaySubtitle}
+                        </div>
+                      )}
+                    </div>
+                  ),
+                )}
+              </div>
+            </div>
+
+            {/* ПРАВАЯ ЧАСТЬ: календарь (вертикальный + горизонтальный скролл) */}
+            <div
+              ref={rightBodyRef}
+              onScroll={handleRightScroll}
+              style={{
+                flex: 1,
+                overflow: 'auto',
+                maxHeight: GRID_MAX_HEIGHT + HEADER_HEIGHT,
+                minWidth: 400,
+              }}
+            >
+              {/* шапка с датами */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: `repeat(${days.length}, ${CELL_WIDTH}px)`,
+                  minWidth: days.length * CELL_WIDTH,
+                  borderBottom: '1px solid #f0f0f0',
+                  background: '#fafafa',
+                  height: HEADER_HEIGHT,
+                  alignItems: 'center',
+                }}
+              >
+                {days.map((d) => (
+                  <div
+                    key={d.toISOString()}
+                    style={{
+                      padding: '0 4px',
+                      textAlign: 'center',
+                      fontSize: 12,
+                      borderLeft: '1px solid #f5f5f5',
+                    }}
+                  >
+                    {d.format('DD.MM')}
                   </div>
-                ),
-              )}
+                ))}
+              </div>
+
+              {/* строки с сеткой и слотами */}
+              <div>
+                {rowsWithLanes.map(
+                  ({ row, visibleSlots, laneById, lanesCount }) => (
+                    <div
+                      key={row.key}
+                      style={{
+                        position: 'relative',
+                        minWidth: days.length * CELL_WIDTH,
+                        padding: ROW_VERTICAL_PADDING,
+                        boxSizing: 'border-box',
+                        borderBottom: '1px solid #f0f0f0',
+                      }}
+                    >
+                      {/* сетка по дням */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: ROW_VERTICAL_PADDING,
+                          left: 0,
+                          right: 0,
+                          bottom: ROW_VERTICAL_PADDING,
+                          display: 'grid',
+                          gridTemplateColumns: `repeat(${days.length}, ${CELL_WIDTH}px)`,
+                          gridAutoRows: ROW_HEIGHT,
+                        }}
+                      >
+                        {days.map((d) => (
+                          <div
+                            key={d.toISOString()}
+                            style={{
+                              borderLeft: '1px solid #f5f5f5',
+                            }}
+                          />
+                        ))}
+                      </div>
+
+                      {/* слоты */}
+                      {visibleSlots.map((slot) => {
+                        const lane = laneById[slot.id] ?? 0;
+
+                        const slotStart = clampDateToRange(
+                          dayjs(slot.from),
+                          fromDate,
+                          toDate,
+                        );
+                        const slotEnd = clampDateToRange(
+                          dayjs(slot.to ?? slot.from),
+                          fromDate,
+                          toDate,
+                        );
+
+                        const startIndex = slotStart
+                          .startOf('day')
+                          .diff(fromDate.startOf('day'), 'day');
+                        const endIndex =
+                          slotEnd
+                            .startOf('day')
+                            .diff(fromDate.startOf('day'), 'day') + 1;
+
+                        const left = startIndex * CELL_WIDTH;
+                        const width = Math.max(
+                          (endIndex - startIndex) * CELL_WIDTH - 4,
+                          24,
+                        );
+
+                        const baseStartTime =
+                          dayjs(slot.from).format('HH:mm');
+                        const baseEndTime = slot.to
+                          ? dayjs(slot.to).format('HH:mm')
+                          : '';
+
+                        // интервал по дням – только текущий месяц
+                        const perDayLines: string[] = [];
+                        let dayCursor = slotStart.startOf('day');
+                        const lastDay = slotEnd.startOf('day');
+                        const currentMonth = fromDate.month();
+                        const currentYear = fromDate.year();
+
+                        while (
+                          dayCursor.isBefore(lastDay) ||
+                          dayCursor.isSame(lastDay, 'day')
+                        ) {
+                          if (
+                            dayCursor.month() === currentMonth &&
+                            dayCursor.year() === currentYear
+                          ) {
+                            perDayLines.push(
+                              `${dayCursor.format(
+                                'DD.MM',
+                              )}: ${baseStartTime}–${
+                                baseEndTime || '...'
+                              }`,
+                            );
+                          }
+                          dayCursor = dayCursor.add(1, 'day');
+                        }
+
+                        if (perDayLines.length === 0) {
+                          perDayLines.push(
+                            `${slotStart.format('DD.MM')}: ${baseStartTime}–${
+                              baseEndTime || '...'
+                            }`,
+                          );
+                        }
+
+                        const tooltipTitle = (
+                          <div>
+                            <div>
+                              <strong>
+                                {slot.workplace?.code
+                                  ? `${slot.workplace.code} — ${slot.workplace.name}`
+                                  : slot.workplace?.name ?? row.title}
+                              </strong>
+                            </div>
+                            <div>
+                              {t('planner.period', 'Период')}:&nbsp;
+                              {slotStart.format('DD.MM.YYYY')} —{' '}
+                              {slotEnd.format('DD.MM.YYYY')}
+                            </div>
+                            <div style={{ marginTop: 4 }}>
+                              {t(
+                                'planner.dailyIntervals',
+                                'Интервалы по дням:',
+                              )}
+                            </div>
+                            {perDayLines.map((line) => (
+                              <div key={line}>{line}</div>
+                            ))}
+                          </div>
+                        );
+
+                        const rawColor = slot.workplace?.color || undefined;
+                        const bgColor = rawColor || '#e6f7ff';
+                        const borderColor = rawColor || '#91d5ff';
+
+                        return (
+                          <Tooltip
+                            key={slot.id}
+                            title={tooltipTitle}
+                            placement="right"
+                            overlayStyle={{ maxWidth: 360 }}
+                            overlayInnerStyle={{
+                              maxHeight: 400,
+                              overflowY: 'auto',
+                            }}
+                          >
+                            <div
+                              style={{
+                                position: 'absolute',
+                                top:
+                                  ROW_VERTICAL_PADDING +
+                                  lane * ROW_HEIGHT +
+                                  1,
+                                left,
+                                width,
+                                height: ROW_HEIGHT - 6,
+                                borderRadius: 6,
+                                background: bgColor,
+                                border: `1px solid ${borderColor}`,
+                                padding: '4px 6px',
+                                boxSizing: 'border-box',
+                                overflow: 'hidden',
+                                whiteSpace: 'nowrap',
+                                textOverflow: 'ellipsis',
+                                cursor: 'default',
+                              }}
+                            >
+                              <span style={{ fontSize: 12 }}>
+                                {slot.code
+                                  ? `${slot.code} — ${slot.name}`
+                                  : slot.name ?? ''}
+                              </span>
+                            </div>
+                          </Tooltip>
+                        );
+                      })}
+
+                      {/* заполнитель высоты */}
+                      <div
+                        style={{
+                          height: lanesCount * ROW_HEIGHT,
+                        }}
+                      />
+                    </div>
+                  ),
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        )
       )}
     </Card>
   );
