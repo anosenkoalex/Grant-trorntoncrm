@@ -1,11 +1,16 @@
 import {
   Card,
+  Col,
   DatePicker,
   Form,
   Modal,
+  Progress,
   Result,
+  Row,
   Select,
+  Statistic,
   Table,
+  Tag,
   Typography,
   Calendar,
   Spin,
@@ -13,6 +18,16 @@ import {
   message,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import {
+  LineChart,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 import { useQuery } from '@tanstack/react-query';
 import dayjs, { Dayjs } from 'dayjs';
 import { useMemo, useState } from 'react';
@@ -20,6 +35,7 @@ import { useTranslation } from 'react-i18next';
 import {
   fetchUsers,
   fetchStatistics,
+  fetchKpi,
   fetchWorkReports,
   fetchWorkplaces,
 } from '../api/client.js';
@@ -30,8 +46,11 @@ import type {
   StatisticsRow,
   StatisticsResponse,
   WorkReport,
+  KpiResponse,
+  KpiByWorkplace,
 } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.js';
+import { MobileFilters } from '../components/MobileFilters.js';
 
 const { RangePicker } = DatePicker;
 
@@ -45,7 +64,6 @@ type FiltersState = {
 
 const statusOptions: AssignmentStatus[] = ['ACTIVE', 'ARCHIVED'];
 
-// Русские названия типов смен
 const shiftKindLabels: Record<ShiftKind, string> = {
   DEFAULT: 'Обычная смена',
   OFFICE: 'Офис',
@@ -54,10 +72,7 @@ const shiftKindLabels: Record<ShiftKind, string> = {
 };
 
 const shiftKindSelectOptions = (Object.keys(shiftKindLabels) as ShiftKind[]).map(
-  (k) => ({
-    value: k,
-    label: shiftKindLabels[k],
-  }),
+  (k) => ({ value: k, label: shiftKindLabels[k] }),
 );
 
 type EmployeeRow = {
@@ -66,7 +81,6 @@ type EmployeeRow = {
   assignmentsSummary: string;
   workingDays: number;
   totalHours: number;
-  /** Суммарные отчётные часы по WorkReport за период */
   reportedHours?: number | null;
 };
 
@@ -76,6 +90,202 @@ type DayWorkSummaryRow = {
   plannedHours: number;
   reportedHours: number;
 };
+
+/* ─────────────────── KPI Cards ─────────────────── */
+
+function KpiCards({ data, loading }: { data: KpiResponse | undefined; loading: boolean }) {
+  const kpi = data?.kpi;
+
+  const completionColor =
+    !kpi || kpi.completionRate === 0
+      ? '#d9d9d9'
+      : kpi.completionRate >= 90
+      ? '#52c41a'
+      : kpi.completionRate >= 60
+      ? '#faad14'
+      : '#ff4d4f';
+
+  return (
+    <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+      <Col xs={24} sm={12} md={6}>
+        <Card size="small" loading={loading}>
+          <Statistic
+            title="Сотрудников в периоде"
+            value={kpi?.totalEmployees ?? 0}
+            suffix="чел."
+          />
+        </Card>
+      </Col>
+
+      <Col xs={24} sm={12} md={6}>
+        <Card size="small" loading={loading}>
+          <Statistic
+            title="Плановые часы"
+            value={kpi ? kpi.totalPlannedHours.toFixed(1) : '—'}
+            suffix="ч"
+          />
+        </Card>
+      </Col>
+
+      <Col xs={24} sm={12} md={6}>
+        <Card size="small" loading={loading}>
+          <Statistic
+            title="Отчётные часы"
+            value={kpi ? kpi.totalReportedHours.toFixed(1) : '—'}
+            suffix="ч"
+          />
+        </Card>
+      </Col>
+
+      <Col xs={24} sm={12} md={6}>
+        <Card size="small" loading={loading}>
+          <div style={{ marginBottom: 4 }}>
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              Процент выполнения
+            </Typography.Text>
+          </div>
+          <Progress
+            type="circle"
+            size={72}
+            percent={kpi ? Math.round(kpi.completionRate) : 0}
+            strokeColor={completionColor}
+            format={(p) => `${p}%`}
+          />
+        </Card>
+      </Col>
+
+      <Col xs={24} sm={12} md={6}>
+        <Card size="small" loading={loading}>
+          <Statistic
+            title="Смен запланировано"
+            value={kpi?.totalShifts ?? 0}
+            suffix="шт."
+          />
+        </Card>
+      </Col>
+
+      <Col xs={24} sm={12} md={6}>
+        <Card
+          size="small"
+          loading={loading}
+          style={
+            kpi && kpi.missingReports > 0
+              ? { borderColor: '#ff7875', background: '#fff2f0' }
+              : undefined
+          }
+        >
+          <Statistic
+            title="Без отчёта (сотрудников)"
+            value={kpi?.missingReports ?? 0}
+            valueStyle={kpi && kpi.missingReports > 0 ? { color: '#cf1322' } : undefined}
+            suffix="чел."
+          />
+        </Card>
+      </Col>
+    </Row>
+  );
+}
+
+/* ─────────────────── Dynamics Chart ─────────────────── */
+
+function DynamicsChart({ data, loading }: { data: KpiResponse | undefined; loading: boolean }) {
+  if (loading) return <Spin style={{ display: 'block', margin: '32px auto' }} />;
+  if (!data?.dynamics?.length) {
+    return (
+      <Typography.Text type="secondary">
+        Нет данных для графика за выбранный период.
+      </Typography.Text>
+    );
+  }
+
+  const chartData = data.dynamics.map((d) => ({
+    date: dayjs(d.date).format('DD.MM'),
+    'Плановые ч.': Number(d.plannedHours.toFixed(2)),
+    'Отчётные ч.': Number(d.reportedHours.toFixed(2)),
+  }));
+
+  return (
+    <ResponsiveContainer width="100%" height={260}>
+      <LineChart data={chartData} margin={{ top: 4, right: 24, left: 0, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+        <YAxis tick={{ fontSize: 11 }} unit=" ч" width={52} />
+        <Tooltip formatter={(v) => [`${v} ч`]} />
+        <Legend />
+        <Line
+          type="monotone"
+          dataKey="Плановые ч."
+          stroke="#1677ff"
+          dot={false}
+          strokeWidth={2}
+        />
+        <Line
+          type="monotone"
+          dataKey="Отчётные ч."
+          stroke="#52c41a"
+          dot={false}
+          strokeWidth={2}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+}
+
+/* ─────────────────── Workplace Summary Table ─────────────────── */
+
+const workplaceColumns: ColumnsType<KpiByWorkplace> = [
+  {
+    title: 'Рабочее место',
+    dataIndex: 'workplaceName',
+    key: 'workplaceName',
+    render: (v: string | null, r) => v ?? r.workplaceId,
+    sorter: (a, b) => (a.workplaceName ?? '').localeCompare(b.workplaceName ?? ''),
+  },
+  {
+    title: 'Сотрудников',
+    dataIndex: 'employeeCount',
+    key: 'employeeCount',
+    align: 'right',
+    sorter: (a, b) => a.employeeCount - b.employeeCount,
+  },
+  {
+    title: 'Смен',
+    dataIndex: 'shiftCount',
+    key: 'shiftCount',
+    align: 'right',
+    sorter: (a, b) => a.shiftCount - b.shiftCount,
+  },
+  {
+    title: 'Плановые ч.',
+    dataIndex: 'plannedHours',
+    key: 'plannedHours',
+    align: 'right',
+    render: (v: number) => v.toFixed(1),
+    sorter: (a, b) => a.plannedHours - b.plannedHours,
+  },
+  {
+    title: 'Отчётные ч.',
+    dataIndex: 'reportedHours',
+    key: 'reportedHours',
+    align: 'right',
+    render: (v: number) => v.toFixed(1),
+    sorter: (a, b) => a.reportedHours - b.reportedHours,
+  },
+  {
+    title: 'Выполнение',
+    dataIndex: 'completionRate',
+    key: 'completionRate',
+    align: 'right',
+    sorter: (a, b) => a.completionRate - b.completionRate,
+    render: (v: number) => {
+      const pct = Math.round(v);
+      const color = pct >= 90 ? 'success' : pct >= 60 ? 'warning' : 'error';
+      return <Tag color={color}>{pct}%</Tag>;
+    },
+  },
+];
+
+/* ─────────────────── Main Page ─────────────────── */
 
 const StatisticsPage = () => {
   const { t } = useTranslation();
@@ -89,26 +299,22 @@ const StatisticsPage = () => {
     dayjs().endOf('month'),
   ];
 
-  const [filters, setFilters] = useState<FiltersState>({
-    range: defaultRange,
-  });
-
+  const [filters, setFilters] = useState<FiltersState>({ range: defaultRange });
   const [detailsUserId, setDetailsUserId] = useState<string | null>(null);
   const [detailsUserName, setDetailsUserName] = useState<string>('');
-
   const [isExporting, setIsExporting] = useState(false);
-
   const [reportUserId, setReportUserId] = useState<string | null>(null);
   const [reportUserName, setReportUserName] = useState<string>('');
-  const [selectedReportDate, setSelectedReportDate] = useState<Dayjs | null>(
-    null,
-  );
+  const [selectedReportDate, setSelectedReportDate] = useState<Dayjs | null>(null);
 
   if (!canViewStatistics) {
     return <Result status="403" title={t('admin.accessDenied')} />;
   }
 
-  /* ---------- справочник пользователей ---------- */
+  const effectiveFrom = filters.range?.[0] ?? defaultRange[0];
+  const effectiveTo = filters.range?.[1] ?? defaultRange[1];
+
+  /* ── справочники ── */
 
   const usersQuery = useQuery<User[]>({
     queryKey: ['users', 'all-for-statistics'],
@@ -119,25 +325,38 @@ const StatisticsPage = () => {
     enabled: canViewStatistics,
   });
 
-  /* ---------- справочник рабочих мест ---------- */
-
   const workplacesQuery = useQuery({
     queryKey: ['workplaces', 'all-for-statistics'],
     queryFn: async () => {
-      const res = await fetchWorkplaces({
-        page: 1,
-        pageSize: 1000,
-        isActive: true,
-      });
-      return res.data.items;
+      const res = await fetchWorkplaces({ page: 1, pageSize: 1000, isActive: true });
+      return (res as any).data?.items ?? (res as any).items ?? res.data ?? [];
     },
     enabled: canViewStatistics,
   });
 
-  const effectiveFrom = filters.range?.[0] ?? defaultRange[0];
-  const effectiveTo = filters.range?.[1] ?? defaultRange[1];
+  /* ── KPI ── */
 
-  /* ---------- основная статистика ---------- */
+  const kpiQuery = useQuery<KpiResponse>({
+    queryKey: [
+      'statistics-kpi',
+      {
+        userId: filters.userId,
+        workplaceId: filters.workplaceId,
+        from: effectiveFrom.format('YYYY-MM-DD'),
+        to: effectiveTo.format('YYYY-MM-DD'),
+      },
+    ],
+    queryFn: () =>
+      fetchKpi({
+        from: effectiveFrom.format('YYYY-MM-DD'),
+        to: effectiveTo.format('YYYY-MM-DD'),
+        userId: filters.userId,
+        workplaceId: filters.workplaceId,
+      }),
+    enabled: canViewStatistics,
+  });
+
+  /* ── основная статистика ── */
 
   const statisticsQuery = useQuery<StatisticsResponse>({
     queryKey: [
@@ -156,14 +375,12 @@ const StatisticsPage = () => {
         userId: filters.userId,
         workplaceId: filters.workplaceId,
       }),
-    keepPreviousData: true,
     enabled: canViewStatistics,
   });
 
   const statistics = statisticsQuery.data;
   const allRows: StatisticsRow[] = statistics?.rows ?? [];
 
-  // Мапа суммарных отчётных часов по пользователю (backend: StatisticsResponse.byUser[].reportedHour)
   const reportedHoursByUser = useMemo(() => {
     const map: Record<string, number | null> = {};
     if (!statistics?.byUser) return map;
@@ -173,73 +390,43 @@ const StatisticsPage = () => {
     return map;
   }, [statistics]);
 
-  /* ---------- опции рабочих мест для фильтра ---------- */
-
   const workplaceOptions = useMemo(() => {
     const map: Record<string, string> = {};
     for (const row of allRows) {
       if (!row.workplaceId) continue;
-      if (!map[row.workplaceId]) {
-        map[row.workplaceId] = row.workplaceName ?? row.workplaceId;
-      }
+      if (!map[row.workplaceId]) map[row.workplaceId] = row.workplaceName ?? row.workplaceId;
     }
-    return Object.entries(map).map(([id, name]) => ({
-      value: id,
-      label: name,
-    }));
+    return Object.entries(map).map(([id, name]) => ({ value: id, label: name }));
   }, [allRows]);
 
   const workplaceNameById = useMemo(() => {
     const map: Record<string, string> = {};
-
-    // из строк статистики
     for (const row of allRows) {
       if (!row.workplaceId) continue;
-      if (!map[row.workplaceId]) {
-        map[row.workplaceId] = row.workplaceName ?? row.workplaceId;
-      }
+      if (!map[row.workplaceId]) map[row.workplaceId] = row.workplaceName ?? row.workplaceId;
     }
-
-    // из справочника рабочих мест (код / имя)
-    const workplaces = workplacesQuery.data ?? [];
-    for (const w of workplaces) {
-      if (!map[w.id]) {
-        map[w.id] = (w.code || w.name || w.id).toString();
-      }
+    for (const w of workplacesQuery.data ?? []) {
+      if (!map[w.id]) map[w.id] = (w.code || w.name || w.id).toString();
     }
-
     return map;
   }, [allRows, workplacesQuery.data]);
 
-  /* ---------- фильтры по статусу и типу смены (на фронте) ---------- */
-
   const filteredRows: StatisticsRow[] = useMemo(() => {
     return allRows.filter((row) => {
-      if (filters.status && row.assignmentStatus !== filters.status) {
-        return false;
-      }
-      if (
-        filters.kinds &&
-        filters.kinds.length > 0 &&
-        !filters.kinds.includes(row.shiftKind as ShiftKind)
-      ) {
-        return false;
-      }
+      if (filters.status && row.assignmentStatus !== filters.status) return false;
+      if (filters.kinds?.length && !filters.kinds.includes(row.shiftKind as ShiftKind)) return false;
       return true;
     });
   }, [allRows, filters.status, filters.kinds]);
 
-  /* ---------- агрегат по сотрудникам ---------- */
+  /* ── агрегат по сотрудникам ── */
 
   const employeesData: EmployeeRow[] = useMemo(() => {
     const byUser: Record<
       string,
       {
         name: string;
-        assignments: Record<
-          string,
-          { workplaceName: string; minDate: string; maxDate: string }
-        >;
+        assignments: Record<string, { workplaceName: string; minDate: string; maxDate: string }>;
         daysSet: Set<string>;
         totalHours: number;
       }
@@ -248,38 +435,21 @@ const StatisticsPage = () => {
     for (const row of filteredRows) {
       const uid = row.userId;
       if (!uid) continue;
-
-      // дата для отображения – считаем от startsAt, а не от row.date,
-      // чтобы не ловить сдвиги и странные значения в "date"
       const displayDate = dayjs(row.startsAt ?? row.date).format('YYYY-MM-DD');
 
       if (!byUser[uid]) {
-        byUser[uid] = {
-          name: row.userName ?? row.userId,
-          assignments: {},
-          daysSet: new Set<string>(),
-          totalHours: 0,
-        };
+        byUser[uid] = { name: row.userName ?? row.userId, assignments: {}, daysSet: new Set(), totalHours: 0 };
       }
 
       const userAgg = byUser[uid];
-
-      // дни
       userAgg.daysSet.add(displayDate);
-
-      // часы
       userAgg.totalHours += row.hours;
 
-      // группируем по рабочему месту: 111 20.11–28.11
       const key = row.workplaceId;
       const workplaceName = row.workplaceName ?? 'Без названия';
 
       if (!userAgg.assignments[key]) {
-        userAgg.assignments[key] = {
-          workplaceName,
-          minDate: displayDate,
-          maxDate: displayDate,
-        };
+        userAgg.assignments[key] = { workplaceName, minDate: displayDate, maxDate: displayDate };
       } else {
         const a = userAgg.assignments[key];
         if (dayjs(displayDate).isBefore(a.minDate)) a.minDate = displayDate;
@@ -289,14 +459,8 @@ const StatisticsPage = () => {
 
     return Object.entries(byUser).map(([userId, agg]) => {
       const assignmentsSummary = Object.values(agg.assignments)
-        .map((a) => {
-          const from = dayjs(a.minDate).format('DD.MM.YYYY');
-          const to = dayjs(a.maxDate).format('DD.MM.YYYY');
-          return `${a.workplaceName} ${from}–${to}`;
-        })
+        .map((a) => `${a.workplaceName} ${dayjs(a.minDate).format('DD.MM.YYYY')}–${dayjs(a.maxDate).format('DD.MM.YYYY')}`)
         .join('; ');
-
-      const reported = reportedHoursByUser[userId] ?? null;
 
       return {
         userId,
@@ -304,39 +468,28 @@ const StatisticsPage = () => {
         assignmentsSummary,
         workingDays: agg.daysSet.size,
         totalHours: Number(agg.totalHours.toFixed(2)),
-        reportedHours: reported,
+        reportedHours: reportedHoursByUser[userId] ?? null,
       };
     });
   }, [filteredRows, reportedHoursByUser]);
 
-  /* ---------- данные для модалки по сотруднику ---------- */
+  /* ── детализация по сотруднику ── */
 
   const detailsRows = useMemo(() => {
     if (!detailsUserId) return [];
-
     const rows = filteredRows.filter((r) => r.userId === detailsUserId);
-
-    // сначала активные, потом архив
     const statusOrder = (s: AssignmentStatus) => (s === 'ACTIVE' ? 0 : 1);
-
     return rows.slice().sort((a, b) => {
-      // 1) по статусу (ACTIVE сверху)
-      const so =
-        statusOrder(a.assignmentStatus) - statusOrder(b.assignmentStatus);
+      const so = statusOrder(a.assignmentStatus) - statusOrder(b.assignmentStatus);
       if (so !== 0) return so;
-
-      // 2) по дате (раньше — выше)
       const da = dayjs(a.startsAt ?? a.date);
       const db = dayjs(b.startsAt ?? b.date);
       if (da.isBefore(db)) return -1;
       if (da.isAfter(db)) return 1;
-
-      // 3) по времени внутри дня
       return dayjs(a.startsAt).diff(dayjs(b.startsAt));
     });
   }, [filteredRows, detailsUserId]);
 
-  // Сумма плановых часов по датам для выбранного пользователя (для календаря отчётов)
   const plannedHoursByDateForReportUser = useMemo(() => {
     const map: Record<string, number> = {};
     if (!reportUserId) return map;
@@ -348,15 +501,10 @@ const StatisticsPage = () => {
     return map;
   }, [filteredRows, reportUserId]);
 
-  // Загрузка отчётных часов для выбранного пользователя (для календаря)
   const workReportsQuery = useQuery<WorkReport[]>({
     queryKey: [
       'workReports',
-      {
-        userId: reportUserId,
-        from: effectiveFrom.format('YYYY-MM-DD'),
-        to: effectiveTo.format('YYYY-MM-DD'),
-      },
+      { userId: reportUserId, from: effectiveFrom.format('YYYY-MM-DD'), to: effectiveTo.format('YYYY-MM-DD') },
     ],
     queryFn: () =>
       fetchWorkReports({
@@ -367,31 +515,23 @@ const StatisticsPage = () => {
     enabled: !!reportUserId,
   });
 
-  const handleExport = async () => {
-    if (!statistics) {
-      message.error('Нет данных для экспорта');
-      return;
-    }
+  /* ── экспорт ── */
 
-    // Диапазон дат
+  const handleExport = async () => {
+    if (!statistics) { message.error('Нет данных для экспорта'); return; }
+
     const start = effectiveFrom.startOf('day');
     const end = effectiveTo.startOf('day');
-
     const days: Dayjs[] = [];
     let cursor = start.clone();
     while (cursor.isSame(end, 'day') || cursor.isBefore(end, 'day')) {
       days.push(cursor);
       cursor = cursor.add(1, 'day');
     }
-
-    if (!days.length) {
-      message.error('Неверный период для экспорта');
-      return;
-    }
+    if (!days.length) { message.error('Неверный период для экспорта'); return; }
 
     setIsExporting(true);
     try {
-      // Загружаем все отчёты по часам для выбранного диапазона и фильтров
       const workReports = await fetchWorkReports({
         from: effectiveFrom.format('YYYY-MM-DD'),
         to: effectiveTo.format('YYYY-MM-DD'),
@@ -399,294 +539,139 @@ const StatisticsPage = () => {
         workplaceId: filters.workplaceId,
       });
 
-      // Карта имён сотрудников
       const userNameById: Record<string, string> = {};
       (usersQuery.data ?? []).forEach((u) => {
-        const full = (u.fullName ?? '').trim();
-        userNameById[u.id] = full || u.email || u.id;
+        userNameById[u.id] = (u.fullName ?? '').trim() || u.email || u.id;
       });
-      allRows.forEach((row) => {
-        if (!userNameById[row.userId]) {
-          userNameById[row.userId] = row.userName ?? row.userId;
-        }
-      });
+      allRows.forEach((row) => { if (!userNameById[row.userId]) userNameById[row.userId] = row.userName ?? row.userId; });
       workReports.forEach((wr) => {
         if (!userNameById[wr.userId] && wr.user) {
-          const full = (wr.user.fullName ?? '').trim();
-          userNameById[wr.user.id] = full || wr.user.email || wr.user.id;
+          userNameById[wr.user.id] = (wr.user.fullName ?? '').trim() || wr.user.email || wr.user.id;
         }
       });
 
-      // Карта названий рабочих мест
       const workplaceNameByIdExport: Record<string, string> = {};
-      allRows.forEach((row) => {
-        if (row.workplaceId) {
-          workplaceNameByIdExport[row.workplaceId] =
-            row.workplaceName ?? row.workplaceId;
-        }
-      });
-      workReports.forEach((wr) => {
-        if (wr.workplaceId) {
-          workplaceNameByIdExport[wr.workplaceId] =
-            wr.workplace?.name ?? wr.workplace?.code ?? wr.workplaceId;
-        }
-      });
+      allRows.forEach((row) => { if (row.workplaceId) workplaceNameByIdExport[row.workplaceId] = row.workplaceName ?? row.workplaceId; });
+      workReports.forEach((wr) => { if (wr.workplaceId) workplaceNameByIdExport[wr.workplaceId] = wr.workplace?.name ?? wr.workplace?.code ?? wr.workplaceId; });
 
-      // Собираем всех сотрудников для экспорта
       const userIds = new Set<string>();
-
-      // Базово берём только тех, кто есть в таблице статистики (filteredRows)
       filteredRows.forEach((row) => userIds.add(row.userId));
 
       if (filters.workplaceId) {
-        // Если выбран фильтр по рабочему месту — оставляем только тех,
-        // у кого есть отчётные часы по этому рабочему месту
-        const hasWorkOnFilteredPlace: Record<string, boolean> = {};
-        workReports.forEach((wr) => {
-          if (!wr.hours) return;
-          if (wr.workplaceId === filters.workplaceId) {
-            hasWorkOnFilteredPlace[wr.userId] = true;
-          }
-        });
-
-        Array.from(userIds).forEach((uid) => {
-          if (!hasWorkOnFilteredPlace[uid]) {
-            userIds.delete(uid);
-          }
-        });
+        const hasWork: Record<string, boolean> = {};
+        workReports.forEach((wr) => { if (wr.hours && wr.workplaceId === filters.workplaceId) hasWork[wr.userId] = true; });
+        Array.from(userIds).forEach((uid) => { if (!hasWork[uid]) userIds.delete(uid); });
       }
 
-      if (!userIds.size) {
-        message.warning('Нет данных по сотрудникам за выбранный период');
-        return;
-      }
+      if (!userIds.size) { message.warning('Нет данных по сотрудникам за выбранный период'); return; }
 
-      // Плановые часы: userId -> date -> workplaceId -> hours
-      const planMap: Record<
-        string,
-        Record<string, Record<string, number>>
-      > = {};
+      const planMap: Record<string, Record<string, Record<string, number>>> = {};
       filteredRows.forEach((row) => {
         const uid = row.userId;
         const dateKey = dayjs(row.startsAt ?? row.date).format('YYYY-MM-DD');
         const wid = row.workplaceId;
         if (!planMap[uid]) planMap[uid] = {};
         if (!planMap[uid][dateKey]) planMap[uid][dateKey] = {};
-        planMap[uid][dateKey][wid] =
-          (planMap[uid][dateKey][wid] ?? 0) + row.hours;
+        planMap[uid][dateKey][wid] = (planMap[uid][dateKey][wid] ?? 0) + row.hours;
       });
 
-      // Отчётные часы: userId -> date -> workplaceId -> hours
-      const reportMap: Record<
-        string,
-        Record<string, Record<string, number>>
-      > = {};
+      const reportMap: Record<string, Record<string, Record<string, number>>> = {};
       workReports.forEach((wr) => {
         const uid = wr.userId;
         const dateKey = wr.date;
-
-        let intervals:
-          | { workplaceId: string | null; hours: number | null }[]
-          | null = null;
+        let intervals: { workplaceId: string | null; hours: number | null }[] | null = null;
         const rawComment = (wr.comment ?? '').trim();
-
         if (rawComment.startsWith('{')) {
           try {
             const parsed = JSON.parse(rawComment) as any;
             if (parsed && Array.isArray(parsed.intervals)) {
               intervals = parsed.intervals.map((it: any) => ({
-                workplaceId:
-                  typeof it.workplaceId === 'string'
-                    ? it.workplaceId
-                    : wr.workplaceId ?? null,
-                hours:
-                  typeof it.hours === 'number'
-                    ? it.hours
-                    : Number.isFinite(Number(it.hours))
-                    ? Number(it.hours)
-                    : null,
+                workplaceId: typeof it.workplaceId === 'string' ? it.workplaceId : wr.workplaceId ?? null,
+                hours: typeof it.hours === 'number' ? it.hours : Number.isFinite(Number(it.hours)) ? Number(it.hours) : null,
               }));
             }
-          } catch {
-            // ignore parse errors, fallback to single interval
-          }
+          } catch { /* skip */ }
         }
-
-        if (!intervals) {
-          intervals = [
-            {
-              workplaceId: wr.workplaceId ?? null,
-              hours: wr.hours,
-            },
-          ];
-        }
-
+        if (!intervals) intervals = [{ workplaceId: wr.workplaceId ?? null, hours: wr.hours }];
         intervals.forEach((interval) => {
           if (interval.hours == null) return;
           const wid = interval.workplaceId ?? 'unknown';
           if (!reportMap[uid]) reportMap[uid] = {};
           if (!reportMap[uid][dateKey]) reportMap[uid][dateKey] = {};
-          reportMap[uid][dateKey][wid] =
-            (reportMap[uid][dateKey][wid] ?? 0) + interval.hours;
+          reportMap[uid][dateKey][wid] = (reportMap[uid][dateKey][wid] ?? 0) + interval.hours;
         });
       });
 
-      // Итоги по рабочим местам: userId -> workplaceId -> { planned, reported }
-      const totalByUserWorkplace: Record<
-        string,
-        Record<string, { planned: number; reported: number }>
-      > = {};
-
+      const totalByUserWorkplace: Record<string, Record<string, { planned: number; reported: number }>> = {};
       const ensureTotalEntry = (uid: string, wid: string) => {
-        if (!totalByUserWorkplace[uid]) {
-          totalByUserWorkplace[uid] = {};
-        }
-        if (!totalByUserWorkplace[uid][wid]) {
-          totalByUserWorkplace[uid][wid] = { planned: 0, reported: 0 };
-        }
+        if (!totalByUserWorkplace[uid]) totalByUserWorkplace[uid] = {};
+        if (!totalByUserWorkplace[uid][wid]) totalByUserWorkplace[uid][wid] = { planned: 0, reported: 0 };
       };
-
-      // Считаем плановые суммы
       Object.entries(planMap).forEach(([uid, byDate]) => {
         Object.values(byDate).forEach((byWorkplace) => {
-          Object.entries(byWorkplace).forEach(([wid, hours]) => {
-            ensureTotalEntry(uid, wid);
-            totalByUserWorkplace[uid][wid].planned += hours;
-          });
+          Object.entries(byWorkplace).forEach(([wid, hours]) => { ensureTotalEntry(uid, wid); totalByUserWorkplace[uid][wid].planned += hours; });
         });
       });
-
-      // Считаем отчётные суммы
       Object.entries(reportMap).forEach(([uid, byDate]) => {
         Object.values(byDate).forEach((byWorkplace) => {
-          Object.entries(byWorkplace).forEach(([wid, hours]) => {
-            ensureTotalEntry(uid, wid);
-            totalByUserWorkplace[uid][wid].reported += hours;
-          });
+          Object.entries(byWorkplace).forEach(([wid, hours]) => { ensureTotalEntry(uid, wid); totalByUserWorkplace[uid][wid].reported += hours; });
         });
       });
 
-      const formatHours = (value: number) => {
-        if (!value) return '0';
-        return Number.isInteger(value) ? String(value) : value.toFixed(2);
+      const fmtH = (v: number) => (!v ? '0' : Number.isInteger(v) ? String(v) : v.toFixed(2));
+      const esc = (v: string | number | null | undefined) => {
+        if (v === null || v === undefined) return '';
+        const s = String(v);
+        return /[";,]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
       };
-
-      const escapeCsv = (value: string | number | null | undefined) => {
-        if (value === null || value === undefined) return '';
-        const str = String(value);
-        if (/[";,]/.test(str)) {
-          return '"' + str.replace(/"/g, '""') + '"';
-        }
-        return str;
-      };
-
-      // Заголовок: сотрудник + даты + итоги
-      const header = ['Сотрудник', ...days.map((d) => d.format('DD.MM'))];
 
       const lines: string[] = [];
-      lines.push(header.map(escapeCsv).join(';'));
+      lines.push(['Сотрудник', ...days.map((d) => d.format('DD.MM'))].map(esc).join(';'));
 
-      // Строим строки по сотрудникам
       Array.from(userIds).forEach((uid) => {
-        const rowCells: (string | number)[] = [];
-        const name = userNameById[uid] ?? uid;
-        rowCells.push(name);
-
+        const rowCells: (string | number)[] = [userNameById[uid] ?? uid];
         days.forEach((d) => {
           const dateKey = d.format('YYYY-MM-DD');
           const plannedByWorkplace = planMap[uid]?.[dateKey] ?? {};
           const reportedByWorkplace = reportMap[uid]?.[dateKey] ?? {};
-
-          const wids = new Set<string>([
-            ...Object.keys(plannedByWorkplace),
-            ...Object.keys(reportedByWorkplace),
-          ]);
-
+          const wids = new Set<string>([...Object.keys(plannedByWorkplace), ...Object.keys(reportedByWorkplace)]);
           const parts: string[] = [];
           wids.forEach((wid) => {
             const planned = plannedByWorkplace[wid] ?? 0;
             const reported = reportedByWorkplace[wid] ?? 0;
             if (!planned && !reported) return;
-            const wname =
-              workplaceNameByIdExport[wid] ??
-              (wid === 'unknown' ? 'Без рабочего места' : wid);
-            parts.push(
-              `${wname}: план ${formatHours(planned)}, отчёт ${formatHours(
-                reported,
-              )}`,
-            );
+            const wname = workplaceNameByIdExport[wid] ?? (wid === 'unknown' ? 'Без рабочего места' : wid);
+            parts.push(`${wname}: план ${fmtH(planned)}, отчёт ${fmtH(reported)}`);
           });
-
           rowCells.push(parts.join(' | '));
         });
-
-        lines.push(rowCells.map(escapeCsv).join(';'));
+        lines.push(rowCells.map(esc).join(';'));
       });
 
-      // Вторая таблица: итоги по рабочим местам
-      // Собираем список всех рабочих мест, по которым есть план или отчёт
-      const allWorkplaceIdsSet = new Set<string>();
-      Object.values(totalByUserWorkplace).forEach((byWorkplace) => {
-        Object.keys(byWorkplace).forEach((wid) => {
-          allWorkplaceIdsSet.add(wid);
-        });
-      });
-      const allWorkplaceIds = Array.from(allWorkplaceIdsSet).filter(
-        (wid) => wid !== 'unknown',
-      );
+      const allWidsSet = new Set<string>();
+      Object.values(totalByUserWorkplace).forEach((bw) => Object.keys(bw).forEach((wid) => allWidsSet.add(wid)));
+      const allWids = Array.from(allWidsSet).filter((w) => w !== 'unknown');
 
-      if (allWorkplaceIds.length) {
-        // Пустая строка-разделитель
+      if (allWids.length) {
         lines.push('');
-
-        // Заголовок раздела
-        lines.push(escapeCsv('Итого по рабочим местам'));
-
-        // Шапка: Сотрудник + рабочие места
-        const workplaceHeader: string[] = ['Сотрудник'];
-        allWorkplaceIds.forEach((wid) => {
-          const wname =
-            workplaceNameByIdExport[wid] ??
-            (wid === 'unknown' ? 'Без рабочего места' : wid);
-          workplaceHeader.push(wname);
-        });
-        lines.push(workplaceHeader.map(escapeCsv).join(';'));
-
-        // Строки по сотрудникам
+        lines.push(esc('Итого по рабочим местам'));
+        lines.push(['Сотрудник', ...allWids.map((wid) => workplaceNameByIdExport[wid] ?? wid)].map(esc).join(';'));
         Array.from(userIds).forEach((uid) => {
           const totals = totalByUserWorkplace[uid];
-          const rowCells: string[] = [];
-          const name = userNameById[uid] ?? uid;
-          rowCells.push(name);
-
-          allWorkplaceIds.forEach((wid) => {
+          const rowCells = [userNameById[uid] ?? uid, ...allWids.map((wid) => {
             const val = totals?.[wid];
-            if (!val || (!val.planned && !val.reported)) {
-              rowCells.push('');
-              return;
-            }
-            rowCells.push(
-              `План ${formatHours(val.planned)}, отчёт ${formatHours(
-                val.reported,
-              )}`,
-            );
-          });
-
-          lines.push(rowCells.map(escapeCsv).join(';'));
+            if (!val || (!val.planned && !val.reported)) return '';
+            return `План ${fmtH(val.planned)}, отчёт ${fmtH(val.reported)}`;
+          })];
+          lines.push(rowCells.map(esc).join(';'));
         });
       }
 
-      const csvContent = '\uFEFF' + lines.join('\r\n');
-      const blob = new Blob([csvContent], {
-        type: 'text/csv;charset=utf-8;',
-      });
-
+      const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `statistics_${effectiveFrom.format(
-        'YYYY-MM-DD',
-      )}_${effectiveTo.format('YYYY-MM-DD')}.csv`;
+      link.download = `statistics_${effectiveFrom.format('YYYY-MM-DD')}_${effectiveTo.format('YYYY-MM-DD')}.csv`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -703,162 +688,85 @@ const StatisticsPage = () => {
     const map: Record<string, number> = {};
     if (!workReportsQuery.data) return map;
     for (const wr of workReportsQuery.data) {
-      const key = wr.date;
-      map[key] = (map[key] ?? 0) + wr.hours;
+      map[wr.date] = (map[wr.date] ?? 0) + wr.hours;
     }
     return map;
   }, [workReportsQuery.data]);
 
   const daySummaryRows: DayWorkSummaryRow[] = useMemo(() => {
-    if (!reportUserId || !selectedReportDate) {
-      return [];
-    }
+    if (!reportUserId || !selectedReportDate) return [];
 
     const targetDate = selectedReportDate.format('YYYY-MM-DD');
-
-    // Плановые часы по рабочим местам на выбранную дату (из назначений)
-    const plannedByWorkplace: Record<
-      string,
-      { workplaceName: string; hours: number }
-    > = {};
+    const plannedByWorkplace: Record<string, { workplaceName: string; hours: number }> = {};
 
     filteredRows.forEach((row) => {
       if (row.userId !== reportUserId) return;
-
-      const dateKey = dayjs(row.startsAt ?? row.date).format('YYYY-MM-DD');
-      if (dateKey !== targetDate) return;
-
+      if (dayjs(row.startsAt ?? row.date).format('YYYY-MM-DD') !== targetDate) return;
       const wid = row.workplaceId ?? 'unknown';
       const name = row.workplaceName ?? row.workplaceId ?? '—';
-
-      if (!plannedByWorkplace[wid]) {
-        plannedByWorkplace[wid] = { workplaceName: name, hours: 0 };
-      }
-
+      if (!plannedByWorkplace[wid]) plannedByWorkplace[wid] = { workplaceName: name, hours: 0 };
       plannedByWorkplace[wid].hours += row.hours;
     });
 
     const plannedKeys = Object.keys(plannedByWorkplace);
-
-    // Отчётные часы по рабочим местам на выбранную дату (из WorkReport)
     const reportedByWorkplace: Record<string, number> = {};
 
-    const addReported = (
-      rawWorkplaceId: string | null | undefined,
-      rawHours: number | null | undefined,
-      wr: WorkReport,
-    ) => {
+    const addReported = (rawWid: string | null | undefined, rawHours: number | null | undefined, wr: WorkReport) => {
       if (rawHours == null) return;
-
       const hours = Number(rawHours);
       if (!Number.isFinite(hours) || hours <= 0) return;
-
-      let wid = rawWorkplaceId ?? null;
-
-      // Если в отчёте нет рабочего места, но в плане оно одно — считаем, что отчёт по нему
-      if (!wid && plannedKeys.length === 1) {
-        wid = plannedKeys[0];
-      }
-
+      let wid = rawWid ?? null;
+      if (!wid && plannedKeys.length === 1) wid = plannedKeys[0];
       const key = wid ?? 'unknown';
-
       reportedByWorkplace[key] = (reportedByWorkplace[key] ?? 0) + hours;
-
-      // Если по этому рабочему месту не было плана, но есть название у репорта — добавим строку плана с 0 часами,
-      // чтобы в таблице было нормальное имя, а не просто id.
       if (!plannedByWorkplace[key]) {
-        const displayName =
-          wr.workplace?.name ??
-          workplaceNameById[key] ??
-          (key === 'unknown' ? 'Без рабочего места' : key);
-        plannedByWorkplace[key] = { workplaceName: displayName, hours: 0 };
+        plannedByWorkplace[key] = {
+          workplaceName: wr.workplace?.name ?? workplaceNameById[key] ?? (key === 'unknown' ? 'Без рабочего места' : key),
+          hours: 0,
+        };
       }
     };
 
     (workReportsQuery.data ?? []).forEach((wr) => {
-      if (!wr) return;
-      if (wr.userId !== reportUserId) return;
-      if (wr.date !== targetDate) return;
-
+      if (!wr || wr.userId !== reportUserId || wr.date !== targetDate) return;
       const rawComment = (wr.comment ?? '').trim();
       let usedIntervals = false;
-
-      // Пытаемся вытащить интервалы из comment как JSON { intervals: [{ workplaceId, hours }, ...] }
       if (rawComment.startsWith('{')) {
         try {
           const parsed: any = JSON.parse(rawComment);
           if (parsed && Array.isArray(parsed.intervals)) {
             parsed.intervals.forEach((it: any) => {
-              const wid =
-                typeof it?.workplaceId === 'string'
-                  ? it.workplaceId
-                  : wr.workplaceId ?? null;
-
-              const hrs =
-                typeof it?.hours === 'number'
-                  ? it.hours
-                  : Number.isFinite(Number(it?.hours))
-                  ? Number(it.hours)
-                  : null;
-
-              if (hrs != null) {
-                usedIntervals = true;
-                addReported(wid, hrs, wr);
-              }
+              const wid = typeof it?.workplaceId === 'string' ? it.workplaceId : wr.workplaceId ?? null;
+              const hrs = typeof it?.hours === 'number' ? it.hours : Number.isFinite(Number(it?.hours)) ? Number(it.hours) : null;
+              if (hrs != null) { usedIntervals = true; addReported(wid, hrs, wr); }
             });
           }
-        } catch {
-          // Игнорируем ошибки парсинга и падаем в дефолтный сценарий
-        }
+        } catch { /* skip */ }
       }
-
-      // Если интервалы не распарсились — считаем как один отчёт по wr.workplaceId
-      if (!usedIntervals) {
-        addReported(wr.workplaceId, wr.hours, wr);
-      }
+      if (!usedIntervals) addReported(wr.workplaceId, wr.hours, wr);
     });
 
-    const allIds = new Set<string>([
-      ...Object.keys(plannedByWorkplace),
-      ...Object.keys(reportedByWorkplace),
-    ]);
-
+    const allIds = new Set<string>([...Object.keys(plannedByWorkplace), ...Object.keys(reportedByWorkplace)]);
     const rows: DayWorkSummaryRow[] = [];
-
     allIds.forEach((wid) => {
       const planned = plannedByWorkplace[wid];
       const plannedHours = planned?.hours ?? 0;
       const reportedHours = reportedByWorkplace[wid] ?? 0;
-
-      if (plannedHours === 0 && reportedHours === 0) {
-        return;
-      }
-
-      const displayName =
-        planned?.workplaceName ??
-        workplaceNameById[wid] ??
-        (wid === 'unknown' ? 'Без рабочего места' : wid);
-
+      if (!plannedHours && !reportedHours) return;
       rows.push({
         workplaceId: wid,
-        workplaceName: displayName,
+        workplaceName: planned?.workplaceName ?? workplaceNameById[wid] ?? (wid === 'unknown' ? 'Без рабочего места' : wid),
         plannedHours,
         reportedHours,
       });
     });
-
     return rows;
-  }, [
-    reportUserId,
-    selectedReportDate,
-    filteredRows,
-    workReportsQuery.data,
-    workplaceNameById,
-  ]);
+  }, [reportUserId, selectedReportDate, filteredRows, workReportsQuery.data, workplaceNameById]);
 
   const isLoading = statisticsQuery.isLoading || usersQuery.isLoading;
+  const isKpiLoading = kpiQuery.isLoading;
 
-  /* ---------- колонки ---------- */
+  /* ── колонки ── */
 
   const employeesColumns: ColumnsType<EmployeeRow> = [
     {
@@ -866,12 +774,7 @@ const StatisticsPage = () => {
       dataIndex: 'name',
       key: 'name',
       render: (value: string, record) => (
-        <a
-          onClick={() => {
-            setDetailsUserId(record.userId);
-            setDetailsUserName(record.name);
-          }}
-        >
+        <a onClick={() => { setDetailsUserId(record.userId); setDetailsUserName(record.name); }}>
           {value}
         </a>
       ),
@@ -882,16 +785,12 @@ const StatisticsPage = () => {
       key: 'assignmentsSummary',
       ellipsis: true,
     },
-    {
-      title: 'Рабочих дней',
-      dataIndex: 'workingDays',
-      key: 'workingDays',
-    },
+    { title: 'Рабочих дней', dataIndex: 'workingDays', key: 'workingDays' },
     {
       title: 'Количество часов',
       dataIndex: 'totalHours',
       key: 'totalHours',
-      render: (value: number) => value.toFixed(2),
+      render: (v: number) => v.toFixed(2),
     },
     {
       title: 'Количество отчётных часов',
@@ -899,18 +798,10 @@ const StatisticsPage = () => {
       key: 'reportedHours',
       render: (value: number | null | undefined, record) =>
         value != null ? (
-          <a
-            onClick={() => {
-              setReportUserId(record.userId);
-              setReportUserName(record.name);
-              setSelectedReportDate(effectiveFrom);
-            }}
-          >
+          <a onClick={() => { setReportUserId(record.userId); setReportUserName(record.name); setSelectedReportDate(effectiveFrom); }}>
             {value.toFixed(2)}
           </a>
-        ) : (
-          '—'
-        ),
+        ) : '—',
     },
   ];
 
@@ -919,14 +810,13 @@ const StatisticsPage = () => {
       title: 'Дата',
       dataIndex: 'date',
       key: 'date',
-      render: (_value, record) =>
-        dayjs(record.startsAt ?? record.date).format('DD.MM.YYYY'),
+      render: (_v, record) => dayjs(record.startsAt ?? record.date).format('DD.MM.YYYY'),
     },
     {
       title: 'Рабочее место',
       dataIndex: 'workplaceName',
       key: 'workplaceName',
-      render: (value: string | null) => value ?? '',
+      render: (v: string | null) => v ?? '',
     },
     {
       title: 'Тип смены',
@@ -937,116 +827,127 @@ const StatisticsPage = () => {
     {
       title: 'Время',
       key: 'time',
-      render: (_value, record) =>
-        `${dayjs(record.startsAt).format('HH:mm')} → ${dayjs(
-          record.endsAt ?? record.startsAt,
-        ).format('HH:mm')}`,
+      render: (_v, record) =>
+        `${dayjs(record.startsAt).format('HH:mm')} → ${dayjs(record.endsAt ?? record.startsAt).format('HH:mm')}`,
     },
     {
       title: 'Статус назначения',
       dataIndex: 'assignmentStatus',
       key: 'assignmentStatus',
-      render: (value: AssignmentStatus) =>
-        value === 'ACTIVE' ? 'Активно' : 'В архиве',
+      render: (v: AssignmentStatus) => (v === 'ACTIVE' ? 'Активно' : 'В архиве'),
     },
     {
       title: 'Часы',
       dataIndex: 'hours',
       key: 'hours',
-      render: (value: number) => value.toFixed(2),
+      render: (v: number) => v.toFixed(2),
     },
   ];
 
   const daySummaryColumns: ColumnsType<DayWorkSummaryRow> = [
-    {
-      title: 'Рабочее место',
-      dataIndex: 'workplaceName',
-      key: 'workplaceName',
-    },
-    {
-      title: 'Назначено часов',
-      dataIndex: 'plannedHours',
-      key: 'plannedHours',
-      render: (value: number) => value.toFixed(2),
-    },
-    {
-      title: 'Отработано по отчёту',
-      dataIndex: 'reportedHours',
-      key: 'reportedHours',
-      render: (value: number) => value.toFixed(2),
-    },
+    { title: 'Рабочее место', dataIndex: 'workplaceName', key: 'workplaceName' },
+    { title: 'Назначено часов', dataIndex: 'plannedHours', key: 'plannedHours', render: (v: number) => v.toFixed(2) },
+    { title: 'Отработано по отчёту', dataIndex: 'reportedHours', key: 'reportedHours', render: (v: number) => v.toFixed(2) },
   ];
+
+  /* ── render ── */
 
   return (
     <Card title="Статистика назначений">
       {/* Фильтры */}
-      <Form
-        layout="inline"
-        className="mb-4"
-        initialValues={{ range: defaultRange }}
-        onValuesChange={(_changed, allValues) => {
-          setFilters({
-            userId: allValues.userId,
-            workplaceId: allValues.workplaceId,
-            status: allValues.status,
-            range: allValues.range,
-            kinds: allValues.kinds,
-          });
-        }}
+      <MobileFilters style={{ marginBottom: 16 }}>
+        <Form
+          layout="vertical"
+          className="mb-4"
+          initialValues={{ range: defaultRange }}
+          onValuesChange={(_changed, allValues) => {
+            setFilters({
+              userId: allValues.userId,
+              workplaceId: allValues.workplaceId,
+              status: allValues.status,
+              range: allValues.range,
+              kinds: allValues.kinds,
+            });
+          }}
+          style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'flex-end' }}
+        >
+          <Form.Item name="userId" label="Сотрудник" style={{ margin: 0, minWidth: 200 }}>
+            <Select
+              allowClear
+              showSearch
+              options={usersQuery.data?.map((u) => ({ value: u.id, label: `${u.fullName ?? u.email}` })) ?? []}
+              placeholder="Сотрудник"
+              optionFilterProp="label"
+              style={{ width: '100%', minWidth: 200 }}
+            />
+          </Form.Item>
+
+          <Form.Item name="workplaceId" label="Рабочее место" style={{ margin: 0, minWidth: 200 }}>
+            <Select
+              allowClear
+              showSearch
+              options={workplaceOptions}
+              placeholder="Рабочее место"
+              optionFilterProp="label"
+              style={{ width: '100%', minWidth: 200 }}
+            />
+          </Form.Item>
+
+          <Form.Item name="status" label="Статус" style={{ margin: 0, minWidth: 160 }}>
+            <Select
+              allowClear
+              style={{ width: '100%', minWidth: 160 }}
+              options={statusOptions.map((value) => ({ value, label: value === 'ACTIVE' ? 'Активно' : 'В архиве' }))}
+              placeholder="Любой"
+            />
+          </Form.Item>
+
+          <Form.Item name="range" label="Период" style={{ margin: 0 }}>
+            <RangePicker style={{ width: '100%' }} />
+          </Form.Item>
+
+          <Form.Item name="kinds" label="Тип смены" style={{ margin: 0, minWidth: 200 }}>
+            <Select
+              mode="multiple"
+              allowClear
+              style={{ width: '100%', minWidth: 200 }}
+              options={shiftKindSelectOptions}
+              placeholder="Тип смены"
+            />
+          </Form.Item>
+        </Form>
+      </MobileFilters>
+
+      {/* KPI-карточки */}
+      <KpiCards data={kpiQuery.data} loading={isKpiLoading} />
+
+      {/* График динамики */}
+      <Card
+        title="Динамика за период"
+        size="small"
+        style={{ marginBottom: 24 }}
+        extra={
+          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+            Плановые vs отчётные часы по дням
+          </Typography.Text>
+        }
       >
-        <Form.Item name="userId" label="Сотрудник">
-          <Select
-            allowClear
-            showSearch
-            options={
-              usersQuery.data?.map((u) => ({
-                value: u.id,
-                label: `${u.fullName ?? u.email}`,
-              })) ?? []
-            }
-            placeholder="Сотрудник"
-            optionFilterProp="label"
-            style={{ width: 260 }}
-          />
-        </Form.Item>
+        <DynamicsChart data={kpiQuery.data} loading={isKpiLoading} />
+      </Card>
 
-        <Form.Item name="workplaceId" label="Рабочее место">
-          <Select
-            allowClear
-            showSearch
-            options={workplaceOptions}
-            placeholder="Рабочее место"
-            optionFilterProp="label"
-            style={{ width: 260 }}
-          />
-        </Form.Item>
-
-        <Form.Item name="status" label="Статус">
-          <Select
-            allowClear
-            style={{ width: 180 }}
-            options={statusOptions.map((value) => ({
-              value,
-              label: value === 'ACTIVE' ? 'Активно' : 'В архиве',
-            }))}
-            placeholder="Любой"
-          />
-        </Form.Item>
-
-        <Form.Item name="range" label="Период">
-          <RangePicker />
-        </Form.Item>
-
-        <Form.Item name="kinds" label="Тип смены">
-          <Select
-            mode="multiple"
-            allowClear
-            style={{ minWidth: 220 }}
-            options={shiftKindSelectOptions}
-            placeholder="Выберите тип смены"
-          />
-        </Form.Item>
-      </Form>
+      {/* Сводная таблица по рабочим местам */}
+      <Card title="Сводка по рабочим местам" size="small" style={{ marginBottom: 24 }}>
+        <Table<KpiByWorkplace>
+          rowKey="workplaceId"
+          dataSource={kpiQuery.data?.byWorkplace ?? []}
+          columns={workplaceColumns}
+          size="small"
+          loading={isKpiLoading}
+          pagination={false}
+          scroll={{ x: 700 }}
+          locale={{ emptyText: 'Нет данных за выбранный период' }}
+        />
+      </Card>
 
       <Button
         type="primary"
@@ -1065,26 +966,16 @@ const StatisticsPage = () => {
         size="small"
         scroll={{ x: 800 }}
         loading={isLoading}
-        locale={{
-          emptyText: 'Нет данных за выбранный период',
-        }}
+        locale={{ emptyText: 'Нет данных за выбранный период' }}
       />
 
-      {/* Календарь отчётных часов по пользователю */}
+      {/* Календарь отчётных часов */}
       <Modal
         open={!!reportUserId}
-        title={
-          reportUserName
-            ? `Отчётные часы: ${reportUserName}`
-            : 'Отчётные часы'
-        }
+        title={reportUserName ? `Отчётные часы: ${reportUserName}` : 'Отчётные часы'}
         footer={null}
         width={800}
-        onCancel={() => {
-          setReportUserId(null);
-          setReportUserName('');
-          setSelectedReportDate(null);
-        }}
+        onCancel={() => { setReportUserId(null); setReportUserName(''); setSelectedReportDate(null); }}
       >
         {!reportUserId ? null : workReportsQuery.isLoading ? (
           <Spin />
@@ -1093,24 +984,14 @@ const StatisticsPage = () => {
             <Calendar
               fullscreen={false}
               value={selectedReportDate ?? effectiveFrom}
-              onSelect={(value) => {
-                setSelectedReportDate(value);
-              }}
+              onSelect={(value) => setSelectedReportDate(value)}
               dateFullCellRender={(value) => {
                 const key = value.format('YYYY-MM-DD');
                 const planned = plannedHoursByDateForReportUser[key];
                 const reported = workReportsByDate[key];
-                const outOfRange =
-                  value.isBefore(effectiveFrom, 'day') ||
-                  value.isAfter(effectiveTo, 'day');
-
-                const hasData =
-                  (planned != null && planned > 0) ||
-                  (reported != null && reported > 0);
-
-                const isSelected =
-                  !!selectedReportDate &&
-                  value.isSame(selectedReportDate, 'day');
+                const outOfRange = value.isBefore(effectiveFrom, 'day') || value.isAfter(effectiveTo, 'day');
+                const hasData = (planned != null && planned > 0) || (reported != null && reported > 0);
+                const isSelected = !!selectedReportDate && value.isSame(selectedReportDate, 'day');
 
                 return (
                   <div
@@ -1118,11 +999,7 @@ const StatisticsPage = () => {
                       textAlign: 'center',
                       borderRadius: 4,
                       padding: 2,
-                      border: isSelected
-                        ? '1px solid #1677ff'
-                        : hasData
-                        ? '1px solid #52c41a'
-                        : '1px solid transparent',
+                      border: isSelected ? '1px solid #1677ff' : hasData ? '1px solid #52c41a' : '1px solid transparent',
                       backgroundColor: isSelected ? '#e6f4ff' : undefined,
                       opacity: outOfRange ? 0.2 : hasData ? 1 : 0.4,
                     }}
@@ -1130,12 +1007,8 @@ const StatisticsPage = () => {
                     <div>{value.date()}</div>
                     {hasData && (
                       <div style={{ fontSize: 10 }}>
-                        {planned != null && planned > 0 && (
-                          <div>{planned.toFixed(1)} ч план</div>
-                        )}
-                        {reported != null && reported > 0 && (
-                          <div>{reported.toFixed(1)} ч отчёт</div>
-                        )}
+                        {planned != null && planned > 0 && <div>{planned.toFixed(1)} ч план</div>}
+                        {reported != null && reported > 0 && <div>{reported.toFixed(1)} ч отчёт</div>}
                       </div>
                     )}
                   </div>
@@ -1162,8 +1035,7 @@ const StatisticsPage = () => {
                 )
               ) : (
                 <Typography.Text type="secondary">
-                  Выберите дату в календаре, чтобы увидеть детали по рабочим
-                  местам.
+                  Выберите дату в календаре, чтобы увидеть детали по рабочим местам.
                 </Typography.Text>
               )}
             </div>
@@ -1174,17 +1046,10 @@ const StatisticsPage = () => {
       {/* Детализация по сотруднику */}
       <Modal
         open={!!detailsUserId}
-        title={
-          detailsUserName
-            ? `Детализация по сотруднику: ${detailsUserName}`
-            : 'Детализация по сотруднику'
-        }
+        title={detailsUserName ? `Детализация по сотруднику: ${detailsUserName}` : 'Детализация'}
         footer={null}
         width={1000}
-        onCancel={() => {
-          setDetailsUserId(null);
-          setDetailsUserName('');
-        }}
+        onCancel={() => { setDetailsUserId(null); setDetailsUserName(''); }}
       >
         {detailsRows.length === 0 ? (
           <Typography.Text type="secondary">

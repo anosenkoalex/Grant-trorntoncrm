@@ -10,8 +10,14 @@ import {
   Delete,
   Req,
   UnauthorizedException,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 import { AssignmentsService } from './assignments.service.js';
+import { FilesService } from '../files/files.service.js';
 import {
   CreateAssignmentDto,
   createAssignmentSchema,
@@ -140,7 +146,10 @@ export type AssignmentRequestDecisionDto = z.infer<
 @Controller('assignments')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class AssignmentsController {
-  constructor(private readonly assignmentsService: AssignmentsService) {}
+  constructor(
+    private readonly assignmentsService: AssignmentsService,
+    private readonly filesService: FilesService,
+  ) {}
 
   private getUserId(req: any): string | undefined {
     return req?.user?.id ?? req?.user?.sub ?? req?.user?.userId;
@@ -451,5 +460,45 @@ export class AssignmentsController {
     payload: BulkTrashActionDto,
   ) {
     return this.assignmentsService.exportAndDeleteFromTrash(payload.ids);
+  }
+
+  // ================================================================
+  //                      📎 ФАЙЛЫ НАЗНАЧЕНИЯ
+  // ================================================================
+
+  @Post(':id/files')
+  @Roles(UserRole.SUPER_ADMIN, UserRole.MANAGER)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (_req, file, cb) => {
+          const ext = extname(file.originalname);
+          cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
+        },
+      }),
+      limits: { fileSize: 20 * 1024 * 1024 },
+    }),
+  )
+  uploadFile(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req: any,
+  ) {
+    const userId = this.getUserId(req);
+    if (!userId) throw new UnauthorizedException();
+    return this.filesService.attachToAssignment(id, file, userId);
+  }
+
+  @Get(':id/files')
+  @Roles(UserRole.SUPER_ADMIN, UserRole.MANAGER)
+  getFiles(@Param('id') id: string) {
+    return this.filesService.getFilesForAssignment(id);
+  }
+
+  @Delete(':id/files/:fileId')
+  @Roles(UserRole.SUPER_ADMIN, UserRole.MANAGER)
+  deleteFile(@Param('fileId') fileId: string) {
+    return this.filesService.deleteAssignmentFile(fileId);
   }
 }

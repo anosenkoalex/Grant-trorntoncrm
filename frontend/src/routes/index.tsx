@@ -12,7 +12,9 @@ import StatisticsPage from '../pages/Statistics.js';
 import AssignmentAdjustmentsPage from '../pages/AssignmentAdjustments.js';
 import AppLayout from '../components/Layout.js';
 import { useAuth } from '../context/AuthContext.js';
-import InstructionsPage from '../pages/Instructions.js'; // <-- страница инструкции
+import InstructionsPage from '../pages/Instructions.js';
+import AutomationSettingsPage from '../pages/AutomationSettings.js';
+import HRPage from '../pages/HR.js';
 
 const ProtectedRoute = () => {
   const { token } = useAuth();
@@ -65,6 +67,12 @@ const AppRoutes = () => {
 
         // страница запросов корректировок
         { path: 'schedule-adjustments', element: <AssignmentAdjustmentsPage /> },
+
+        // настройки автоматизации (только для админа/менеджера)
+        { path: 'automation-settings', element: <AutomationSettingsPage /> },
+
+        // hr
+        { path: 'hr', element: <HRPage /> },
 
         // dev-панель
         { path: 'dev', element: <DevPage /> },

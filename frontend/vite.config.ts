@@ -9,5 +9,12 @@ export default defineConfig({
       'grant-thornton.online',
       'www.grant-thornton.online',
     ],
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
   },
 })

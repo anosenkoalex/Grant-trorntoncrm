@@ -22,7 +22,8 @@ import {
 } from 'antd';
 const { useBreakpoint } = Grid;
 import type { ColumnsType } from 'antd/es/table';
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined, PaperClipOutlined } from '@ant-design/icons';
+import { FileAttachment } from '../components/FileAttachment.js';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs, { Dayjs } from 'dayjs';
 import { useMemo, useState, useCallback } from 'react';
@@ -59,6 +60,7 @@ import {
 } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.js';
 import { useNavigate } from 'react-router-dom';
+import { MobileFilters } from '../components/MobileFilters.js';
 
 const statusOptions: AssignmentStatus[] = ['ACTIVE', 'ARCHIVED'];
 
@@ -284,7 +286,8 @@ const AssignmentsPage = () => {
   );
   const [adjustmentsModalAssignment, setAdjustmentsModalAssignment] =
     useState<Assignment | null>(null);
-
+  const [filesModalAssignment, setFilesModalAssignment] =
+    useState<Assignment | null>(null);
 
   const [isAssignmentRequestsModalOpen, setIsAssignmentRequestsModalOpen] =
     useState(false);
@@ -1456,6 +1459,14 @@ const assignmentsWithAdjustment = useMemo(() => {
 
               <Button
                 type="link"
+                icon={<PaperClipOutlined />}
+                onClick={() => setFilesModalAssignment(record)}
+              >
+                {t('assignments.files', 'Файлы')}
+              </Button>
+
+              <Button
+                type="link"
                 danger
                 disabled={!canDelete}
                 loading={deleteMutation.isPending}
@@ -2259,58 +2270,60 @@ if (editingAssignment) {
           flexWrap: 'wrap',
         }}
       >
-        <Form
-          layout={isMobile ? 'vertical' : 'inline'}
-          style={{ width: isMobile ? '100%' : 'auto' }}
-          onValuesChange={(_changedValues, allValues) => {
-            setFilters({
-              userId: allValues.userId,
-              workplaceId: allValues.workplaceId,
-              status: allValues.status,
-              range: allValues.range,
-            });
-            setPage(1);
-          }}
-        >
-          <Form.Item name="userId" label={t('assignments.user')}>
-            <Select
-              allowClear
-              showSearch
-              options={userOptions}
-              placeholder={t('assignments.filters.user')}
-              loading={usersQuery.isLoading}
-              optionFilterProp="searchLabel"
-              style={{ width: 260 }}
-            />
-          </Form.Item>
-          <Form.Item name="workplaceId" label={t('assignments.workplace')}>
-            <Select
-              allowClear
-              showSearch
-              options={workplaceOptions}
-              placeholder={t('assignments.filters.workplace')}
-              loading={workplacesQuery.isLoading}
-              optionFilterProp="label"
-              style={{ width: 260 }}
-            />
-          </Form.Item>
-          <Form.Item name="status" label={t('assignments.status.title')}>
-            <Select
-              allowClear
-              options={statusOptions.map((value) => ({
-                value,
-                label:
-                  value === 'ACTIVE'
-                    ? t('assignments.status.active')
-                    : t('assignments.status.archived'),
-              }))}
-              style={{ width: 180 }}
-            />
-          </Form.Item>
-          <Form.Item name="range" label={t('assignments.filters.period')}>
-            <DatePicker.RangePicker showTime format="DD.MM.YYYY HH:mm" />
-          </Form.Item>
-        </Form>
+        <MobileFilters>
+          <Form
+            layout={isMobile ? 'vertical' : 'inline'}
+            style={{ width: isMobile ? '100%' : 'auto' }}
+            onValuesChange={(_changedValues, allValues) => {
+              setFilters({
+                userId: allValues.userId,
+                workplaceId: allValues.workplaceId,
+                status: allValues.status,
+                range: allValues.range,
+              });
+              setPage(1);
+            }}
+          >
+            <Form.Item name="userId" label={t('assignments.user')}>
+              <Select
+                allowClear
+                showSearch
+                options={userOptions}
+                placeholder={t('assignments.filters.user')}
+                loading={usersQuery.isLoading}
+                optionFilterProp="searchLabel"
+                style={{ width: 260 }}
+              />
+            </Form.Item>
+            <Form.Item name="workplaceId" label={t('assignments.workplace')}>
+              <Select
+                allowClear
+                showSearch
+                options={workplaceOptions}
+                placeholder={t('assignments.filters.workplace')}
+                loading={workplacesQuery.isLoading}
+                optionFilterProp="label"
+                style={{ width: 260 }}
+              />
+            </Form.Item>
+            <Form.Item name="status" label={t('assignments.status.title')}>
+              <Select
+                allowClear
+                options={statusOptions.map((value) => ({
+                  value,
+                  label:
+                    value === 'ACTIVE'
+                      ? t('assignments.status.active')
+                      : t('assignments.status.archived'),
+                }))}
+                style={{ width: 180 }}
+              />
+            </Form.Item>
+            <Form.Item name="range" label={t('assignments.filters.period')}>
+              <DatePicker.RangePicker showTime format="DD.MM.YYYY HH:mm" />
+            </Form.Item>
+          </Form>
+        </MobileFilters>
 
         {!showTrash && (
           <Typography.Text
@@ -2922,6 +2935,27 @@ if (editingAssignment) {
               </Button>
             </Space>
           </>
+        )}
+      </Modal>
+
+      {/* модалка файлов назначения */}
+      <Modal
+        open={!!filesModalAssignment}
+        title={t('assignments.filesModalTitle', 'Прикреплённые файлы')}
+        onCancel={() => setFilesModalAssignment(null)}
+        footer={
+          <Button onClick={() => setFilesModalAssignment(null)}>
+            {t('common.close', 'Закрыть')}
+          </Button>
+        }
+        width={560}
+        destroyOnClose
+      >
+        {filesModalAssignment && (
+          <FileAttachment
+            assignmentId={filesModalAssignment.id}
+            canManage={canManageAssignments}
+          />
         )}
       </Modal>
     </Card>

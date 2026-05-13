@@ -199,7 +199,9 @@ export type NotificationType =
   | 'ASSIGNMENT_CREATED'
   | 'ASSIGNMENT_UPDATED'
   | 'ASSIGNMENT_MOVED'
-  | 'ASSIGNMENT_CANCELLED';
+  | 'ASSIGNMENT_CANCELLED'
+  | 'SYSTEM'
+  | 'REMINDER';
 
 export type Notification = {
   id: string;
@@ -208,6 +210,11 @@ export type Notification = {
   payload: Record<string, unknown>;
   createdAt: string;
   readAt?: string | null;
+};
+
+export type NotificationsResponse = {
+  items: Notification[];
+  unreadCount: number;
 };
 
 export type FeedItemAction = 'created' | 'updated' | 'cancelled';
@@ -377,26 +384,37 @@ export const fetchCurrentWorkplace = async () => {
 
 /* -------------------- NOTIFICATIONS -------------------- */
 
-export const fetchNotifications = async (take = 10) => {
-  const resp = await api.get(`/notifications/me`, {
-    params: { take },
+export const fetchNotifications = async (
+  take = 20,
+  onlyUnread = false,
+): Promise<NotificationsResponse> => {
+  const resp = await api.get('/notifications', {
+    params: { take, onlyUnread: onlyUnread || undefined },
   });
 
   const raw = resp.data;
 
-  if (Array.isArray(raw)) {
-    return raw as Notification[];
+  // новый формат { items, unreadCount }
+  if (raw && typeof raw === 'object' && Array.isArray(raw.items)) {
+    return {
+      items: raw.items as Notification[],
+      unreadCount: typeof raw.unreadCount === 'number' ? raw.unreadCount : 0,
+    };
   }
 
-  if (Array.isArray(raw?.data)) {
-    return raw.data as Notification[];
-  }
+  // fallback: старый формат — плоский массив
+  const items = Array.isArray(raw) ? (raw as Notification[]) : [];
+  return { items, unreadCount: items.filter((n) => !n.readAt).length };
+};
 
-  if (Array.isArray(raw?.items)) {
-    return raw.items as Notification[];
-  }
+export const markNotificationRead = async (id: string): Promise<Notification> => {
+  const { data } = await api.post<Notification>(`/notifications/${id}/read`);
+  return data;
+};
 
-  return [] as Notification[];
+export const markAllNotificationsRead = async (): Promise<{ updated: number }> => {
+  const { data } = await api.post<{ updated: number }>('/notifications/read-all');
+  return data;
 };
 
 /* -------------------- ORGS & WORKPLACES -------------------- */
@@ -1058,6 +1076,65 @@ export async function fetchStatistics(params: FetchStatisticsParams) {
   return res.data;
 }
 
+/* -------------------- KPI ANALYTICS -------------------- */
+
+export type KpiSummary = {
+  totalEmployees: number;
+  totalPlannedHours: number;
+  totalReportedHours: number;
+  completionRate: number;
+  missingReports: number;
+  totalShifts: number;
+};
+
+export type KpiByWorkplace = {
+  workplaceId: string;
+  workplaceName: string | null;
+  plannedHours: number;
+  reportedHours: number;
+  completionRate: number;
+  employeeCount: number;
+  shiftCount: number;
+};
+
+export type KpiDynamicsPoint = {
+  date: string;
+  plannedHours: number;
+  reportedHours: number;
+  shiftCount: number;
+};
+
+export type KpiResponse = {
+  kpi: KpiSummary;
+  byWorkplace: KpiByWorkplace[];
+  dynamics: KpiDynamicsPoint[];
+};
+
+export async function fetchKpi(params: FetchStatisticsParams): Promise<KpiResponse> {
+  const search = new URLSearchParams();
+
+  search.set('from', params.from);
+  search.set('to', params.to);
+
+  if (params.userId) search.set('userId', params.userId);
+  if (params.workplaceId) search.set('workplaceId', params.workplaceId);
+
+  if (params.assignmentStatuses?.length) {
+    for (const st of params.assignmentStatuses) {
+      search.append('assignmentStatuses', st);
+    }
+  }
+
+  if (params.kinds?.length) {
+    for (const k of params.kinds) {
+      search.append('kinds', k);
+    }
+  }
+
+  const res = await api.get<KpiResponse>(`/statistics/kpi?${search.toString()}`);
+  return res.data;
+}
+
 export default api;
 
 /* -------------------- ME / SECURITY -------------------- */
@@ -1067,5 +1144,140 @@ export const changeMyPassword = async (payload: {
   newPassword: string;
 }) => {
   const { data } = await api.patch<{ success: true }>('/me/change-password', payload);
+  return data;
+};
+
+/* -------------------- AUTOMATION -------------------- */
+
+export type AutomationSettings = {
+  id: string | null;
+  orgId: string;
+  triggerOnCreate: boolean;
+  triggerOnUpdate: boolean;
+  triggerOnCancel: boolean;
+  reminderEnabled: boolean;
+  reminderHoursBefore: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type UpdateAutomationSettingsPayload = Partial<
+  Pick<
+    AutomationSettings,
+    | 'triggerOnCreate'
+    | 'triggerOnUpdate'
+    | 'triggerOnCancel'
+    | 'reminderEnabled'
+    | 'reminderHoursBefore'
+  >
+>;
+
+export const fetchAutomationSettings = async (): Promise<AutomationSettings> => {
+  const { data } = await api.get<AutomationSettings>('/automation/settings');
+  return data;
+};
+
+export const updateAutomationSettings = async (
+  payload: UpdateAutomationSettingsPayload,
+): Promise<AutomationSettings> => {
+  const { data } = await api.put<AutomationSettings>('/automation/settings', payload);
+  return data;
+};
+
+/* -------------------- FILES -------------------- */
+
+export type AttachedFile = {
+  id: string;
+  fileId: string;
+  originalName: string;
+  filename: string;
+  mimetype: string;
+  size: number;
+  createdAt: string;
+};
+
+export const fetchAssignmentFiles = async (assignmentId: string): Promise<AttachedFile[]> => {
+  const { data } = await api.get<AttachedFile[]>(`/assignments/${assignmentId}/files`);
+  return data;
+};
+
+export const uploadAssignmentFile = async (assignmentId: string, file: File): Promise<AttachedFile> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const { data } = await api.post<AttachedFile>(`/assignments/${assignmentId}/files`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return data;
+};
+
+export const deleteAssignmentFile = async (assignmentId: string, assignmentFileId: string): Promise<void> => {
+  await api.delete(`/assignments/${assignmentId}/files/${assignmentFileId}`);
+};
+
+export const downloadFile = async (fileId: string): Promise<Blob> => {
+  const { data } = await api.get(`/files/${fileId}`, { responseType: 'blob' });
+  return data as Blob;
+};
+
+/* -------------------- HR -------------------- */
+
+export type VacationType = 'VACATION' | 'SICK_LEAVE' | 'DAY_OFF';
+export type VacationStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export type VacationRequest = {
+  id: string;
+  userId: string;
+  orgId: string;
+  dateFrom: string;
+  dateTo: string;
+  type: VacationType;
+  status: VacationStatus;
+  comment: string | null;
+  decidedById: string | null;
+  decidedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  user?: { id: string; fullName: string; email: string };
+  decidedBy?: { id: string; fullName: string; email: string } | null;
+};
+
+export type CreateVacationPayload = {
+  dateFrom: string;
+  dateTo: string;
+  type: VacationType;
+  comment?: string;
+};
+
+export const createVacationRequest = async (payload: CreateVacationPayload): Promise<VacationRequest> => {
+  const { data } = await api.post<VacationRequest>('/hr/vacations', payload);
+  return data;
+};
+
+export const fetchMyVacations = async (): Promise<VacationRequest[]> => {
+  const { data } = await api.get<VacationRequest[]>('/hr/vacations/my');
+  return data;
+};
+
+export type FetchVacationsParams = {
+  status?: VacationStatus;
+  userId?: string;
+  page?: number;
+  pageSize?: number;
+};
+
+export const fetchVacations = async (
+  params: FetchVacationsParams = {},
+): Promise<{ items: VacationRequest[]; total: number; page: number; pageSize: number }> => {
+  const { data } = await api.get('/hr/vacations', { params });
+  return data;
+};
+
+export const approveVacation = async (id: string): Promise<VacationRequest> => {
+  const { data } = await api.patch<VacationRequest>(`/hr/vacations/${id}/approve`);
+  return data;
+};
+
+export const rejectVacation = async (id: string, comment?: string): Promise<VacationRequest> => {
+  const { data } = await api.patch<VacationRequest>(`/hr/vacations/${id}/reject`, { comment });
   return data;
 };

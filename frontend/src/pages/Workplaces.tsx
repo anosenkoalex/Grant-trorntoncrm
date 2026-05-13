@@ -38,6 +38,7 @@ import {
   type Assignment,
 } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.js';
+import { MobileFilters } from '../components/MobileFilters.js';
 
 const { useBreakpoint } = Grid;
 
@@ -485,13 +486,24 @@ const WorkplacesPage = () => {
   const assignmentsData = assignmentsQuery.data?.data ?? [];
   const assignmentsMeta = assignmentsQuery.data?.meta;
 
-  const filtersControls = (
-    <Flex
-      wrap="wrap"
-      gap={8}
-      justify={isMobile ? 'flex-start' : 'flex-end'}
-      style={{ width: isMobile ? '100%' : 'auto' }}
+  const addButton = (
+    <Button
+      type="primary"
+      icon={<PlusOutlined />}
+      onClick={() => {
+        form.resetFields();
+        form.setFieldsValue({ isActive: true });
+        setEditingWorkplace(null);
+        setIsModalOpen(true);
+      }}
+      style={isMobile ? { width: '100%' } : undefined}
     >
+      {t('workplaces.add')}
+    </Button>
+  );
+
+  const filterControls = (
+    <Flex wrap="wrap" gap={8} style={{ width: '100%' }}>
       <Input.Search
         allowClear
         placeholder={t('workplaces.searchPlaceholder')}
@@ -514,28 +526,27 @@ const WorkplacesPage = () => {
         ]}
         style={{ width: isMobile ? '100%' : 160 }}
       />
-      <Button
-        type="primary"
-        icon={<PlusOutlined />}
-        onClick={() => {
-          form.resetFields();
-          form.setFieldsValue({ isActive: true });
-          setEditingWorkplace(null);
-          setIsModalOpen(true);
-        }}
-        style={isMobile ? { width: '100%' } : undefined}
-      >
-        {t('workplaces.add')}
-      </Button>
     </Flex>
   );
 
   return (
     <Card
       title={t('workplaces.manageTitle')}
-      extra={!isMobile ? filtersControls : undefined}
+      extra={
+        !isMobile ? (
+          <Flex gap={8} align="center">
+            {filterControls}
+            {addButton}
+          </Flex>
+        ) : undefined
+      }
     >
-      {isMobile && <div style={{ marginBottom: 12 }}>{filtersControls}</div>}
+      {isMobile && (
+        <div style={{ marginBottom: 12 }}>
+          <MobileFilters>{filterControls}</MobileFilters>
+          {addButton}
+        </div>
+      )}
 
       {isMobile ? (
         <List

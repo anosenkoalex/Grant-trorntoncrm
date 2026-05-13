@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(pnpm --filter @armico/backend exec tsc --noEmit)",
+      "Bash(pnpm --filter @armico/frontend exec tsc --noEmit)",
+      "Bash(npx tsc *)",
+      "Bash(pnpm add *)",
+      "Bash(npx prisma *)"
+    ]
+  }
+}

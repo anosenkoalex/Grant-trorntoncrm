@@ -14,6 +14,7 @@ import { RolesGuard } from '../common/guards/roles.guard.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 import { PrismaService } from '../common/prisma/prisma.service.js';
 import { SmsService } from '../sms/sms.service.js';
+import { TelegramService } from '../telegram/telegram.service.js';
 
 type DevCurrentUser = {
   id: string;
@@ -55,6 +56,7 @@ export class DevController {
   constructor(
     private readonly prisma: PrismaService,
     private readonly smsService: SmsService,
+    private readonly telegramService: TelegramService,
   ) {}
 
   /**
@@ -174,6 +176,38 @@ export class DevController {
     throw new BadRequestException(
       'Email-шлюз пока не настроен. Проверьте настройки SMTP в Developer Console.',
     );
+  }
+
+  // ---------- TELEGRAM НАСТРОЙКИ ----------
+
+  @Get('telegram-settings')
+  async getTelegramSettings(@CurrentUser() user: DevCurrentUser) {
+    this.ensureDev(user);
+    const s = await this.telegramService.getSettings();
+    return { enabled: s.enabled, token: s.token ?? null, chatId: s.chatId ?? null };
+  }
+
+  @Put('telegram-settings')
+  async updateTelegramSettings(
+    @CurrentUser() user: DevCurrentUser,
+    @Body() body: { enabled?: boolean; token?: string | null; chatId?: string | null },
+  ) {
+    this.ensureDev(user);
+    await this.telegramService.updateSettings({
+      enabled: Boolean(body.enabled),
+      token: body.token ?? null,
+      chatId: body.chatId ?? null,
+    });
+    return { success: true };
+  }
+
+  @Post('test-telegram')
+  async testTelegram(@CurrentUser() user: DevCurrentUser) {
+    this.ensureDev(user);
+    await this.telegramService.sendMessage(
+      '✅ <b>Тестовое сообщение из Armico CRM</b>\nTelegram интеграция работает корректно.',
+    );
+    return { success: true };
   }
 
   // ---------- ЛОГИ ----------

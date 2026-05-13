@@ -1,6 +1,6 @@
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://armico:armico@postgres:5432/armico"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -36,6 +36,8 @@ enum NotificationType {
   ASSIGNMENT_UPDATED
   ASSIGNMENT_CANCELLED
   ASSIGNMENT_MOVED
+  SYSTEM
+  REMINDER
 }
 
 enum ShiftKind {
@@ -43,6 +45,18 @@ enum ShiftKind {
   OFFICE
   REMOTE
   DAY_OFF
+}
+
+enum VacationType {
+  VACATION
+  SICK_LEAVE
+  DAY_OFF
+}
+
+enum VacationStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 enum AdjustmentStatus {
@@ -68,6 +82,9 @@ model Org {
   constraints Constraint[]
 
   assignmentRequests AssignmentRequest[]
+  automationSettings AutomationSettings?
+  apiKeys            ApiKey[]
+  vacationRequests   VacationRequest[]
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -101,8 +118,11 @@ model User {
   assignmentRequests        AssignmentRequest[] @relation("AssignmentRequestRequester")
   decidedAssignmentRequests AssignmentRequest[] @relation("AssignmentRequestDecider")
 
-  /// 🔹 Отчёты по отработанным часам
-  workReports   WorkReport[]
+  workReports        WorkReport[]
+  files              File[]
+  createdApiKeys     ApiKey[]
+  vacations          VacationRequest[]
+  decidedVacations   VacationRequest[] @relation("VacationDecider")
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -199,12 +219,14 @@ model Assignment {
 
   status      AssignmentStatus @default(ACTIVE)
 
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  deletedAt   DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deletedAt      DateTime?
+  reminderSentAt DateTime?
 
   shifts      AssignmentShift[]
   adjustments AssignmentAdjustment[]
+  files       AssignmentFile[]
 
   request     AssignmentRequest?
 }
@@ -237,6 +259,15 @@ model Notification {
 
   createdAt DateTime         @default(now())
   readAt    DateTime?
+}
+
+model TelegramSettings {
+  id        String   @id @default(cuid())
+  token     String?
+  chatId    String?
+  enabled   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model SmsSettings {
@@ -312,28 +343,93 @@ model AssignmentRequest {
   @@index([decidedById])
 }
 
-/// 🔹 Новая таблица отчётов по часам
 model WorkReport {
   id     String  @id @default(cuid())
 
   userId String
   user   User    @relation(fields: [userId], references: [id])
 
-  /// Рабочее место, к которому относится отчёт
   workplaceId String?
   workplace   Workplace? @relation(fields: [workplaceId], references: [id])
 
-  /// Дата дня (хранится как DateTime, мы в контроллере приводим к началу дня)
   date  DateTime
 
-  /// Количество отработанных часов за день
   hours Float
 
-  /// Необязательный комментарий сотрудника
   comment   String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([userId, date])
+}
+
+model File {
+  id           String           @id @default(cuid())
+  originalName String
+  filename     String
+  mimetype     String
+  size         Int
+  uploadedById String
+  uploadedBy   User             @relation(fields: [uploadedById], references: [id])
+  createdAt    DateTime         @default(now())
+
+  assignments  AssignmentFile[]
+}
+
+model AssignmentFile {
+  id           String     @id @default(cuid())
+  assignmentId String
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  fileId       String
+  file         File       @relation(fields: [fileId], references: [id])
+  createdAt    DateTime   @default(now())
+
+  @@index([assignmentId])
+}
+
+model VacationRequest {
+  id          String         @id @default(cuid())
+  userId      String
+  user        User           @relation(fields: [userId], references: [id])
+  orgId       String
+  org         Org            @relation(fields: [orgId], references: [id])
+  dateFrom    DateTime
+  dateTo      DateTime
+  type        VacationType
+  status      VacationStatus @default(PENDING)
+  comment     String?
+  decidedById String?
+  decidedBy   User?          @relation("VacationDecider", fields: [decidedById], references: [id])
+  decidedAt   DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([userId])
+  @@index([orgId, status])
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  name        String
+  keyHash     String    @unique
+  orgId       String?
+  org         Org?      @relation(fields: [orgId], references: [id])
+  createdById String
+  createdBy   User      @relation(fields: [createdById], references: [id])
+  lastUsedAt  DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model AutomationSettings {
+  id                  String   @id @default(cuid())
+  orgId               String   @unique
+  org                 Org      @relation(fields: [orgId], references: [id])
+  triggerOnCreate     Boolean  @default(true)
+  triggerOnUpdate     Boolean  @default(true)
+  triggerOnCancel     Boolean  @default(true)
+  reminderEnabled     Boolean  @default(true)
+  reminderHoursBefore Int      @default(24)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 }

@@ -1,0 +1,419 @@
+# Журнал разработки — Armico CRM
+
+Этот файл ведётся автоматически ИИ-ассистентом (Claude Code). Каждое изменение фиксируется здесь: дата, описание, затронутые файлы.
+
+---
+
+## 2026-05-13 — Developer Console в сайдбаре для SUPER_ADMIN
+
+- **Layout.tsx**: добавлен пункт «Developer console» с иконкой `SettingOutlined` для ролей `SUPER_ADMIN` и `isDevUser`; тип массива `navigationItems` расширен полем `icon?: ReactNode`; `ReactNode` добавлен в импорт `react`; `SettingOutlined` добавлен в импорт `@ant-design/icons`; Menu рендерит `icon` из каждого элемента
+
+**Изменённые файлы:**
+- `frontend/src/components/Layout.tsx`
+
+---
+
+## 2026-05-13 — Фаза 8: Мультиязычность (RU / EN / TR)
+
+Реализована полная мультиязычность: русский, английский, турецкий.
+
+**Что сделано:**
+- **i18n.ts**: Полный рефакторинг — добавлены переводы `en` и `tr` для всех существующих ключей (login, layout, dashboard, workplaces, assignments, users, planner, myPlace, statistics, notifications, admin, common); добавлены новые разделы `automation`, `hr`, `dev` (Telegram + API keys) на всех трёх языках; инициализация языка из `localStorage.getItem('lang') ?? 'ru'`
+- **Layout.tsx**: Добавлен `Select` с переключением RU/EN/TR — сохраняется в `localStorage('lang')`; переключатель добавлен в шапку как для worker-layout, так и для admin/manager-layout; кнопка HR в worker-шапке переведена через `t('layout.hr')`
+- **HR.tsx**: Полностью переведена через `useTranslation` — TYPE_LABELS и STATUS_LABELS вычисляются через `t()` внутри компонентов; все заголовки колонок, кнопки, плейсхолдеры, подтверждения
+- **AutomationSettings.tsx**: Переведена через `useTranslation` — заголовки карточек, описания, Switch labels (on/off), валидационные сообщения, кнопка сохранения; добавлен ключ `automation.hoursUnit` (ч./h./sa.)
+- **DevPage.tsx**: Переведены tab labels, access-denied блок, Telegram-вкладка (все labels/help/кнопки/сообщения), API keys-вкладка (все строки), title
+
+**Изменённые файлы:**
+- `frontend/src/i18n.ts` — полный рефакторинг с EN/TR и новыми разделами
+- `frontend/src/components/Layout.tsx` — Select переключатель языка в обеих шапках
+- `frontend/src/pages/HR.tsx` — useTranslation для всех строк
+- `frontend/src/pages/AutomationSettings.tsx` — useTranslation для всех строк
+- `frontend/src/pages/DevPage.tsx` — useTranslation для tab labels, Telegram и API keys вкладок
+
+---
+
+## 2026-05-13 — Фаза 7: HR контур
+
+Реализован модуль управления отпусками и заявками сотрудников.
+
+**Что сделано:**
+- **Backend — VacationRequest модель**: enums `VacationType` (VACATION/SICK_LEAVE/DAY_OFF), `VacationStatus` (PENDING/APPROVED/REJECTED); таблица `VacationRequest` с FK на User (userId, decidedById) и Org
+- **Backend — hr.service.ts**: `create()`, `findAll()` (пагинация, фильтр по status/userId для менеджера), `findMine()`, `approve()`, `reject()` с опциональным комментарием
+- **Backend — hr.controller.ts**: `GET /hr/vacations/my` (ПЕРВЫМ, до параметризованных), `GET /hr/vacations` (MANAGER/SUPER_ADMIN), `POST /hr/vacations`, `PATCH /hr/vacations/:id/approve`, `PATCH /hr/vacations/:id/reject`
+- **Backend — hr.module.ts**: минимальный модуль (PrismaModule глобальный)
+- **Backend — app.module.ts**: добавлен `HrModule`
+- **Backend — migration**: `20260513210000_add_vacation_requests/migration.sql`
+- **Frontend — api/client.ts**: типы `VacationType`, `VacationStatus`, `VacationRequest`, `CreateVacationPayload`; функции `createVacationRequest`, `fetchMyVacations`, `fetchVacations`, `approveVacation`, `rejectVacation`
+- **Frontend — HR.tsx**: страница с двумя вкладками — «Мои заявки» (таблица + модал создания: RangePicker + Select типа + TextArea), «Команда» (для менеджера/админа — таблица с Popconfirm одобрения и Modal отклонения с комментарием, фильтр по статусу)
+- **Frontend — routes/index.tsx**: маршрут `/hr`
+- **Frontend — Layout.tsx**: пункт «HR» в сайдбаре для SUPER_ADMIN/MANAGER; кнопка HR в шапке для worker-layout
+
+**Новые файлы:**
+- `backend/prisma/migrations/20260513210000_add_vacation_requests/migration.sql`
+- `backend/src/hr/hr.service.ts`
+- `backend/src/hr/hr.controller.ts`
+- `backend/src/hr/hr.module.ts`
+- `frontend/src/pages/HR.tsx`
+
+**Изменённые файлы:**
+- `backend/prisma/schema.prisma` — enums VacationType/VacationStatus, модель VacationRequest, отношения в User и Org
+- `backend/src/app.module.ts` — добавлен HrModule
+- `frontend/src/api/client.ts` — типы и функции HR API
+- `frontend/src/routes/index.tsx` — маршрут `/hr`
+- `frontend/src/components/Layout.tsx` — HR в навигации и worker-шапке
+
+---
+
+## 2026-05-13 — Фаза 6: Интеграции (Telegram + REST API)
+
+Реализованы Telegram-уведомления и публичный REST API с авторизацией по API-ключам.
+
+**Что сделано:**
+
+### Telegram-бот
+- **Backend — TelegramSettings**: новая модель `TelegramSettings` (token, chatId, enabled) — глобальная настройка для всего инстанса
+- **Backend — telegram.service.ts**: `getSettings()`, `updateSettings()`, `sendMessage()` (POST к Telegram Bot API через axios, parse_mode HTML), `notifyAssignment()` — форматирует сообщение по типу события с emoji
+- **Backend — telegram.module.ts**: провайдер + экспорт `TelegramService`
+- **Backend — automation.service.ts**: `TelegramService` инжектирован; в `notifyWithCheck()` после push-уведомления вызывается `telegram.notifyAssignment()` для событий CREATED/UPDATED/CANCELLED
+- **Backend — automation.module.ts**: добавлен импорт `TelegramModule`
+- **Backend — dev.controller.ts**: `GET /dev/telegram-settings`, `PUT /dev/telegram-settings`, `POST /dev/test-telegram` (отправка тестового сообщения); `TelegramService` инжектирован
+- **Backend — dev.module.ts**: добавлен импорт `TelegramModule`
+- **Frontend — DevPage.tsx**: вкладка «Telegram» — форма с token/chatId/switch, кнопки «Сохранить» и «Отправить тест»; доступ расширен для `SUPER_ADMIN`
+
+### Публичный REST API (API Keys)
+- **Backend — ApiKey модель**: `id, name, keyHash (SHA-256), orgId?, createdById, lastUsedAt, createdAt`; отношения добавлены в `Org` и `User`
+- **Backend — api-keys.service.ts**: `create()` — генерирует 32-байтный random hex, хранит SHA-256 хэш, возвращает plaintext только при создании; `findAll()` — без keyHash; `delete()`; `validateKey()` — хэширует входящий токен и ищет в БД + обновляет `lastUsedAt`
+- **Backend — api-key.guard.ts**: `CanActivate` — берёт `Authorization: Bearer <token>`, хэширует, ищет в БД, кладёт `request.apiKey` в контекст
+- **Backend — api-keys.controller.ts**: `POST /api-keys`, `GET /api-keys`, `DELETE /api-keys/:id` (JWT + SUPER_ADMIN/MANAGER); `GET /public/assignments`, `GET /public/users` (ApiKeyGuard, org-scoped результат)
+- **Backend — api-keys.module.ts**: оба контроллера + экспорт сервиса и guard
+- **Backend — app.module.ts**: добавлены импорты `TelegramModule`, `ApiKeysModule`
+- **Frontend — DevPage.tsx**: вкладка «API ключи» — форма создания ключа с названием, Alert с plaintext ключом (одноразово), список ключей с датами и кнопкой удаления через Popconfirm
+
+**Новые файлы:**
+- `backend/prisma/migrations/20260513200000_add_telegram_apikeys/migration.sql`
+- `backend/src/telegram/telegram.service.ts`
+- `backend/src/telegram/telegram.module.ts`
+- `backend/src/api-keys/api-keys.service.ts`
+- `backend/src/api-keys/api-key.guard.ts`
+- `backend/src/api-keys/api-keys.controller.ts`
+- `backend/src/api-keys/api-keys.module.ts`
+
+**Изменённые файлы:**
+- `backend/prisma/schema.prisma` — модели `TelegramSettings`, `ApiKey`, отношения в `Org`, `User`
+- `backend/src/automation/automation.service.ts` — инжекция `TelegramService`, вызов в `notifyWithCheck`
+- `backend/src/automation/automation.module.ts` — импорт `TelegramModule`
+- `backend/src/dev/dev.controller.ts` — telegram-эндпоинты
+- `backend/src/dev/dev.module.ts` — импорт `TelegramModule`
+- `backend/src/app.module.ts` — импорт `TelegramModule`, `ApiKeysModule`
+- `frontend/src/pages/DevPage.tsx` — вкладки Telegram и API ключи, расширен доступ
+
+---
+
+## 2026-05-13 — Фаза 5: Документооборот и файлы
+
+Реализовано прикрепление файлов к назначениям: загрузка через multer, хранение на диске, drag & drop UI.
+
+**Что сделано:**
+- **Backend — Prisma**: модель `File` (id, originalName, filename, mimetype, size, uploadedById, createdAt), модель `AssignmentFile` (связь назначение ↔ файл); отношения `files` добавлены в `User` и `Assignment`
+- **Backend — files.service.ts**: `attachToAssignment()` — сохранение метаданных и привязка к назначению; `getFilesForAssignment()` — список файлов; `getFileById()` — для скачивания; `deleteAssignmentFile()` — удаление с очисткой физического файла при отсутствии других ссылок
+- **Backend — files.controller.ts**: `GET /files/:id` — скачивание файла по ID (авторизованный эндпоинт, stream через `res.download()`)
+- **Backend — files.module.ts**: регистрация контроллера, провайдера, экспорт `FilesService`
+- **Backend — assignments.controller.ts**: `POST /assignments/:id/files` (multer `FileInterceptor`, diskStorage, лимит 20 МБ), `GET /assignments/:id/files`, `DELETE /assignments/:id/files/:fileId`; инжектирован `FilesService`
+- **Backend — assignments.module.ts**: импорт `FilesModule`
+- **Backend — app.module.ts**: импорт `FilesModule`
+- **Backend — package.json**: зависимость `multer ^1.4.5-lts.1`, devDependency `@types/multer ^1.4.12`
+- **Frontend — api/client.ts**: тип `AttachedFile`; функции `fetchAssignmentFiles()`, `uploadAssignmentFile()`, `deleteAssignmentFile()`, `downloadFile()`
+- **Frontend — FileAttachment.tsx**: компонент с Upload.Dragger (drag & drop), иконки по MIME-типу (PDF/image/Excel/Word/generic), список файлов, кнопки скачать/удалить, форматирование размера
+- **Frontend — Assignments.tsx**: состояние `filesModalAssignment`, кнопка «Файлы» с иконкой скрепки в колонке действий, Modal с `FileAttachment` (`destroyOnClose`)
+
+**Новые файлы:**
+- `backend/prisma/migrations/20260513190000_add_files/migration.sql`
+- `backend/src/files/files.service.ts`
+- `backend/src/files/files.controller.ts`
+- `backend/src/files/files.module.ts`
+- `backend/uploads/.gitkeep`
+- `frontend/src/components/FileAttachment.tsx`
+
+**Изменённые файлы:**
+- `backend/prisma/schema.prisma` — модели `File`, `AssignmentFile`, отношения в `User`, `Assignment`
+- `backend/src/assignments/assignments.controller.ts` — файловые эндпоинты, инжекция `FilesService`
+- `backend/src/assignments/assignments.module.ts` — импорт `FilesModule`
+- `backend/src/app.module.ts` — импорт `FilesModule`
+- `backend/package.json` — multer зависимости
+- `frontend/src/api/client.ts` — типы и функции для файлов
+- `frontend/src/pages/Assignments.tsx` — кнопка «Файлы» и модалка
+
+---
+
+## 2026-05-13 — Фаза 4: Автоматизация процессов
+
+Реализована система автоматических уведомлений по триггерам назначений и SLA-напоминания через cron-задачу.
+
+**Что сделано:**
+- **Backend — AutomationSettings модель**: новая таблица `AutomationSettings` в Prisma — per-org настройки триггеров и напоминаний; добавлено поле `reminderSentAt` в `Assignment` для трекинга отправки
+- **Backend — automation.service.ts**: метод `notifyWithCheck(orgId, ...)` — условная отправка уведомлений с проверкой настроек; метод `updateSettings()`/`getSettings()` — upsert настроек с дефолтами; `@Cron('0 * * * *')` cron-задача `sendSlaReminders()` — каждый час ищет назначения, начинающиеся через N часов, без отправленного REMINDER, рассылает напоминания и ставит `reminderSentAt`
+- **Backend — automation.controller.ts**: `GET /automation/settings`, `PUT /automation/settings` — доступны только SUPER_ADMIN и MANAGER
+- **Backend — automation.module.ts**: регистрация контроллера, провайдеров, экспорт `AutomationService`
+- **Backend — assignments.service.ts**: все 7 вызовов `notifyMany` заменены на `automation.notifyWithCheck(orgId, ...)` — теперь каждое уведомление проверяет настройки организации
+- **Backend — assignments.module.ts**: импортирует `AutomationModule`, убран прямой `NotificationsService`
+- **Backend — app.module.ts**: добавлены `ScheduleModule.forRoot()` и `AutomationModule`
+- **Backend — package.json**: добавлена зависимость `@nestjs/schedule: ^3.0.4`
+- **Frontend — api/client.ts**: типы `AutomationSettings`, `UpdateAutomationSettingsPayload`; функции `fetchAutomationSettings()`, `updateAutomationSettings()`
+- **Frontend — AutomationSettings.tsx**: страница настроек — Card «Триггеры уведомлений» (3 переключателя), Card «SLA-напоминания» (Switch + InputNumber за N часов); React Query + useMutation; disabled InputNumber когда напоминания выключены
+- **Frontend — Layout.tsx**: пункт «Автоматизация» в сайдбаре для SUPER_ADMIN и MANAGER
+- **Frontend — routes/index.tsx**: маршрут `/automation-settings`
+
+**Новые файлы:**
+- `backend/prisma/migrations/20260513180000_add_automation_settings/migration.sql`
+- `backend/src/automation/automation.service.ts`
+- `backend/src/automation/automation.controller.ts`
+- `backend/src/automation/automation.module.ts`
+- `frontend/src/pages/AutomationSettings.tsx`
+
+**Изменённые файлы:**
+- `backend/prisma/schema.prisma` — модель `AutomationSettings`, поле `reminderSentAt` в `Assignment`, отношение в `Org`
+- `backend/src/assignments/assignments.service.ts` — замена `NotificationsService` на `AutomationService`
+- `backend/src/assignments/assignments.module.ts` — импорт `AutomationModule`
+- `backend/src/app.module.ts` — `ScheduleModule.forRoot()`, `AutomationModule`
+- `backend/package.json` — зависимость `@nestjs/schedule`
+- `frontend/src/api/client.ts` — типы и функции для automation API
+- `frontend/src/components/Layout.tsx` — пункт навигации «Автоматизация»
+- `frontend/src/routes/index.tsx` — маршрут `/automation-settings`
+
+---
+
+## 2026-05-13 — Фаза 3: Центр уведомлений
+
+Реализован полноценный центр уведомлений с real-time счётчиком и дропдауном в шапке.
+
+**Что сделано:**
+- **Backend — расширение enum**: добавлены типы `SYSTEM` и `REMINDER` в `NotificationType` (Prisma migration + schema)
+- **Backend — notifications.service.ts**: переписан — `findForUser()` возвращает `{ items, unreadCount }` через `$transaction`; новые методы `markAsRead()`, `markAllAsRead()`, `createSystemNotification()`
+- **Backend — notifications.controller.ts**: добавлены эндпоинты `GET /notifications`, `PATCH+POST /notifications/:id/read`, `PATCH+POST /notifications/read-all`, `GET /notifications/me` (compat)
+- **Backend — notifications.module.ts**: зарегистрирован `NotificationsController` в модуле
+- **Frontend — api/client.ts**: новые типы `NotificationsResponse`, расширен `NotificationType`; функции `fetchNotifications()`, `markNotificationRead()`, `markAllNotificationsRead()`
+- **Frontend — Layout.tsx**: новый компонент `NotificationsDropdown` — Badge с unread-счётчиком, дропдаун с прокручиваемым списком уведомлений, отметка прочитанным по клику, кнопка «Прочитать все», автообновление каждые 30 секунд
+
+**Новые файлы:**
+- `backend/prisma/migrations/20260513165502_add_notification_types/migration.sql` — SQL-миграция для новых enum-значений
+
+**Изменённые файлы:**
+- `backend/prisma/schema.prisma` — `SYSTEM`, `REMINDER` в `NotificationType`
+- `backend/src/notifications/notifications.service.ts` — полная переработка
+- `backend/src/notifications/notifications.controller.ts` — новые эндпоинты
+- `backend/src/notifications/notifications.module.ts` — регистрация контроллера
+- `frontend/src/api/client.ts` — API-функции и типы для уведомлений
+- `frontend/src/components/Layout.tsx` — компонент `NotificationsDropdown`
+
+---
+
+## 2026-05-13 — Фаза 2: Полная адаптивность для мобильных устройств
+
+Реализована полная мобильная адаптивность для всего приложения (от 320px).
+
+**Что сделано:**
+- **Бургер-меню** — переработан сайдер: CSS-transform-анимация вместо left-сдвига, добавлен затемняющий backdrop-оверлей с закрытием по клику, кнопка Выйти сокращается на мобиле
+- **Модалки** — полный экран (100vw × 100dvh) на мобиле: flex-колонка заголовок/тело/футер, тело прокручивается, кнопки футера растягиваются на всю ширину
+- **Таблицы** — гарантированный горизонтальный скролл через `.ant-table-wrapper`, `-webkit-overflow-scrolling: touch`, compact-padding на мобиле
+- **Фильтры-аккордеон** — новый компонент `MobileFilters` (Collapse с иконкой фильтра): на мобиле сворачивает любые фильтры, на десктопе показывает как есть
+- **KPI-карточки** — уже использовали `xs={24}` Col, доп. стили для Statistic на малых экранах
+- **Popover/Dropdown** — ограничены по ширине на мобиле (90vw / 92vw)
+- **Date picker** — range-picker показывает панели вертикально на мобиле
+- **Recharts** — адаптирован шрифт/легенда на xs-экранах
+- **320px** — проверен базовый reset, убран горизонтальный overflow на `html`
+
+**Новые файлы:**
+- `frontend/src/hooks/useIsMobile.ts` — хук с resize-листенером
+- `frontend/src/components/MobileFilters.tsx` — аккордеон-обёртка для фильтров
+
+**Изменённые файлы:**
+- `frontend/src/styles/responsive.css` — полностью переписан (~230 строк)
+- `frontend/src/components/Layout.tsx` — backdrop, transform-анимация сайдера, адаптивный header
+- `frontend/src/pages/Statistics.tsx` — MobileFilters для блока фильтров
+- `frontend/src/pages/Assignments.tsx` — MobileFilters для блока фильтров
+- `frontend/src/pages/Users.tsx` — MobileFilters для блока фильтров
+- `frontend/src/pages/Workplaces.tsx` — MobileFilters для поиска/статуса, кнопка добавления вынесена отдельно
+
+---
+
+## 2026-05-13 — Фаза 1: Расширенная аналитика и KPI dashboard
+
+Реализована расширенная аналитика на странице Statistics. Новые возможности:
+- **KPI-карточки**: сотрудники в периоде, плановые/отчётные часы, процент выполнения (gauge), количество смен, количество сотрудников без отчёта (с визуальным выделением)
+- **График динамики**: линейный график плановых vs отчётных часов по дням (recharts)
+- **Сводная таблица по рабочим местам**: плановые ч., отчётные ч., выполнение (цветной тег), количество сотрудников, количество смен — с сортировкой по всем колонкам
+- Весь существующий функционал сохранён (таблица сотрудников, детализация, календарь отчётов, CSV-экспорт)
+
+**Изменённые файлы:**
+- `backend/src/statistics/statistics.service.ts` — добавлен метод `getKpi()`, тип `KpiResponse`; агрегация KPI-метрик, сводки по рабочим местам и дневной динамики
+- `backend/src/statistics/statistics.controller.ts` — добавлен эндпоинт `GET /statistics/kpi` с `JwtAuthGuard`
+- `frontend/src/api/client.ts` — добавлены типы `KpiSummary`, `KpiByWorkplace`, `KpiDynamicsPoint`, `KpiResponse`; функция `fetchKpi()`
+- `frontend/src/pages/Statistics.tsx` — добавлены компоненты `KpiCards`, `DynamicsChart`, `workplaceColumns`; интегрирован recharts; сохранена вся предыдущая функциональность
+- `frontend/package.json` — добавлена зависимость `recharts`
+
+---
+
+## 2026-05-13 — Актуальная версия с сервера (`a7a66e2`)
+
+Синхронизация кода с production-сервера. Масштабный рефакторинг UI.
+
+**Изменённые файлы:**
+- `default.conf` — добавлен Nginx-конфиг в корень
+- `docker-compose.yml` — правки конфигурации
+- `frontend/nginx-conf/default.conf` — Nginx-конфиг фронтенда
+- `frontend/src/nginx-conf/default.conf` — дублирующий конфиг
+- `frontend/src/components/Layout.tsx` — переработка layout-компонента
+- `frontend/src/index.css` — правки глобальных стилей
+- `frontend/src/pages/Assignments.tsx` — доработки страницы назначений
+- `frontend/src/pages/Dashboard.tsx` — переработка дашборда
+- `frontend/src/pages/MyPlace.tsx` — правки личного кабинета
+- `frontend/src/pages/Planner.tsx` — крупная переработка планировщика смен
+- `frontend/src/pages/Statistics.tsx` — доработки страницы статистики
+- `frontend/src/pages/Users.tsx` — мелкие правки
+- `frontend/src/pages/Workplaces.tsx` — переработка страницы рабочих мест
+- `frontend/src/styles/responsive.css` — правки адаптивных стилей
+
+---
+
+## 2025-12-29 — Корректировки расписания, смена рабочего места, поведение статистики (`fb60f05`)
+
+**Изменённые файлы:**
+- `backend/prisma/schema.prisma` — добавлены поля в схему
+- `backend/src/users/me.controller.ts` — правки контроллера профиля
+- `frontend/src/pages/Assignments.tsx` — расширение функционала назначений
+- `frontend/src/pages/MyPlace.tsx` — крупная доработка личного кабинета (корректировки расписания, запрос на смену места)
+- `frontend/src/pages/Statistics.tsx` — масштабная переработка статистики
+
+---
+
+## 2025-12-21 — Каскадные удаления и страница инструкций (`6136741`)
+
+**Изменённые файлы:**
+- `backend/src/assignments/assignments.service.ts` — исправление каскадных удалений
+- `backend/src/users/users.service.ts` — исправление каскадных удалений
+- `backend/src/workplaces/workplaces.service.ts` — исправление каскадных удалений
+- `frontend/src/pages/Instructions.tsx` — создание полноценной страницы инструкций
+- `frontend/src/routes/index.tsx` — добавление маршрута для страницы инструкций
+
+---
+
+## 2025-12-20 — Рабочие отчёты, блок «Моя статистика», правки рабочих мест (`9463032`)
+
+Крупная итерация: модуль WorkReport, рефакторинг назначений, переработка MyPlace.
+
+**Изменённые файлы:**
+- `backend/prisma/schema.prisma` — добавлена модель `WorkReport`
+- `backend/src/app.module.ts` — регистрация нового модуля
+- `backend/src/assignments/assignments.controller.ts` — расширение эндпоинтов
+- `backend/src/assignments/assignments.service.ts` — расширение сервиса
+- `backend/src/auth/auth.service.ts` — правки аутентификации
+- `backend/src/notifications/email.service.ts` — правки email-уведомлений
+- `backend/src/planner/planner.controller.ts` — правки
+- `backend/src/planner/planner.service.ts` — правки
+- `backend/src/report/report.controller.ts` — создан контроллер отчётов
+- `backend/src/report/report.module.ts` — создан модуль отчётов
+- `backend/src/report/report.service.ts` — создан сервис отчётов
+- `backend/src/statistics/statistics.service.ts` — доработки
+- `backend/src/users/me.controller.ts` — расширение профиля
+- `backend/src/users/users.controller.ts` — правки
+- `backend/src/users/users.service.ts` — правки
+- `backend/src/workplaces/workplaces.controller.ts` — правки
+- `frontend/src/api/client.ts` — расширение API-клиента
+- `frontend/src/components/WorkReportCalendarModal.tsx` — создан модал для ввода рабочих часов
+- `frontend/src/i18n.ts` — правки локализации
+- `frontend/src/index.css` — стили
+- `frontend/src/main.tsx` — правки точки входа
+- `frontend/src/pages/AssignmentAdjustments.tsx` — правки
+- `frontend/src/pages/Assignments.tsx` — крупная доработка
+- `frontend/src/pages/MyPlace.tsx` — масштабная переработка
+- `frontend/src/pages/Planner.tsx` — доработки
+- `frontend/src/pages/Statistics.tsx` — доработки
+- `frontend/src/pages/Users.tsx` — доработки
+- `frontend/src/pages/Workplaces.tsx` — правки
+- `frontend/src/styles/responsive.css` — добавлен файл адаптивных стилей
+
+---
+
+## 2025-12-15 — Обработка паролей и самостоятельная смена пароля (`1d7a356`)
+
+**Изменённые файлы:**
+- `backend/src/users/users.service.ts` — логика отправки пароля по email и хранения метаданных
+- `frontend/src/pages/MyPlace.tsx` — форма самостоятельной смены пароля
+
+---
+
+## 2025-12-15 — Статистика, корректировки, цвет рабочего места, очистка кода (`4d266e8`)
+
+Масштабный рефакторинг: добавлены модули статистики и корректировок расписания.
+
+**Изменённые файлы:**
+- `.gitignore` — обновление
+- `backend/package.json` — зависимости
+- `backend/prisma/schema.prisma` — крупное расширение схемы
+- `backend/src/app.module.ts` — регистрация модулей
+- `backend/src/assignments/assignments.controller.ts` — расширение
+- `backend/src/assignments/assignments.service.ts` — расширение
+- `backend/src/auth/auth.controller.ts` — правки
+- `backend/src/notifications/email.service.ts` — правки
+- `backend/src/notifications/notifications.module.ts` — правки
+- `backend/src/planner/planner.service.ts` — крупная доработка
+- `backend/src/statistics/dto/get-statistics.dto.ts` — создан DTO
+- `backend/src/statistics/statistics.controller.ts` — создан контроллер
+- `backend/src/statistics/statistics.module.ts` — создан модуль
+- `backend/src/statistics/statistics.service.ts` — создан сервис
+- `backend/src/users/dto/create-user.dto.ts` — расширение DTO
+- `backend/src/users/me.controller.ts` — крупная доработка
+- `backend/src/users/users.controller.ts` — правки
+- `backend/src/users/users.module.ts` — правки
+- `backend/src/users/users.service.ts` — правки
+- `backend/src/workplaces/dto/create-workplace.dto.ts` — поле color
+- `backend/src/workplaces/dto/update-workplace.dto.ts` — поле color
+- `docker-compose.yml` — правки
+- `frontend/index.html` — правки
+
+---
+
+## 2025-11-20 — Редизайн MyPlace, поток корректировок, вид планировщика (`aa67c1e`)
+
+**Изменённые файлы:**
+- Масштабный рефакторинг страниц `MyPlace`, планировщика и эндпоинтов бекенда (детали в коммите `aa67c1e`)
+
+---
+
+## 2025-11-08 — Dev-инструменты, настройки SMS, бекапы и логи (`fb12b89`)
+
+**Изменённые файлы:**
+- `backend/src/dev/` — страница и инструменты разработчика
+- `backend/src/sms/` — модуль настроек SMS
+- Инфраструктурные скрипты для бекапов и логов
+
+---
+
+## 2025-11-02 — 2025-11-03 — Начальная разработка ядра системы
+
+Серия PR через GitHub Codex: базовая архитектура, JWT-аутентификация, матрица планировщика, роли пользователей, экспорт, email-уведомления.
+
+**Ключевые модули, созданные в этот период:**
+- `backend/src/auth/` — JWT-аутентификация
+- `backend/src/assignments/` — назначения сотрудников
+- `backend/src/planner/` — планировщик смен
+- `backend/src/users/` — управление пользователями и ролями
+- `backend/src/workplaces/` — рабочие места
+- `backend/src/notifications/` — email-уведомления
+- `frontend/src/pages/` — все основные страницы
+- `frontend/src/api/client.ts` — Axios API-клиент
+
+---
+
+## 2025-11-01 — Инициализация проекта (`eb6773a`, `b1492c8`)
+
+- Создана структура pnpm-монорепозитория
+- Базовая сборка Armico CRM
+- Первая миграция Prisma
+- Docker Compose с PostgreSQL и Redis
+- Примеры `.env`
+
+---
+
+_Следующие записи добавляются при каждом изменении кода._

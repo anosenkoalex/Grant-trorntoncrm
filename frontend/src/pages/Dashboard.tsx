@@ -107,7 +107,7 @@ const Dashboard = () => {
     refetchInterval: 60_000,
   });
 
-  const notifications = (notificationsQuery.data ?? []) as Notification[];
+  const notifications: Notification[] = notificationsQuery.data?.items ?? [];
 
   // ====== 2) Мини-статистика для админа ======
   const usersCountQuery = useQuery({
@@ -136,19 +136,17 @@ const Dashboard = () => {
     queryKey: ['dashboard', 'counts', 'assignments', 'active'],
     queryFn: async () => {
       try {
-        // @ts-ignore
         const res = await fetchAssignments({
           page: 1,
-          take: 1,
+          pageSize: 1,
           status: 'ACTIVE',
         });
         return res as AnyResponse;
       } catch {
-        // @ts-ignore
         const res = await fetchAssignments({
           page: 1,
-          take: 1,
-          filter: { status: 'ACTIVE' },
+          pageSize: 1,
+          status: 'ACTIVE',
         });
         return res as AnyResponse;
       }
@@ -168,7 +166,7 @@ const Dashboard = () => {
       isAdmin ? 'admin' : 'recent',
       role,
       profile?.org?.id ?? null,
-      user?.id ?? null,
+      user?.sub ?? null,
     ],
     queryFn: () => {
       const take = 10;
@@ -183,7 +181,7 @@ const Dashboard = () => {
     refetchInterval: 60_000,
   });
 
-  const feedItems = (feedQuery.data ?? []) as FeedItem[];
+  const feedItems: FeedItem[] = Array.isArray(feedQuery.data) ? feedQuery.data : [];
 
   const getNotificationView = (n: Notification): NotificationView => {
     const createdAt = dayjs((n as any).createdAt).format('DD.MM.YYYY HH:mm');

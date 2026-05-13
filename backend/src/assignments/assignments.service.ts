@@ -16,7 +16,7 @@ import { PrismaService } from '../common/prisma/prisma.service.js';
 import { CreateAssignmentDto } from './dto/create-assignment.dto.js';
 import { UpdateAssignmentDto } from './dto/update-assignment.dto.js';
 import { ListAssignmentsDto } from './dto/list-assignments.dto.js';
-import { NotificationsService } from '../notifications/notifications.service.js';
+import { AutomationService } from '../automation/automation.service.js';
 import { EmailService } from '../notifications/email.service.js';
 import { SmsService } from '../sms/sms.service.js';
 
@@ -96,7 +96,7 @@ export class AssignmentsService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly notifications: NotificationsService,
+    private readonly automation: AutomationService,
     private readonly email: EmailService,
     private readonly smsService: SmsService,
   ) {}
@@ -396,7 +396,8 @@ export class AssignmentsService {
       assignment!.workplace.orgId,
     );
 
-    await this.notifications.notifyMany(
+    await this.automation.notifyWithCheck(
+      assignment!.workplace.orgId,
       recipients,
       NotificationType.ASSIGNMENT_CREATED,
       {
@@ -673,15 +674,18 @@ export class AssignmentsService {
       existing.user.orgId!,
     );
 
-    await this.notifications.notifyMany(
-      recipients,
-      NotificationType.ASSIGNMENT_UPDATED,
-      {
-        assignmentId: assignment!.id,
-        userId: assignment!.userId,
-        workplaceId: assignment!.workplaceId,
-      },
-    );
+    if (existing.user.orgId) {
+      await this.automation.notifyWithCheck(
+        existing.user.orgId,
+        recipients,
+        NotificationType.ASSIGNMENT_UPDATED,
+        {
+          assignmentId: assignment!.id,
+          userId: assignment!.userId,
+          workplaceId: assignment!.workplaceId,
+        },
+      );
+    }
 
     return assignment;
   }
@@ -716,7 +720,8 @@ export class AssignmentsService {
       workplace!.orgId,
     );
 
-    await this.notifications.notifyMany(
+    await this.automation.notifyWithCheck(
+      workplace!.orgId,
       recipients,
       NotificationType.ASSIGNMENT_CANCELLED,
       {
@@ -773,7 +778,8 @@ export class AssignmentsService {
       assignment.workplace.orgId,
     );
 
-    await this.notifications.notifyMany(
+    await this.automation.notifyWithCheck(
+      assignment.workplace.orgId,
       recipients,
       NotificationType.ASSIGNMENT_CANCELLED,
       {
@@ -824,7 +830,8 @@ export class AssignmentsService {
         workplace.orgId,
       );
 
-      await this.notifications.notifyMany(
+      await this.automation.notifyWithCheck(
+        workplace.orgId,
         recipients,
         NotificationType.ASSIGNMENT_CANCELLED,
         {
@@ -1301,7 +1308,8 @@ export class AssignmentsService {
         orgId,
       );
 
-      await this.notifications.notifyMany(
+      await this.automation.notifyWithCheck(
+        orgId,
         recipients,
         NotificationType.ASSIGNMENT_UPDATED,
         {
@@ -1509,7 +1517,8 @@ export class AssignmentsService {
         orgId,
       );
 
-      await this.notifications.notifyMany(
+      await this.automation.notifyWithCheck(
+        orgId,
         recipients,
         NotificationType.ASSIGNMENT_UPDATED,
         {

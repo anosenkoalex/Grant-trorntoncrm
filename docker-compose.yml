@@ -5,8 +5,8 @@ services:
     image: postgres:15
     environment:
       POSTGRES_DB: armico
-      POSTGRES_USER: armico
-      POSTGRES_PASSWORD: armico
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     volumes:
       - postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -25,7 +25,7 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      DATABASE_URL: postgresql://armico:armico@postgres:5432/armico
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/armico
       REDIS_URL: redis://redis:6379/0
       PORT: '3000'
     restart: unless-stopped

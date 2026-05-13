@@ -34,6 +34,7 @@ import {
   type Assignment,
 } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.js';
+import { MobileFilters } from '../components/MobileFilters.js';
 
 type UsersQueryResult = PaginatedResponse<User>;
 
@@ -549,34 +550,36 @@ const UsersPage = () => {
         </Button>
       </div>
 
-      <Form
-        layout="inline"
-        className="mb-4"
-        onValuesChange={(_changedValues, allValues) => {
-          setFilters({
-            role: allValues.role,
-            search: allValues.search,
-          });
-          setPage(1);
-        }}
-      >
-        <Form.Item name="role" label={t('users.role')}>
-          <Select
-            allowClear
-            options={roleOptions.map((value) => ({
-              value,
-              label:
-                value === 'MANAGER'
-                  ? t('users.roles.manager')
-                  : t('users.roles.user'),
-            }))}
-            style={{ width: 220 }}
-          />
-        </Form.Item>
-        <Form.Item name="search" label={t('users.search')}>
-          <Input.Search allowClear style={{ width: 260 }} />
-        </Form.Item>
-      </Form>
+      <MobileFilters style={{ marginBottom: 16 }}>
+        <Form
+          layout="inline"
+          className="mb-4"
+          onValuesChange={(_changedValues, allValues) => {
+            setFilters({
+              role: allValues.role,
+              search: allValues.search,
+            });
+            setPage(1);
+          }}
+        >
+          <Form.Item name="role" label={t('users.role')}>
+            <Select
+              allowClear
+              options={roleOptions.map((value) => ({
+                value,
+                label:
+                  value === 'MANAGER'
+                    ? t('users.roles.manager')
+                    : t('users.roles.user'),
+              }))}
+              style={{ width: 220 }}
+            />
+          </Form.Item>
+          <Form.Item name="search" label={t('users.search')}>
+            <Input.Search allowClear style={{ width: 260 }} />
+          </Form.Item>
+        </Form>
+      </MobileFilters>
 
       <Table
         rowKey={(record) => record.id}

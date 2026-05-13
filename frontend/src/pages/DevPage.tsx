@@ -10,9 +10,12 @@ import {
   List,
   Tag,
   message,
+  Popconfirm,
+  Alert,
 } from 'antd';
 import type { TabsProps } from 'antd';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.js';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
@@ -72,6 +75,7 @@ type DevLogsState = {
 };
 
 const DevPage = () => {
+  const { t } = useTranslation();
   const { user, token } = useAuth();
   const [smsForm] = Form.useForm<SmsSettingsForm>();
   const [emailForm] = Form.useForm<EmailSettingsForm>();
@@ -89,8 +93,23 @@ const DevPage = () => {
 
   const [backupLoading, setBackupLoading] = useState(false);
 
-  // доступ только для dev-аккаунта
-  const isAllowed = !!user && user.email === 'dev@armico.local';
+  // ─── Telegram ───
+  type TelegramForm = { enabled: boolean; token?: string | null; chatId?: string | null };
+  const [telegramForm] = Form.useForm<TelegramForm>();
+  const [loadingTelegram, setLoadingTelegram] = useState(false);
+  const [savingTelegram, setSavingTelegram] = useState(false);
+  const [testingTelegram, setTestingTelegram] = useState(false);
+
+  // ─── API Keys ───
+  type ApiKeyRecord = { id: string; name: string; orgId: string | null; lastUsedAt: string | null; createdAt: string; org: { id: string; name: string } | null };
+  type CreatedKey = { id: string; name: string; key: string };
+  const [apiKeys, setApiKeys] = useState<ApiKeyRecord[]>([]);
+  const [apiKeysLoading, setApiKeysLoading] = useState(false);
+  const [newKeyName, setNewKeyName] = useState('');
+  const [creatingKey, setCreatingKey] = useState(false);
+  const [justCreatedKey, setJustCreatedKey] = useState<CreatedKey | null>(null);
+
+  const isAllowed = !!user && (user.email === 'dev@armico.local' || user.role === 'SUPER_ADMIN');
 
   const authHeaders: Record<string, string> = token
     ? { Authorization: `Bearer ${token}` }
@@ -178,10 +197,103 @@ const DevPage = () => {
     }
   };
 
+  // ----- Telegram settings -----
+
+  const loadTelegramSettings = async () => {
+    try {
+      setLoadingTelegram(true);
+      const res = await fetch(`${API_URL}/dev/telegram-settings`, {
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+      });
+      if (!res.ok) throw new Error('Failed to load Telegram settings');
+      const data = await res.json() as TelegramForm;
+      telegramForm.setFieldsValue({ enabled: Boolean(data.enabled), token: data.token ?? '', chatId: data.chatId ?? '' });
+    } catch { message.error(t('dev.telegram.loadError')); }
+    finally { setLoadingTelegram(false); }
+  };
+
+  const handleTelegramSave = async (values: TelegramForm) => {
+    try {
+      setSavingTelegram(true);
+      const res = await fetch(`${API_URL}/dev/telegram-settings`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify(values),
+      });
+      if (!res.ok) throw new Error();
+      message.success(t('dev.telegram.savedSuccess'));
+    } catch { message.error(t('dev.telegram.saveError')); }
+    finally { setSavingTelegram(false); }
+  };
+
+  const handleTelegramTest = async () => {
+    try {
+      setTestingTelegram(true);
+      const res = await fetch(`${API_URL}/dev/test-telegram`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({})) as { message?: string };
+        message.error(data.message ?? t('dev.telegram.testError'));
+        return;
+      }
+      message.success(t('dev.telegram.testSuccess'));
+    } catch { message.error(t('dev.telegram.testError')); }
+    finally { setTestingTelegram(false); }
+  };
+
+  // ----- API Keys -----
+
+  const loadApiKeys = async () => {
+    try {
+      setApiKeysLoading(true);
+      const res = await fetch(`${API_URL}/api-keys`, {
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json() as ApiKeyRecord[];
+      setApiKeys(Array.isArray(data) ? data : []);
+    } catch { message.error(t('dev.apiKeys.loadError')); }
+    finally { setApiKeysLoading(false); }
+  };
+
+  const handleCreateKey = async () => {
+    const name = newKeyName.trim();
+    if (!name) { message.warning(t('dev.apiKeys.nameRequired')); return; }
+    try {
+      setCreatingKey(true);
+      const res = await fetch(`${API_URL}/api-keys`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify({ name }),
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json() as CreatedKey;
+      setJustCreatedKey(data);
+      setNewKeyName('');
+      void loadApiKeys();
+    } catch { message.error(t('dev.apiKeys.createError')); }
+    finally { setCreatingKey(false); }
+  };
+
+  const handleDeleteKey = async (id: string) => {
+    try {
+      await fetch(`${API_URL}/api-keys/${id}`, {
+        method: 'DELETE',
+        headers: { ...authHeaders },
+      });
+      setApiKeys((prev) => prev.filter((k) => k.id !== id));
+      message.success(t('dev.apiKeys.deleteSuccess'));
+    } catch { message.error(t('dev.apiKeys.deleteError')); }
+  };
+
   useEffect(() => {
     if (!isAllowed) return;
     void loadSmsSettings();
     void loadEmailSettings();
+    void loadTelegramSettings();
+    void loadApiKeys();
   }, [isAllowed]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ----- SMS settings -----
@@ -399,11 +511,8 @@ const DevPage = () => {
   if (!isAllowed) {
     return (
       <Card>
-        <Typography.Title level={3}>Доступ запрещён</Typography.Title>
-        <Typography.Paragraph>
-          Эта страница доступна только для developer-аккаунта
-          (dev@armico.local).
-        </Typography.Paragraph>
+        <Typography.Title level={3}>{t('dev.accessDenied')}</Typography.Title>
+        <Typography.Paragraph>{t('dev.accessDesc')}</Typography.Paragraph>
       </Card>
     );
   }
@@ -413,7 +522,7 @@ const DevPage = () => {
   const items: TabsProps['items'] = [
     {
       key: 'sms',
-      label: 'SMS настройки',
+      label: t('dev.tabSms'),
       children: (
         <Card loading={loadingSms}>
           <Form<SmsSettingsForm>
@@ -475,7 +584,7 @@ const DevPage = () => {
     },
     {
       key: 'email',
-      label: 'Email настройки',
+      label: t('dev.tabEmail'),
       children: (
         <Card loading={loadingEmail}>
           <Form<EmailSettingsForm>
@@ -542,7 +651,7 @@ const DevPage = () => {
     },
     {
       key: 'logs',
-      label: 'Логи',
+      label: t('dev.tabLogs'),
       children: (
         <Card
           extra={
@@ -627,8 +736,130 @@ const DevPage = () => {
       ),
     },
     {
+      key: 'telegram',
+      label: t('dev.tabTelegram'),
+      children: (
+        <Card loading={loadingTelegram}>
+          <Form<TelegramForm>
+            form={telegramForm}
+            layout="vertical"
+            initialValues={{ enabled: false }}
+            onFinish={handleTelegramSave}
+          >
+            <Form.Item name="enabled" label={t('dev.telegram.enabledLabel')} valuePropName="checked">
+              <Switch />
+            </Form.Item>
+            <Form.Item name="token" label={t('dev.telegram.tokenLabel')} extra={t('dev.telegram.tokenHelp')}>
+              <Input.Password placeholder="123456789:AABBcc..." />
+            </Form.Item>
+            <Form.Item name="chatId" label={t('dev.telegram.chatIdLabel')} extra={t('dev.telegram.chatIdHelp')}>
+              <Input placeholder="-1001234567890" />
+            </Form.Item>
+            <Space>
+              <Button type="primary" htmlType="submit" loading={savingTelegram}>
+                {t('dev.telegram.save')}
+              </Button>
+              <Button onClick={handleTelegramTest} loading={testingTelegram}>
+                {t('dev.telegram.test')}
+              </Button>
+            </Space>
+          </Form>
+          <Typography.Paragraph type="secondary" style={{ marginTop: 16, marginBottom: 0 }}>
+            {t('dev.telegram.desc')}
+          </Typography.Paragraph>
+        </Card>
+      ),
+    },
+    {
+      key: 'api-keys',
+      label: t('dev.tabApiKeys'),
+      children: (
+        <Card loading={apiKeysLoading}>
+          <Typography.Paragraph>
+            {t('dev.apiKeys.desc')}
+            <br />
+            <Typography.Text code>GET /public/assignments</Typography.Text>{' '}
+            <Typography.Text code>GET /public/users</Typography.Text>
+            <br />
+            <Typography.Text code>Authorization: Bearer &lt;key&gt;</Typography.Text>
+          </Typography.Paragraph>
+
+          {justCreatedKey && (
+            <Alert
+              type="success"
+              showIcon
+              style={{ marginBottom: 16 }}
+              message={t('dev.apiKeys.createdAlert')}
+              description={
+                <Typography.Text copyable code style={{ wordBreak: 'break-all' }}>
+                  {justCreatedKey.key}
+                </Typography.Text>
+              }
+              closable
+              onClose={() => setJustCreatedKey(null)}
+            />
+          )}
+
+          <Space.Compact style={{ marginBottom: 16, width: '100%', maxWidth: 480 }}>
+            <Input
+              placeholder={t('dev.apiKeys.namePlaceholder')}
+              value={newKeyName}
+              onChange={(e) => setNewKeyName(e.target.value)}
+              onPressEnter={handleCreateKey}
+            />
+            <Button type="primary" onClick={handleCreateKey} loading={creatingKey}>
+              {t('dev.apiKeys.createBtn')}
+            </Button>
+          </Space.Compact>
+
+          {apiKeys.length === 0 ? (
+            <Typography.Text type="secondary">{t('dev.apiKeys.noKeys')}</Typography.Text>
+          ) : (
+            <List
+              size="small"
+              dataSource={apiKeys}
+              renderItem={(item) => (
+                <List.Item
+                  actions={[
+                    <Popconfirm
+                      key="del"
+                      title={t('dev.apiKeys.deleteConfirm')}
+                      onConfirm={() => void handleDeleteKey(item.id)}
+                      okText={t('dev.apiKeys.deleteBtn')}
+                      cancelText={t('common.cancel')}
+                    >
+                      <Button type="link" danger size="small">
+                        {t('dev.apiKeys.deleteBtn')}
+                      </Button>
+                    </Popconfirm>,
+                  ]}
+                >
+                  <List.Item.Meta
+                    title={item.name}
+                    description={
+                      <Space size={4}>
+                        {item.org && <Tag>{item.org.name}</Tag>}
+                        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                          {t('dev.apiKeys.createdLabel')}: {new Date(item.createdAt).toLocaleDateString()}
+                        </Typography.Text>
+                        {item.lastUsedAt && (
+                          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                            · {t('dev.apiKeys.lastUsedLabel')}: {new Date(item.lastUsedAt).toLocaleDateString()}
+                          </Typography.Text>
+                        )}
+                      </Space>
+                    }
+                  />
+                </List.Item>
+              )}
+            />
+          )}
+        </Card>
+      ),
+    },
+    {
       key: 'backup',
-      label: 'Бэкапы',
+      label: t('dev.tabBackup'),
       children: (
         <Card>
           <Typography.Paragraph>
@@ -651,7 +882,7 @@ const DevPage = () => {
   return (
     <Card>
       <Typography.Title level={3} style={{ marginBottom: 16 }}>
-        Developer console
+        {t('dev.title')}
       </Typography.Title>
       <Tabs
         defaultActiveKey="sms"
