@@ -1,10 +1,27 @@
-import { Alert, Button, Card, Form, Input, Layout, Select, Space, Typography } from 'antd';
+import {
+  Alert,
+  Button,
+  Card,
+  Form,
+  Input,
+  Layout,
+  Select,
+  Space,
+  Typography,
+} from 'antd';
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { initiateRegistration, type SubscriptionPlan } from '../api/client.js';
 
-const { Content } = Layout;
+const { Header, Content } = Layout;
 const { Title, Text, Link } = Typography;
+
+const LANG_OPTIONS = [
+  { value: 'en', label: 'EN' },
+  { value: 'tr', label: 'TR' },
+  { value: 'ru', label: 'RU' },
+];
 
 const PLAN_LABELS: Record<SubscriptionPlan, string> = {
   STARTER: 'Starter — $29/mo (up to 10 users)',
@@ -23,11 +40,18 @@ interface FormValues {
 export default function RegisterPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { i18n } = useTranslation();
+
+  const handleLangChange = (lang: string) => {
+    void i18n.changeLanguage(lang);
+    localStorage.setItem('lang', lang);
+  };
   const [form] = Form.useForm<FormValues>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const defaultPlan = (searchParams.get('plan') as SubscriptionPlan) || 'STARTER';
+  const defaultPlan =
+    (searchParams.get('plan') as SubscriptionPlan) || 'STARTER';
 
   const handleSubmit = async (values: FormValues) => {
     setError(null);
@@ -43,13 +67,21 @@ export default function RegisterPage() {
         window.location.href = url;
       }
     } catch (err: unknown) {
-      const apiErr = err as { response?: { data?: { message?: string | string[]; code?: string } } };
+      const apiErr = err as {
+        response?: { data?: { message?: string | string[]; code?: string } };
+      };
       const msg = apiErr?.response?.data?.message;
       if (Array.isArray(msg)) setError(msg.join(', '));
-      else if (msg === 'EMAIL_TAKEN' || apiErr?.response?.data?.code === 'EMAIL_TAKEN') {
+      else if (
+        msg === 'EMAIL_TAKEN' ||
+        apiErr?.response?.data?.code === 'EMAIL_TAKEN'
+      ) {
         setError('This email is already registered. Please log in instead.');
       } else {
-        setError((msg as string | undefined) ?? 'Registration failed. Please try again.');
+        setError(
+          (msg as string | undefined) ??
+            'Registration failed. Please try again.',
+        );
       }
     } finally {
       setLoading(false);
@@ -58,6 +90,32 @@ export default function RegisterPage() {
 
   return (
     <Layout style={{ minHeight: '100vh', background: '#f0f2f5' }}>
+      <Header
+        style={{
+          background: '#fff',
+          padding: '0 40px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+        }}
+      >
+        <Title
+          level={4}
+          style={{ margin: 0, color: '#1677ff', cursor: 'pointer' }}
+          onClick={() => navigate('/')}
+        >
+          Grant Thornton CRM
+        </Title>
+        <Select
+          size="small"
+          value={i18n.language.slice(0, 2)}
+          onChange={handleLangChange}
+          options={LANG_OPTIONS}
+          style={{ width: 68 }}
+          variant="borderless"
+        />
+      </Header>
       <Content
         style={{
           display: 'flex',
@@ -68,9 +126,6 @@ export default function RegisterPage() {
       >
         <div style={{ width: '100%', maxWidth: 480 }}>
           <div style={{ textAlign: 'center', marginBottom: 24 }}>
-            <Title level={3} style={{ color: '#1677ff', marginBottom: 4 }}>
-              Armico CRM
-            </Title>
             <Title level={4} style={{ margin: 0, fontWeight: 500 }}>
               Create your company account
             </Title>
@@ -78,7 +133,14 @@ export default function RegisterPage() {
 
           <Card style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }}>
             {error && (
-              <Alert type="error" message={error} showIcon style={{ marginBottom: 16 }} closable onClose={() => setError(null)} />
+              <Alert
+                type="error"
+                message={error}
+                showIcon
+                style={{ marginBottom: 16 }}
+                closable
+                onClose={() => setError(null)}
+              />
             )}
 
             <Form
@@ -90,7 +152,9 @@ export default function RegisterPage() {
               <Form.Item
                 label="Company Name"
                 name="companyName"
-                rules={[{ required: true, message: 'Please enter your company name' }]}
+                rules={[
+                  { required: true, message: 'Please enter your company name' },
+                ]}
               >
                 <Input placeholder="Acme Corp" size="large" />
               </Form.Item>
@@ -103,7 +167,11 @@ export default function RegisterPage() {
                   { type: 'email', message: 'Please enter a valid email' },
                 ]}
               >
-                <Input placeholder="admin@company.com" size="large" type="email" />
+                <Input
+                  placeholder="admin@company.com"
+                  size="large"
+                  type="email"
+                />
               </Form.Item>
 
               <Form.Item
@@ -128,7 +196,9 @@ export default function RegisterPage() {
                       if (!value || getFieldValue('password') === value) {
                         return Promise.resolve();
                       }
-                      return Promise.reject(new Error('Passwords do not match'));
+                      return Promise.reject(
+                        new Error('Passwords do not match'),
+                      );
                     },
                   }),
                 ]}
@@ -143,7 +213,9 @@ export default function RegisterPage() {
               >
                 <Select
                   size="large"
-                  options={Object.entries(PLAN_LABELS).map(([value, label]) => ({ value, label }))}
+                  options={Object.entries(PLAN_LABELS).map(
+                    ([value, label]) => ({ value, label }),
+                  )}
                 />
               </Form.Item>
 
@@ -167,7 +239,9 @@ export default function RegisterPage() {
             </div>
           </Card>
 
-          <Space style={{ marginTop: 16, justifyContent: 'center', width: '100%' }}>
+          <Space
+            style={{ marginTop: 16, justifyContent: 'center', width: '100%' }}
+          >
             <Text type="secondary">Already have an account?</Text>
             <Link onClick={() => navigate('/login')}>Sign In</Link>
           </Space>

@@ -4,6 +4,16 @@
 
 ---
 
+## 2026-05-14 — Страница регистрации: брендинг и переключатель языков
+
+- **Register.tsx**: заменено «Armico CRM» → «Grant Thornton CRM»; добавлен header с логотипом-ссылкой на `/` и переключателем языков EN/TR/RU (Select + useTranslation/i18next, сохранение в localStorage); лого убрано из тела формы, осталось только в шапке
+
+**Изменённые файлы:**
+
+- `frontend/src/pages/Register.tsx` — header с Grant Thornton CRM + lang switcher
+
+---
+
 ## 2026-05-14 — Мультиязычность лендинга + порядок языков
 
 - **i18n.ts**: добавлен раздел `landing` во все три языка (EN/TR/RU) — ключи: `signIn`, `getStarted`, `startTrial`, `heroTitle`, `heroSubtitle`, `featuresTitle`, `feature1Title`…`feature6Title`, `feature1Desc`…`feature6Desc`, `pricingTitle`, `pricingSubtitle`, `popular`, `perMonth`, `planCta`, `starterName/Limit`, `businessName/Limit`, `enterpriseName/Limit`, `fShifts`…`fSla`, `footerRights`
