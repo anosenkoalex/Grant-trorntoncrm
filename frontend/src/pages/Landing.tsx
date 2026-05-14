@@ -1,4 +1,13 @@
-import { Button, Card, Col, Layout, Row, Select, Space, Typography } from 'antd';
+import {
+  Button,
+  Card,
+  Col,
+  Layout,
+  Row,
+  Select,
+  Space,
+  Typography,
+} from 'antd';
 import { CheckOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -6,99 +15,81 @@ import { useTranslation } from 'react-i18next';
 const { Header, Content, Footer } = Layout;
 const { Title, Text, Paragraph } = Typography;
 
-const PLANS = [
-  {
-    name: 'Starter',
-    price: '$29',
-    period: '/mo',
-    limit: 'Up to 10 users',
-    features: [
-      'Shift planning',
-      'Assignments management',
-      'Basic statistics',
-      'Email notifications',
-      'HR module',
-    ],
-    cta: 'Get Started',
-    highlighted: false,
-    plan: 'STARTER',
-  },
-  {
-    name: 'Business',
-    price: '$99',
-    period: '/mo',
-    limit: 'Up to 50 users',
-    features: [
-      'Everything in Starter',
-      'Advanced analytics & KPI',
-      'Telegram notifications',
-      'Automation & SLA reminders',
-      'File attachments',
-      'Public REST API',
-    ],
-    cta: 'Get Started',
-    highlighted: true,
-    plan: 'BUSINESS',
-  },
-  {
-    name: 'Enterprise',
-    price: '$299',
-    period: '/mo',
-    limit: 'Unlimited users',
-    features: [
-      'Everything in Business',
-      'Unlimited users',
-      'Priority support',
-      'Custom integrations',
-      'SLA guarantee',
-    ],
-    cta: 'Get Started',
-    highlighted: false,
-    plan: 'ENTERPRISE',
-  },
-];
-
-const FEATURES = [
-  {
-    title: 'Shift Planning',
-    desc: 'Visual planner matrix with drag & drop scheduling for your entire team.',
-  },
-  {
-    title: 'Assignments Management',
-    desc: 'Track employee assignments, shifts, and workplace changes with full history.',
-  },
-  {
-    title: 'HR Module',
-    desc: 'Handle vacation requests, sick leave, and day-off approvals in one place.',
-  },
-  {
-    title: 'Analytics & KPI',
-    desc: 'Real-time dashboards with planned vs reported hours and completion rates.',
-  },
-  {
-    title: 'Automation',
-    desc: 'Automatic notifications on assignment changes with customizable SLA reminders.',
-  },
-  {
-    title: 'API & Integrations',
-    desc: 'REST API with API keys for seamless integration with your existing tools.',
-  },
-];
-
 const LANG_OPTIONS = [
-  { value: 'ru', label: 'RU' },
   { value: 'en', label: 'EN' },
   { value: 'tr', label: 'TR' },
+  { value: 'ru', label: 'RU' },
 ];
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const handleLangChange = (lang: string) => {
     void i18n.changeLanguage(lang);
     localStorage.setItem('lang', lang);
   };
+
+  const PLANS = [
+    {
+      name: t('landing.starterName'),
+      price: '$29',
+      period: t('landing.perMonth'),
+      limit: t('landing.starterLimit'),
+      features: [
+        t('landing.fShifts'),
+        t('landing.fAssignments'),
+        t('landing.fBasicStats'),
+        t('landing.fEmail'),
+        t('landing.fHr'),
+      ],
+      cta: t('landing.planCta'),
+      highlighted: false,
+      plan: 'STARTER',
+    },
+    {
+      name: t('landing.businessName'),
+      price: '$99',
+      period: t('landing.perMonth'),
+      limit: t('landing.businessLimit'),
+      features: [
+        t('landing.fAllStarter'),
+        t('landing.fAnalytics'),
+        t('landing.fTelegram'),
+        t('landing.fAutomation'),
+        t('landing.fFiles'),
+        t('landing.fApi'),
+      ],
+      cta: t('landing.planCta'),
+      highlighted: true,
+      plan: 'BUSINESS',
+    },
+    {
+      name: t('landing.enterpriseName'),
+      price: '$299',
+      period: t('landing.perMonth'),
+      limit: t('landing.enterpriseLimit'),
+      features: [
+        t('landing.fAllBusiness'),
+        t('landing.fUnlimited'),
+        t('landing.fSupport'),
+        t('landing.fIntegrations'),
+        t('landing.fSla'),
+      ],
+      cta: t('landing.planCta'),
+      highlighted: false,
+      plan: 'ENTERPRISE',
+    },
+  ];
+
+  const FEATURES = [
+    { title: t('landing.feature1Title'), desc: t('landing.feature1Desc') },
+    { title: t('landing.feature2Title'), desc: t('landing.feature2Desc') },
+    { title: t('landing.feature3Title'), desc: t('landing.feature3Desc') },
+    { title: t('landing.feature4Title'), desc: t('landing.feature4Desc') },
+    { title: t('landing.feature5Title'), desc: t('landing.feature5Desc') },
+    { title: t('landing.feature6Title'), desc: t('landing.feature6Desc') },
+  ];
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -129,10 +120,10 @@ export default function LandingPage() {
             variant="borderless"
           />
           <Button type="link" onClick={() => navigate('/login')}>
-            Sign In
+            {t('landing.signIn')}
           </Button>
           <Button type="primary" onClick={() => navigate('/register')}>
-            Get Started
+            {t('landing.getStarted')}
           </Button>
         </Space>
       </Header>
@@ -155,7 +146,7 @@ export default function LandingPage() {
               fontSize: 'clamp(28px, 5vw, 48px)',
             }}
           >
-            Workforce Management Made Simple
+            {t('landing.heroTitle')}
           </Title>
           <Paragraph
             style={{
@@ -165,20 +156,23 @@ export default function LandingPage() {
               margin: '0 auto 32px',
             }}
           >
-            Grant Thornton CRM helps you schedule shifts, manage assignments,
-            track hours, and keep your team aligned — all in one platform.
+            {t('landing.heroSubtitle')}
           </Paragraph>
           <Space size={16} wrap style={{ justifyContent: 'center' }}>
             <Button
               size="large"
               type="default"
-              style={{ background: '#fff', borderColor: '#fff', fontWeight: 600 }}
+              style={{
+                background: '#fff',
+                borderColor: '#fff',
+                fontWeight: 600,
+              }}
               onClick={() => navigate('/register')}
             >
-              Start Free Trial
+              {t('landing.startTrial')}
             </Button>
             <Button size="large" ghost onClick={() => navigate('/login')}>
-              Sign In
+              {t('landing.signIn')}
             </Button>
           </Space>
         </div>
@@ -193,14 +187,17 @@ export default function LandingPage() {
           }}
         >
           <Title level={2} style={{ textAlign: 'center', marginBottom: 40 }}>
-            Everything you need to manage your workforce
+            {t('landing.featuresTitle')}
           </Title>
           <Row gutter={[24, 24]}>
             {FEATURES.map((f) => (
               <Col key={f.title} xs={24} sm={12} md={8}>
                 <Card
                   bordered={false}
-                  style={{ height: '100%', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
+                  style={{
+                    height: '100%',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                  }}
                 >
                   <Title level={5} style={{ marginBottom: 8 }}>
                     {f.title}
@@ -218,10 +215,12 @@ export default function LandingPage() {
           id="pricing"
         >
           <Title level={2} style={{ textAlign: 'center', marginBottom: 8 }}>
-            Simple, transparent pricing
+            {t('landing.pricingTitle')}
           </Title>
-          <Paragraph style={{ textAlign: 'center', color: '#888', marginBottom: 40 }}>
-            No hidden fees. Cancel anytime.
+          <Paragraph
+            style={{ textAlign: 'center', color: '#888', marginBottom: 40 }}
+          >
+            {t('landing.pricingSubtitle')}
           </Paragraph>
           <Row gutter={[24, 24]} justify="center">
             {PLANS.map((plan) => (
@@ -252,17 +251,25 @@ export default function LandingPage() {
                         fontWeight: 600,
                       }}
                     >
-                      POPULAR
+                      {t('landing.popular')}
                     </div>
                   )}
                   <Title level={4} style={{ marginBottom: 4 }}>
                     {plan.name}
                   </Title>
                   <div style={{ marginBottom: 4 }}>
-                    <span style={{ fontSize: 36, fontWeight: 700, color: '#1677ff' }}>
+                    <span
+                      style={{
+                        fontSize: 36,
+                        fontWeight: 700,
+                        color: '#1677ff',
+                      }}
+                    >
                       {plan.price}
                     </span>
-                    <span style={{ color: '#888', marginLeft: 4 }}>{plan.period}</span>
+                    <span style={{ color: '#888', marginLeft: 4 }}>
+                      {plan.period}
+                    </span>
                   </div>
                   <Text
                     type="secondary"
@@ -270,13 +277,26 @@ export default function LandingPage() {
                   >
                     {plan.limit}
                   </Text>
-                  <ul style={{ padding: 0, listStyle: 'none', margin: '0 0 24px' }}>
+                  <ul
+                    style={{
+                      padding: 0,
+                      listStyle: 'none',
+                      margin: '0 0 24px',
+                    }}
+                  >
                     {plan.features.map((f) => (
                       <li
                         key={f}
-                        style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          marginBottom: 10,
+                        }}
                       >
-                        <CheckOutlined style={{ color: '#52c41a', fontSize: 14 }} />
+                        <CheckOutlined
+                          style={{ color: '#52c41a', fontSize: 14 }}
+                        />
                         <Text style={{ fontSize: 14 }}>{f}</Text>
                       </li>
                     ))}
@@ -296,8 +316,10 @@ export default function LandingPage() {
         </div>
       </Content>
 
-      <Footer style={{ textAlign: 'center', background: '#f0f2f5', color: '#888' }}>
-        © {new Date().getFullYear()} Grant Thornton CRM. All rights reserved.
+      <Footer
+        style={{ textAlign: 'center', background: '#f0f2f5', color: '#888' }}
+      >
+        © {new Date().getFullYear()} Grant Thornton CRM. {t('landing.footerRights')}
       </Footer>
     </Layout>
   );

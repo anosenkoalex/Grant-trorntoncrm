@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-05-14 — Мультиязычность лендинга + порядок языков
+
+- **i18n.ts**: добавлен раздел `landing` во все три языка (EN/TR/RU) — ключи: `signIn`, `getStarted`, `startTrial`, `heroTitle`, `heroSubtitle`, `featuresTitle`, `feature1Title`…`feature6Title`, `feature1Desc`…`feature6Desc`, `pricingTitle`, `pricingSubtitle`, `popular`, `perMonth`, `planCta`, `starterName/Limit`, `businessName/Limit`, `enterpriseName/Limit`, `fShifts`…`fSla`, `footerRights`
+- **Landing.tsx**: все хардкоженные строки заменены на `t('landing.*')`; массивы `PLANS` и `FEATURES` перенесены внутрь компонента с использованием `t()`; порядок языков в переключателе исправлен на EN / TR / RU
+
+**Изменённые файлы:**
+
+- `frontend/src/i18n.ts` — раздел `landing` в EN и TR (RU был добавлен ранее)
+- `frontend/src/pages/Landing.tsx` — useTranslation для всех строк, LANG_OPTIONS [en, tr, ru]
+
+---
+
 ## 2026-05-14 — Доработки лендинга
 
 - **Landing.tsx**: заменено «Armico CRM» → «Grant Thornton CRM» во всех местах (шапка, hero-текст, футер); добавлен переключатель языков RU/EN/TR в шапку (Select из antd + useTranslation/i18next, сохранение в localStorage)
