@@ -2,9 +2,27 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
 import { ConfigService } from '@nestjs/config';
-import { Request, Response, NextFunction } from 'express';
+import express from 'express';
 
 async function bootstrap() {
+  const server = express();
+
+  // ✅ OPTIONS preflight ДО всего
+  server.options('*', (req, res) => {
+    const origin = req.headers.origin ?? '';
+    const allowed = [
+      /^https:\/\/grant-trorntoncrm.*\.vercel\.app$/,
+      /^http:\/\/localhost:\d+$/,
+    ];
+    if (!origin || allowed.some((r) => r.test(origin))) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,x-api-key');
+    }
+    res.sendStatus(200);
+  });
+
   const app = await NestFactory.create(AppModule, { rawBody: true });
 
   app.enableCors({
@@ -22,14 +40,6 @@ async function bootstrap() {
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
-  });
-
-  app.use((req: Request, res: Response, next: NextFunction) => {
-    if (req.method === 'OPTIONS') {
-      res.sendStatus(200);
-    } else {
-      next();
-    }
   });
 
   const configService = app.get(ConfigService);
