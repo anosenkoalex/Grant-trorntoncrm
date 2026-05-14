@@ -65,11 +65,11 @@ const AssignmentAdjustmentsPage = () => {
       void queryClient.invalidateQueries({
         queryKey: ['schedule-adjustments'],
       });
-      message.success('Запрос корректировки одобрен');
+      message.success(t('assignmentAdjustments.approved'));
     },
     onError: (error: unknown) => {
       const axiosError = error as AxiosError<{ message?: string }>;
-      message.error(axiosError?.response?.data?.message || 'Ошибка');
+      message.error(axiosError?.response?.data?.message || t('assignmentAdjustments.error'));
     },
   });
 
@@ -79,11 +79,11 @@ const AssignmentAdjustmentsPage = () => {
       void queryClient.invalidateQueries({
         queryKey: ['schedule-adjustments'],
       });
-      message.success('Запрос корректировки отклонён');
+      message.success(t('assignmentAdjustments.rejected'));
     },
     onError: (error: unknown) => {
       const axiosError = error as AxiosError<{ message?: string }>;
-      message.error(axiosError?.response?.data?.message || 'Ошибка');
+      message.error(axiosError?.response?.data?.message || t('assignmentAdjustments.error'));
     },
   });
 
@@ -93,18 +93,18 @@ const AssignmentAdjustmentsPage = () => {
   const columns: ColumnsType<ScheduleAdjustment> = useMemo(
     () => [
       {
-        title: 'Создан',
+        title: t('assignmentAdjustments.createdAt'),
         dataIndex: 'createdAt',
         responsive: ['md'],
         render: (value: string) => dayjs(value).format('DD.MM.YYYY HH:mm'),
       },
       {
-        title: 'Сотрудник',
+        title: t('assignmentAdjustments.user'),
         render: (_, record) =>
           record.user?.fullName ?? record.user?.email ?? '—',
       },
       {
-        title: 'Место',
+        title: t('assignmentAdjustments.workplace'),
         responsive: ['md'],
         render: (_, record) => {
           const wp = record.assignment?.workplace;
@@ -113,12 +113,12 @@ const AssignmentAdjustmentsPage = () => {
         },
       },
       {
-        title: 'Дата',
+        title: t('assignmentAdjustments.date'),
         dataIndex: 'date',
         render: (value) => dayjs(value).format('DD.MM.YYYY'),
       },
       {
-        title: 'Время / тип',
+        title: t('assignmentAdjustments.timeType'),
         responsive: ['md'],
         render: (_, record) => {
           const start = record.startsAt
@@ -128,41 +128,41 @@ const AssignmentAdjustmentsPage = () => {
             ? dayjs(record.endsAt).format('HH:mm')
             : null;
 
-          const time = start && end ? `${start} → ${end}` : 'Без времени';
+          const time = start && end ? `${start} → ${end}` : t('assignmentAdjustments.noTime');
 
           const type =
             record.kind === 'DAY_OFF'
-              ? 'Day Off'
+              ? t('assignmentAdjustments.kindDayOff')
               : record.kind === 'OFFICE'
-                ? 'Офис'
+                ? t('assignmentAdjustments.kindOffice')
                 : record.kind === 'REMOTE'
-                  ? 'Удалёнка'
-                  : 'Обычная';
+                  ? t('assignmentAdjustments.kindRemote')
+                  : t('assignmentAdjustments.kindDefault');
 
           return `${time} (${type})`;
         },
       },
       {
-        title: 'Комментарий',
+        title: t('assignmentAdjustments.comment'),
         dataIndex: 'comment',
         responsive: ['lg'],
         render: (v) => v || '—',
       },
       {
-        title: 'Статус',
+        title: t('assignmentAdjustments.status'),
         dataIndex: 'status',
         render: (v: ScheduleAdjustmentStatus) => (
           <Tag color={statusColor[v]}>
             {v === 'PENDING'
-              ? 'Ожидание'
+              ? t('assignmentAdjustments.statusPending')
               : v === 'APPROVED'
-                ? 'Одобрено'
-                : 'Отклонено'}
+                ? t('assignmentAdjustments.statusApproved')
+                : t('assignmentAdjustments.statusRejected')}
           </Tag>
         ),
       },
       {
-        title: 'Действия',
+        title: t('assignmentAdjustments.actions'),
         render: (_, record) => {
           const pending = record.status === 'PENDING';
 
@@ -173,7 +173,7 @@ const AssignmentAdjustmentsPage = () => {
                 disabled={!pending}
                 onClick={() => approveMutation.mutate(record.id)}
               >
-                Одобрить
+                {t('assignmentAdjustments.approve')}
               </Button>
               <Button
                 type="link"
@@ -181,39 +181,39 @@ const AssignmentAdjustmentsPage = () => {
                 disabled={!pending}
                 onClick={() => rejectMutation.mutate(record.id)}
               >
-                Отклонить
+                {t('assignmentAdjustments.reject')}
               </Button>
             </Space>
           );
         },
       },
     ],
-    [approveMutation.isPending, rejectMutation.isPending],
+    [approveMutation.isPending, rejectMutation.isPending, t],
   );
 
   if (!canManage) {
-    return <Result status="403" title="Нет доступа" />;
+    return <Result status="403" title={t('assignmentAdjustments.noAccess')} />;
   }
 
   return (
     <Card
-      title="Запросы корректировок"
+      title={t('assignmentAdjustments.title')}
       bodyStyle={{ padding: 12 }}
       extra={
         <Space wrap>
-          <Typography.Text>Статус:</Typography.Text>
+          <Typography.Text>{t('assignmentAdjustments.filterStatus')}:</Typography.Text>
           <Select
             value={statusFilter}
             style={{ minWidth: 160 }}
             onChange={(v) => {
-              setStatusFilter(v as any);
+              setStatusFilter(v as ScheduleAdjustmentStatus | 'ALL');
               setPage(1);
             }}
             options={[
-              { value: 'ALL', label: 'Все' },
-              { value: 'PENDING', label: 'Ожидание' },
-              { value: 'APPROVED', label: 'Одобрено' },
-              { value: 'REJECTED', label: 'Отклонено' },
+              { value: 'ALL', label: t('assignmentAdjustments.filterAll') },
+              { value: 'PENDING', label: t('assignmentAdjustments.statusPending') },
+              { value: 'APPROVED', label: t('assignmentAdjustments.statusApproved') },
+              { value: 'REJECTED', label: t('assignmentAdjustments.statusRejected') },
             ]}
           />
         </Space>

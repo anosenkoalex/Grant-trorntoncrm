@@ -2,47 +2,22 @@ import { useEffect, useMemo, useState } from 'react';
 import { Calendar, InputNumber, Modal, Spin, Tag, Typography } from 'antd';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 
 const { Text } = Typography;
 
 export type WorkReportCalendarDay = {
-  /** Дата в формате YYYY-MM-DD */
   date: string;
-  /** Сколько часов уже сохранено (если null — ещё не заполняли) */
   hours: number | null;
-  /** Есть ли на эту дату назначение — подсвечиваем в календаре */
   hasAssignment?: boolean;
 };
 
 type WorkReportCalendarModalProps = {
-  /** Открыта ли модалка */
   open: boolean;
-  /** Закрытие модалки */
   onClose: () => void;
-
-  /**
-   * Данные по дням для текущего месяца.
-   * Можно смело передавать список по месяцу, компонент сам превратит в map.
-   */
   days: WorkReportCalendarDay[];
-
-  /**
-   * Лоадер снаружи — если ты подгружаешь данные для месяца асинхронно.
-   * Тогда при true показывается спиннер вместо календаря.
-   */
   loading?: boolean;
-
-  /**
-   * Сохранение часов для конкретного дня.
-   * Сюда ты вешаешь запрос на бэк: create/update отчёта.
-   * Компонент сам ждёт Promise и крутит спиннер на кнопке ОК.
-   */
   onSaveDay: (date: string, hours: number | null) => Promise<void> | void;
-
-  /**
-   * Коллбек при переключении месяца в календаре.
-   * Можно подгружать отчёты/назначения только для нужного месяца.
-   */
   onMonthChange?: (from: string, to: string) => void;
 };
 
@@ -56,12 +31,11 @@ export const WorkReportCalendarModal = ({
   onSaveDay,
   onMonthChange,
 }: WorkReportCalendarModalProps) => {
-  const [currentMonth, setCurrentMonth] = useState<Dayjs>(dayjs());
+  const { t } = useTranslation();
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
   const [selectedHours, setSelectedHours] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
 
-  // map для быстрого доступа по дате
   const dayMap: InternalDayMap = useMemo(() => {
     const map: InternalDayMap = {};
     for (const d of days) {
@@ -70,7 +44,6 @@ export const WorkReportCalendarModal = ({
     return map;
   }, [days]);
 
-  // когда открываем модалку или прилетают новые дни — ставим выбранную дату / часы
   useEffect(() => {
     if (!open) return;
 
@@ -81,17 +54,13 @@ export const WorkReportCalendarModal = ({
       setSelectedDate(dayjs(todayKey));
       setSelectedHours(today.hours ?? null);
     } else {
-      // если на сегодня нет данных — берём первую доступную дату из props
       const first = days[0];
       if (first) {
         setSelectedDate(dayjs(first.date));
         setSelectedHours(first.hours ?? null);
-        setCurrentMonth(dayjs(first.date).startOf('month'));
       } else {
-        // вообще ничего нет — просто ставим сегодня
         setSelectedDate(dayjs());
         setSelectedHours(null);
-        setCurrentMonth(dayjs().startOf('month'));
       }
     }
   }, [open, dayMap, days]);
@@ -104,8 +73,6 @@ export const WorkReportCalendarModal = ({
   };
 
   const handlePanelChange = (value: Dayjs) => {
-    setCurrentMonth(value);
-
     if (onMonthChange) {
       const from = value.startOf('month').format('YYYY-MM-DD');
       const to = value.endOf('month').format('YYYY-MM-DD');
@@ -116,10 +83,7 @@ export const WorkReportCalendarModal = ({
   const handleSave = async () => {
     const dateKey = selectedDate.format('YYYY-MM-DD');
 
-    // можно разрешить 0 часов, поэтому проверяем именно на null
     if (selectedHours === null) {
-      // никаких сообщений внутри — ты можешь сам повесить в родителе
-      // здесь просто не даём отправить пустое значение
       return;
     }
 
@@ -141,12 +105,12 @@ export const WorkReportCalendarModal = ({
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {info.hasAssignment && (
           <Tag color="processing" style={{ marginRight: 0 }}>
-            Назначение
+            {t('workReportModal.assignmentTag')}
           </Tag>
         )}
         {info.hours != null && (
           <Text type="secondary" style={{ fontSize: 11 }}>
-            {info.hours} ч
+            {info.hours} {t('automation.hoursUnit')}
           </Text>
         )}
       </div>
@@ -158,10 +122,10 @@ export const WorkReportCalendarModal = ({
       open={open}
       onCancel={onClose}
       onOk={handleSave}
-      okText="Сохранить"
+      okText={t('workReportModal.save')}
       confirmLoading={saving}
       width={900}
-      title="Отчёт по отработанным часам"
+      title={t('workReportModal.title')}
       destroyOnClose
     >
       {loading ? (
@@ -171,10 +135,9 @@ export const WorkReportCalendarModal = ({
       ) : (
         <>
           <p>
-            Выберите дату в календаре и укажите количество фактически
-            отработанных часов. Дни с назначениями подсвечены меткой{' '}
+            {t('workReportModal.description')}{' '}
             <Tag color="processing" style={{ margin: 0 }}>
-              Назначение
+              {t('workReportModal.assignmentTag')}
             </Tag>
             .
           </p>
@@ -199,12 +162,12 @@ export const WorkReportCalendarModal = ({
             }}
           >
             <div>
-              <Text type="secondary">Дата:</Text>{' '}
+              <Text type="secondary">{t('workReportModal.dateLabel')}</Text>{' '}
               <Text strong>{selectedDate.format('DD.MM.YYYY')}</Text>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Text>Отработано часов:</Text>
+              <Text>{t('workReportModal.hoursLabel')}</Text>
               <InputNumber
                 min={0}
                 max={24}

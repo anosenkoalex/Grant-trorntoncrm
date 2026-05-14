@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Card,
   Col,
@@ -64,16 +65,6 @@ type FiltersState = {
 
 const statusOptions: AssignmentStatus[] = ['ACTIVE', 'ARCHIVED'];
 
-const shiftKindLabels: Record<ShiftKind, string> = {
-  DEFAULT: 'Обычная смена',
-  OFFICE: 'Офис',
-  REMOTE: 'Удалёнка',
-  DAY_OFF: 'Выходной / Day off',
-};
-
-const shiftKindSelectOptions = (
-  Object.keys(shiftKindLabels) as ShiftKind[]
-).map((k) => ({ value: k, label: shiftKindLabels[k] }));
 
 type EmployeeRow = {
   userId: string;
@@ -100,6 +91,7 @@ function KpiCards({
   data: KpiResponse | undefined;
   loading: boolean;
 }) {
+  const { t } = useTranslation();
   const kpi = data?.kpi;
 
   const completionColor =
@@ -116,9 +108,9 @@ function KpiCards({
       <Col xs={24} sm={12} md={6}>
         <Card size="small" loading={loading}>
           <Statistic
-            title="Сотрудников в периоде"
+            title={t('statistics.kpi.employees')}
             value={kpi?.totalEmployees ?? 0}
-            suffix="чел."
+            suffix={t('statistics.kpi.employeesSuffix')}
           />
         </Card>
       </Col>
@@ -126,9 +118,9 @@ function KpiCards({
       <Col xs={24} sm={12} md={6}>
         <Card size="small" loading={loading}>
           <Statistic
-            title="Плановые часы"
+            title={t('statistics.kpi.plannedHours')}
             value={kpi ? kpi.totalPlannedHours.toFixed(1) : '—'}
-            suffix="ч"
+            suffix={t('statistics.kpi.hoursSuffix')}
           />
         </Card>
       </Col>
@@ -136,9 +128,9 @@ function KpiCards({
       <Col xs={24} sm={12} md={6}>
         <Card size="small" loading={loading}>
           <Statistic
-            title="Отчётные часы"
+            title={t('statistics.kpi.reportedHoursTitle')}
             value={kpi ? kpi.totalReportedHours.toFixed(1) : '—'}
-            suffix="ч"
+            suffix={t('statistics.kpi.hoursSuffix')}
           />
         </Card>
       </Col>
@@ -147,7 +139,7 @@ function KpiCards({
         <Card size="small" loading={loading}>
           <div style={{ marginBottom: 4 }}>
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              Процент выполнения
+              {t('statistics.kpi.completionRate')}
             </Typography.Text>
           </div>
           <Progress
@@ -163,9 +155,9 @@ function KpiCards({
       <Col xs={24} sm={12} md={6}>
         <Card size="small" loading={loading}>
           <Statistic
-            title="Смен запланировано"
+            title={t('statistics.kpi.shiftsPlanned')}
             value={kpi?.totalShifts ?? 0}
-            suffix="шт."
+            suffix={t('statistics.kpi.shiftsSuffix')}
           />
         </Card>
       </Col>
@@ -181,12 +173,12 @@ function KpiCards({
           }
         >
           <Statistic
-            title="Без отчёта (сотрудников)"
+            title={t('statistics.kpi.missingReports')}
             value={kpi?.missingReports ?? 0}
             valueStyle={
               kpi && kpi.missingReports > 0 ? { color: '#cf1322' } : undefined
             }
-            suffix="чел."
+            suffix={t('statistics.kpi.employeesSuffix')}
           />
         </Card>
       </Col>
@@ -203,20 +195,26 @@ function DynamicsChart({
   data: KpiResponse | undefined;
   loading: boolean;
 }) {
+  const { t } = useTranslation();
+
   if (loading)
     return <Spin style={{ display: 'block', margin: '32px auto' }} />;
   if (!data?.dynamics?.length) {
     return (
       <Typography.Text type="secondary">
-        Нет данных для графика за выбранный период.
+        {t('statistics.dynamics.noData')}
       </Typography.Text>
     );
   }
 
+  const plannedLabel = t('statistics.dynamics.planned');
+  const reportedLabel = t('statistics.dynamics.reported');
+  const hoursSuffix = t('statistics.kpi.hoursSuffix');
+
   const chartData = data.dynamics.map((d) => ({
     date: dayjs(d.date).format('DD.MM'),
-    'Плановые ч.': Number(d.plannedHours.toFixed(2)),
-    'Отчётные ч.': Number(d.reportedHours.toFixed(2)),
+    [plannedLabel]: Number(d.plannedHours.toFixed(2)),
+    [reportedLabel]: Number(d.reportedHours.toFixed(2)),
   }));
 
   return (
@@ -227,19 +225,19 @@ function DynamicsChart({
       >
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-        <YAxis tick={{ fontSize: 11 }} unit=" ч" width={52} />
-        <Tooltip formatter={(v) => [`${v} ч`]} />
+        <YAxis tick={{ fontSize: 11 }} unit={` ${hoursSuffix}`} width={52} />
+        <Tooltip formatter={(v) => [`${v} ${hoursSuffix}`]} />
         <Legend />
         <Line
           type="monotone"
-          dataKey="Плановые ч."
+          dataKey={plannedLabel}
           stroke="#1677ff"
           dot={false}
           strokeWidth={2}
         />
         <Line
           type="monotone"
-          dataKey="Отчётные ч."
+          dataKey={reportedLabel}
           stroke="#52c41a"
           dot={false}
           strokeWidth={2}
@@ -249,61 +247,6 @@ function DynamicsChart({
   );
 }
 
-/* ─────────────────── Workplace Summary Table ─────────────────── */
-
-const workplaceColumns: ColumnsType<KpiByWorkplace> = [
-  {
-    title: 'Рабочее место',
-    dataIndex: 'workplaceName',
-    key: 'workplaceName',
-    render: (v: string | null, r) => v ?? r.workplaceId,
-    sorter: (a, b) =>
-      (a.workplaceName ?? '').localeCompare(b.workplaceName ?? ''),
-  },
-  {
-    title: 'Сотрудников',
-    dataIndex: 'employeeCount',
-    key: 'employeeCount',
-    align: 'right',
-    sorter: (a, b) => a.employeeCount - b.employeeCount,
-  },
-  {
-    title: 'Смен',
-    dataIndex: 'shiftCount',
-    key: 'shiftCount',
-    align: 'right',
-    sorter: (a, b) => a.shiftCount - b.shiftCount,
-  },
-  {
-    title: 'Плановые ч.',
-    dataIndex: 'plannedHours',
-    key: 'plannedHours',
-    align: 'right',
-    render: (v: number) => v.toFixed(1),
-    sorter: (a, b) => a.plannedHours - b.plannedHours,
-  },
-  {
-    title: 'Отчётные ч.',
-    dataIndex: 'reportedHours',
-    key: 'reportedHours',
-    align: 'right',
-    render: (v: number) => v.toFixed(1),
-    sorter: (a, b) => a.reportedHours - b.reportedHours,
-  },
-  {
-    title: 'Выполнение',
-    dataIndex: 'completionRate',
-    key: 'completionRate',
-    align: 'right',
-    sorter: (a, b) => a.completionRate - b.completionRate,
-    render: (v: number) => {
-      const pct = Math.round(v);
-      const color = pct >= 90 ? 'success' : pct >= 60 ? 'warning' : 'error';
-      return <Tag color={color}>{pct}%</Tag>;
-    },
-  },
-];
-
 /* ─────────────────── Main Page ─────────────────── */
 
 const StatisticsPage = () => {
@@ -312,6 +255,70 @@ const StatisticsPage = () => {
 
   const canViewStatistics =
     user?.role === 'SUPER_ADMIN' || user?.role === 'MANAGER';
+
+  const shiftKindLabels: Record<ShiftKind, string> = {
+    DEFAULT: t('statistics.shiftKind.default'),
+    OFFICE: t('statistics.shiftKind.office'),
+    REMOTE: t('statistics.shiftKind.remote'),
+    DAY_OFF: t('statistics.shiftKind.dayOff'),
+  };
+
+  const shiftKindSelectOptions = (
+    Object.keys(shiftKindLabels) as ShiftKind[]
+  ).map((k) => ({ value: k, label: shiftKindLabels[k] }));
+
+  const workplaceColumns: ColumnsType<KpiByWorkplace> = [
+    {
+      title: t('statistics.workplace.colName'),
+      dataIndex: 'workplaceName',
+      key: 'workplaceName',
+      render: (v: string | null, r) => v ?? r.workplaceId,
+      sorter: (a, b) =>
+        (a.workplaceName ?? '').localeCompare(b.workplaceName ?? ''),
+    },
+    {
+      title: t('statistics.workplace.colEmployees'),
+      dataIndex: 'employeeCount',
+      key: 'employeeCount',
+      align: 'right',
+      sorter: (a, b) => a.employeeCount - b.employeeCount,
+    },
+    {
+      title: t('statistics.workplace.colShifts'),
+      dataIndex: 'shiftCount',
+      key: 'shiftCount',
+      align: 'right',
+      sorter: (a, b) => a.shiftCount - b.shiftCount,
+    },
+    {
+      title: t('statistics.workplace.colPlanned'),
+      dataIndex: 'plannedHours',
+      key: 'plannedHours',
+      align: 'right',
+      render: (v: number) => v.toFixed(1),
+      sorter: (a, b) => a.plannedHours - b.plannedHours,
+    },
+    {
+      title: t('statistics.workplace.colReported'),
+      dataIndex: 'reportedHours',
+      key: 'reportedHours',
+      align: 'right',
+      render: (v: number) => v.toFixed(1),
+      sorter: (a, b) => a.reportedHours - b.reportedHours,
+    },
+    {
+      title: t('statistics.workplace.colCompletion'),
+      dataIndex: 'completionRate',
+      key: 'completionRate',
+      align: 'right',
+      sorter: (a, b) => a.completionRate - b.completionRate,
+      render: (v: number) => {
+        const pct = Math.round(v);
+        const color = pct >= 90 ? 'success' : pct >= 60 ? 'warning' : 'error';
+        return <Tag color={color}>{pct}%</Tag>;
+      },
+    },
+  ];
 
   const defaultRange: [Dayjs, Dayjs] = [
     dayjs().startOf('month'),
@@ -489,7 +496,7 @@ const StatisticsPage = () => {
       userAgg.totalHours += row.hours;
 
       const key = row.workplaceId;
-      const workplaceName = row.workplaceName ?? 'Без названия';
+      const workplaceName = row.workplaceName ?? t('statistics.noWorkplaceName');
 
       if (!userAgg.assignments[key]) {
         userAgg.assignments[key] = {
@@ -574,7 +581,7 @@ const StatisticsPage = () => {
 
   const handleExport = async () => {
     if (!statistics) {
-      message.error('Нет данных для экспорта');
+      message.error(t('statistics.exportNoData'));
       return;
     }
 
@@ -587,7 +594,7 @@ const StatisticsPage = () => {
       cursor = cursor.add(1, 'day');
     }
     if (!days.length) {
-      message.error('Неверный период для экспорта');
+      message.error(t('statistics.exportInvalidPeriod'));
       return;
     }
 
@@ -642,7 +649,7 @@ const StatisticsPage = () => {
       }
 
       if (!userIds.size) {
-        message.warning('Нет данных по сотрудникам за выбранный период');
+        message.warning(t('statistics.exportNoUsers'));
         return;
       }
 
@@ -742,7 +749,7 @@ const StatisticsPage = () => {
 
       const lines: string[] = [];
       lines.push(
-        ['Сотрудник', ...days.map((d) => d.format('DD.MM'))].map(esc).join(';'),
+        [t('statistics.csvEmployee'), ...days.map((d) => d.format('DD.MM'))].map(esc).join(';'),
       );
 
       Array.from(userIds).forEach((uid) => {
@@ -762,7 +769,7 @@ const StatisticsPage = () => {
             if (!planned && !reported) return;
             const wname =
               workplaceNameByIdExport[wid] ??
-              (wid === 'unknown' ? 'Без рабочего места' : wid);
+              (wid === 'unknown' ? t('statistics.noWorkplaceEntry') : wid);
             parts.push(
               `${wname}: план ${fmtH(planned)}, отчёт ${fmtH(reported)}`,
             );
@@ -780,10 +787,10 @@ const StatisticsPage = () => {
 
       if (allWids.length) {
         lines.push('');
-        lines.push(esc('Итого по рабочим местам'));
+        lines.push(esc(t('statistics.csvTotalByWorkplace')));
         lines.push(
           [
-            'Сотрудник',
+            t('statistics.csvEmployee'),
             ...allWids.map((wid) => workplaceNameByIdExport[wid] ?? wid),
           ]
             .map(esc)
@@ -816,7 +823,7 @@ const StatisticsPage = () => {
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error(error);
-      message.error('Ошибка при формировании файла для экспорта');
+      message.error(t('statistics.exportError'));
     } finally {
       setIsExporting(false);
     }
@@ -871,7 +878,7 @@ const StatisticsPage = () => {
           workplaceName:
             wr.workplace?.name ??
             workplaceNameById[key] ??
-            (key === 'unknown' ? 'Без рабочего места' : key),
+            (key === 'unknown' ? t('statistics.noWorkplaceEntry') : key),
           hours: 0,
         };
       }
@@ -924,7 +931,7 @@ const StatisticsPage = () => {
         workplaceName:
           planned?.workplaceName ??
           workplaceNameById[wid] ??
-          (wid === 'unknown' ? 'Без рабочего места' : wid),
+          (wid === 'unknown' ? t('statistics.noWorkplaceEntry') : wid),
         plannedHours,
         reportedHours,
       });
@@ -945,7 +952,7 @@ const StatisticsPage = () => {
 
   const employeesColumns: ColumnsType<EmployeeRow> = [
     {
-      title: 'Сотрудник',
+      title: t('statistics.byUsers.employee'),
       dataIndex: 'name',
       key: 'name',
       render: (value: string, record) => (
@@ -960,20 +967,20 @@ const StatisticsPage = () => {
       ),
     },
     {
-      title: 'Назначения',
+      title: t('statistics.byUsers.workplaces'),
       dataIndex: 'assignmentsSummary',
       key: 'assignmentsSummary',
       ellipsis: true,
     },
-    { title: 'Рабочих дней', dataIndex: 'workingDays', key: 'workingDays' },
+    { title: t('statistics.byUsers.workingDays'), dataIndex: 'workingDays', key: 'workingDays' },
     {
-      title: 'Количество часов',
+      title: t('statistics.byUsers.hours'),
       dataIndex: 'totalHours',
       key: 'totalHours',
       render: (v: number) => v.toFixed(2),
     },
     {
-      title: 'Количество отчётных часов',
+      title: t('statistics.byUsers.reportedHours'),
       dataIndex: 'reportedHours',
       key: 'reportedHours',
       render: (value: number | null | undefined, record) =>
@@ -995,39 +1002,39 @@ const StatisticsPage = () => {
 
   const detailColumns: ColumnsType<StatisticsRow> = [
     {
-      title: 'Дата',
+      title: t('statistics.detail.colDate'),
       dataIndex: 'date',
       key: 'date',
       render: (_v, record) =>
         dayjs(record.startsAt ?? record.date).format('DD.MM.YYYY'),
     },
     {
-      title: 'Рабочее место',
+      title: t('statistics.detail.colWorkplace'),
       dataIndex: 'workplaceName',
       key: 'workplaceName',
       render: (v: string | null) => v ?? '',
     },
     {
-      title: 'Тип смены',
+      title: t('statistics.detail.colShiftKind'),
       dataIndex: 'shiftKind',
       key: 'shiftKind',
       render: (kind: ShiftKind) => shiftKindLabels[kind] ?? kind,
     },
     {
-      title: 'Время',
+      title: t('statistics.detail.colTime'),
       key: 'time',
       render: (_v, record) =>
         `${dayjs(record.startsAt).format('HH:mm')} → ${dayjs(record.endsAt ?? record.startsAt).format('HH:mm')}`,
     },
     {
-      title: 'Статус назначения',
+      title: t('statistics.detail.colAssignmentStatus'),
       dataIndex: 'assignmentStatus',
       key: 'assignmentStatus',
       render: (v: AssignmentStatus) =>
-        v === 'ACTIVE' ? 'Активно' : 'В архиве',
+        v === 'ACTIVE' ? t('statistics.detail.statusActive') : t('statistics.detail.statusArchived'),
     },
     {
-      title: 'Часы',
+      title: t('statistics.detail.colHours'),
       dataIndex: 'hours',
       key: 'hours',
       render: (v: number) => v.toFixed(2),
@@ -1036,18 +1043,18 @@ const StatisticsPage = () => {
 
   const daySummaryColumns: ColumnsType<DayWorkSummaryRow> = [
     {
-      title: 'Рабочее место',
+      title: t('statistics.reportHours.colWorkplace'),
       dataIndex: 'workplaceName',
       key: 'workplaceName',
     },
     {
-      title: 'Назначено часов',
+      title: t('statistics.reportHours.colPlanned'),
       dataIndex: 'plannedHours',
       key: 'plannedHours',
       render: (v: number) => v.toFixed(2),
     },
     {
-      title: 'Отработано по отчёту',
+      title: t('statistics.reportHours.colReported'),
       dataIndex: 'reportedHours',
       key: 'reportedHours',
       render: (v: number) => v.toFixed(2),
@@ -1057,7 +1064,7 @@ const StatisticsPage = () => {
   /* ── render ── */
 
   return (
-    <Card title="Статистика назначений">
+    <Card title={t('statistics.title')}>
       {/* Фильтры */}
       <MobileFilters style={{ marginBottom: 16 }}>
         <Form
@@ -1082,7 +1089,7 @@ const StatisticsPage = () => {
         >
           <Form.Item
             name="userId"
-            label="Сотрудник"
+            label={t('statistics.filters.user')}
             style={{ margin: 0, minWidth: 200 }}
           >
             <Select
@@ -1094,7 +1101,7 @@ const StatisticsPage = () => {
                   label: `${u.fullName ?? u.email}`,
                 })) ?? []
               }
-              placeholder="Сотрудник"
+              placeholder={t('statistics.filters.user')}
               optionFilterProp="label"
               style={{ width: '100%', minWidth: 200 }}
             />
@@ -1102,14 +1109,14 @@ const StatisticsPage = () => {
 
           <Form.Item
             name="workplaceId"
-            label="Рабочее место"
+            label={t('statistics.filters.workplace')}
             style={{ margin: 0, minWidth: 200 }}
           >
             <Select
               allowClear
               showSearch
               options={workplaceOptions}
-              placeholder="Рабочее место"
+              placeholder={t('statistics.filters.workplace')}
               optionFilterProp="label"
               style={{ width: '100%', minWidth: 200 }}
             />
@@ -1117,7 +1124,7 @@ const StatisticsPage = () => {
 
           <Form.Item
             name="status"
-            label="Статус"
+            label={t('statistics.filters.status')}
             style={{ margin: 0, minWidth: 160 }}
           >
             <Select
@@ -1125,19 +1132,19 @@ const StatisticsPage = () => {
               style={{ width: '100%', minWidth: 160 }}
               options={statusOptions.map((value) => ({
                 value,
-                label: value === 'ACTIVE' ? 'Активно' : 'В архиве',
+                label: value === 'ACTIVE' ? t('statistics.detail.statusActive') : t('statistics.detail.statusArchived'),
               }))}
-              placeholder="Любой"
+              placeholder={t('statistics.filters.anyStatus')}
             />
           </Form.Item>
 
-          <Form.Item name="range" label="Период" style={{ margin: 0 }}>
+          <Form.Item name="range" label={t('statistics.filters.period')} style={{ margin: 0 }}>
             <RangePicker style={{ width: '100%' }} />
           </Form.Item>
 
           <Form.Item
             name="kinds"
-            label="Тип смены"
+            label={t('statistics.filters.shiftKind')}
             style={{ margin: 0, minWidth: 200 }}
           >
             <Select
@@ -1145,7 +1152,7 @@ const StatisticsPage = () => {
               allowClear
               style={{ width: '100%', minWidth: 200 }}
               options={shiftKindSelectOptions}
-              placeholder="Тип смены"
+              placeholder={t('statistics.filters.shiftKind')}
             />
           </Form.Item>
         </Form>
@@ -1156,12 +1163,12 @@ const StatisticsPage = () => {
 
       {/* График динамики */}
       <Card
-        title="Динамика за период"
+        title={t('statistics.dynamics.title')}
         size="small"
         style={{ marginBottom: 24 }}
         extra={
           <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-            Плановые vs отчётные часы по дням
+            {t('statistics.dynamics.subtitle')}
           </Typography.Text>
         }
       >
@@ -1170,7 +1177,7 @@ const StatisticsPage = () => {
 
       {/* Сводная таблица по рабочим местам */}
       <Card
-        title="Сводка по рабочим местам"
+        title={t('statistics.workplace.summaryTitle')}
         size="small"
         style={{ marginBottom: 24 }}
       >
@@ -1182,7 +1189,7 @@ const StatisticsPage = () => {
           loading={isKpiLoading}
           pagination={false}
           scroll={{ x: 700 }}
-          locale={{ emptyText: 'Нет данных за выбранный период' }}
+          locale={{ emptyText: t('statistics.noData') }}
         />
       </Card>
 
@@ -1192,7 +1199,7 @@ const StatisticsPage = () => {
         loading={isExporting}
         style={{ marginBottom: 16 }}
       >
-        Скачать Excel
+        {t('statistics.exportButton')}
       </Button>
 
       {/* Список сотрудников */}
@@ -1203,14 +1210,16 @@ const StatisticsPage = () => {
         size="small"
         scroll={{ x: 800 }}
         loading={isLoading}
-        locale={{ emptyText: 'Нет данных за выбранный период' }}
+        locale={{ emptyText: t('statistics.noData') }}
       />
 
       {/* Календарь отчётных часов */}
       <Modal
         open={!!reportUserId}
         title={
-          reportUserName ? `Отчётные часы: ${reportUserName}` : 'Отчётные часы'
+          reportUserName
+            ? t('statistics.reportHours.modalTitle', { name: reportUserName })
+            : t('statistics.reportHours.modalTitleFallback')
         }
         footer={null}
         width={800}
@@ -1261,10 +1270,10 @@ const StatisticsPage = () => {
                     {hasData && (
                       <div style={{ fontSize: 10 }}>
                         {planned != null && planned > 0 && (
-                          <div>{planned.toFixed(1)} ч план</div>
+                          <div>{planned.toFixed(1)} {t('statistics.kpi.hoursSuffix')} {t('statistics.dynamics.planned')}</div>
                         )}
                         {reported != null && reported > 0 && (
-                          <div>{reported.toFixed(1)} ч отчёт</div>
+                          <div>{reported.toFixed(1)} {t('statistics.kpi.hoursSuffix')} {t('statistics.dynamics.reported')}</div>
                         )}
                       </div>
                     )}
@@ -1287,13 +1296,12 @@ const StatisticsPage = () => {
                   />
                 ) : (
                   <Typography.Text type="secondary">
-                    На выбранную дату нет данных по сменам или отчётам.
+                    {t('statistics.reportHours.noDataForDate')}
                   </Typography.Text>
                 )
               ) : (
                 <Typography.Text type="secondary">
-                  Выберите дату в календаре, чтобы увидеть детали по рабочим
-                  местам.
+                  {t('statistics.reportHours.selectDate')}
                 </Typography.Text>
               )}
             </div>
@@ -1306,8 +1314,8 @@ const StatisticsPage = () => {
         open={!!detailsUserId}
         title={
           detailsUserName
-            ? `Детализация по сотруднику: ${detailsUserName}`
-            : 'Детализация'
+            ? t('statistics.detail.title', { name: detailsUserName })
+            : t('statistics.detail.titleFallback')
         }
         footer={null}
         width={1000}
@@ -1318,7 +1326,7 @@ const StatisticsPage = () => {
       >
         {detailsRows.length === 0 ? (
           <Typography.Text type="secondary">
-            Нет данных по выбранному сотруднику за этот период.
+            {t('statistics.detail.noData')}
           </Typography.Text>
         ) : (
           <Table<StatisticsRow>

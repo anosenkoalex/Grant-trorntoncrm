@@ -11,6 +11,7 @@ import {
   InboxOutlined,
 } from '@ant-design/icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import {
   type AttachedFile,
   deleteAssignmentFile,
@@ -47,6 +48,7 @@ type Props = {
 };
 
 export const FileAttachment = ({ assignmentId, canManage }: Props) => {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const [uploading, setUploading] = useState(false);
 
@@ -62,9 +64,9 @@ export const FileAttachment = ({ assignmentId, canManage }: Props) => {
       void qc.invalidateQueries({
         queryKey: ['assignment-files', assignmentId],
       });
-      void message.success('Файл удалён');
+      void message.success(t('fileAttachment.fileDeleted'));
     },
-    onError: () => void message.error('Не удалось удалить файл'),
+    onError: () => void message.error(t('fileAttachment.fileDeleteError')),
   });
 
   const handleUpload = async (file: File) => {
@@ -74,9 +76,9 @@ export const FileAttachment = ({ assignmentId, canManage }: Props) => {
       void qc.invalidateQueries({
         queryKey: ['assignment-files', assignmentId],
       });
-      void message.success('Файл загружен');
+      void message.success(t('fileAttachment.fileUploaded'));
     } catch {
-      void message.error('Не удалось загрузить файл');
+      void message.error(t('fileAttachment.fileUploadError'));
     } finally {
       setUploading(false);
     }
@@ -93,7 +95,7 @@ export const FileAttachment = ({ assignmentId, canManage }: Props) => {
       a.click();
       URL.revokeObjectURL(url);
     } catch {
-      void message.error('Не удалось скачать файл');
+      void message.error(t('fileAttachment.fileDownloadError'));
     }
   };
 
@@ -115,9 +117,9 @@ export const FileAttachment = ({ assignmentId, canManage }: Props) => {
             <InboxOutlined />
           </p>
           <p className="ant-upload-text">
-            Перетащите файл или нажмите для загрузки
+            {t('fileAttachment.dragAndDrop')}
           </p>
-          <p className="ant-upload-hint">Максимум 20 МБ</p>
+          <p className="ant-upload-hint">{t('fileAttachment.maxSize')}</p>
         </Upload.Dragger>
       )}
 
@@ -125,7 +127,7 @@ export const FileAttachment = ({ assignmentId, canManage }: Props) => {
         <div style={{ textAlign: 'center', marginBottom: 12 }}>
           <Spin size="small" />
           <Typography.Text type="secondary" style={{ marginLeft: 8 }}>
-            Загрузка...
+            {t('fileAttachment.uploading')}
           </Typography.Text>
         </div>
       )}
@@ -135,7 +137,7 @@ export const FileAttachment = ({ assignmentId, canManage }: Props) => {
           <Spin />
         </div>
       ) : files.length === 0 ? (
-        <Typography.Text type="secondary">Файлы не прикреплены</Typography.Text>
+        <Typography.Text type="secondary">{t('fileAttachment.noFiles')}</Typography.Text>
       ) : (
         <List
           size="small"
@@ -149,7 +151,7 @@ export const FileAttachment = ({ assignmentId, canManage }: Props) => {
                   icon={<DownloadOutlined />}
                   onClick={() => void handleDownload(file)}
                   size="small"
-                  title="Скачать"
+                  title={t('fileAttachment.download')}
                 />,
                 canManage ? (
                   <Button
@@ -160,7 +162,7 @@ export const FileAttachment = ({ assignmentId, canManage }: Props) => {
                     loading={deleteMutation.isPending}
                     onClick={() => deleteMutation.mutate(file.id)}
                     size="small"
-                    title="Удалить"
+                    title={t('fileAttachment.delete')}
                   />
                 ) : null,
               ].filter(Boolean)}

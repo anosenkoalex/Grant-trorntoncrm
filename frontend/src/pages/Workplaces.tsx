@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // frontend/src/pages/Workplaces.tsx
 import { RightOutlined } from '@ant-design/icons';
 import {
@@ -427,7 +428,7 @@ const WorkplacesPage = () => {
                   {t('assignments.shifts', 'Смены')}
                 </Typography.Text>
                 <Typography.Text type="secondary">
-                  {sorted.length} дн. · {formatHours(totalHours)}
+                  {sorted.length} {t('common.days')} · {formatHours(totalHours)}
                 </Typography.Text>
               </div>
 
@@ -486,7 +487,7 @@ const WorkplacesPage = () => {
               }}
             >
               <Typography.Text style={{ cursor: 'pointer' }}>
-                {sorted.length} дн. / {formatHours(totalHours)}
+                {sorted.length} {t('common.days')} / {formatHours(totalHours)}
               </Typography.Text>
             </Popover>
           );

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unused-vars, react/prop-types */
 // frontend/src/pages/Dashboard.tsx
 import { RightOutlined } from '@ant-design/icons';
 import {
@@ -67,13 +68,11 @@ const getTotal = (res: AnyResponse | undefined): number => {
 
 const safeName = (
   profile?: { fullName?: string | null; email?: string | null },
-  role?: string,
+  fallback?: string,
 ) => {
   const fullName = profile?.fullName?.trim();
   if (fullName) return fullName;
-
-  if (role === 'SUPER_ADMIN') return 'Администратор';
-  return profile?.email ?? '';
+  return profile?.email ?? fallback ?? '';
 };
 
 type NotificationView = {
@@ -360,7 +359,7 @@ const Dashboard = () => {
     );
   }
 
-  const name = safeName(profile as any, role);
+  const name = safeName(profile as any, role === 'SUPER_ADMIN' ? t('layout.adminFallbackName') : '');
 
   // ===== компонент карточки статистики (десктоп / мобилка разные) =====
   const StatCard: React.FC<{
