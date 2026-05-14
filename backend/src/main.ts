@@ -6,10 +6,15 @@ import { ConfigService } from '@nestjs/config';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { rawBody: true });
 
-  // ✅ Разрешаем фронту с любого адреса (включая твой IP)
   app.enableCors({
-    origin: true,
+    origin: [
+      'https://grant-trorntoncrm-frontend.vercel.app',
+      'http://localhost:5173',
+      'http://localhost:3000',
+    ],
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
   });
 
   const configService = app.get(ConfigService);
