@@ -33,7 +33,7 @@ export type KpiResponse = {
 export class StatisticsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getStatistics(dto: GetStatisticsDto) {
+  async getStatistics(dto: GetStatisticsDto, orgId?: string) {
     const from = dayjs(dto.from).startOf('day').toDate();
     const to = dayjs(dto.to).endOf('day').toDate();
 
@@ -48,6 +48,7 @@ export class StatisticsService {
           status: dto.assignmentStatuses?.length
             ? { in: dto.assignmentStatuses }
             : undefined,
+          ...(orgId ? { user: { orgId } } : {}),
         },
       },
       include: {
@@ -202,7 +203,7 @@ export class StatisticsService {
     };
   }
 
-  async getKpi(dto: GetStatisticsDto): Promise<KpiResponse> {
+  async getKpi(dto: GetStatisticsDto, orgId?: string): Promise<KpiResponse> {
     const from = dayjs(dto.from).startOf('day').toDate();
     const to = dayjs(dto.to).endOf('day').toDate();
 
@@ -216,6 +217,7 @@ export class StatisticsService {
           status: dto.assignmentStatuses?.length
             ? { in: dto.assignmentStatuses }
             : undefined,
+          ...(orgId ? { user: { orgId } } : {}),
         },
       },
       include: {

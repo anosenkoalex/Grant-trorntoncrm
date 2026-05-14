@@ -14,11 +14,15 @@ import { ListWorkplacesDto } from './dto/list-workplaces.dto.js';
 export class WorkplacesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private buildWhere({
-    search,
-    isActive,
-  }: ListWorkplacesDto): Prisma.WorkplaceWhereInput {
+  private buildWhere(
+    { search, isActive }: ListWorkplacesDto,
+    orgId?: string,
+  ): Prisma.WorkplaceWhereInput {
     const where: Prisma.WorkplaceWhereInput = {};
+
+    if (orgId) {
+      where.orgId = orgId;
+    }
 
     if (search) {
       where.OR = [
@@ -64,9 +68,9 @@ export class WorkplacesService {
     }
   }
 
-  async findAll(params: ListWorkplacesDto) {
+  async findAll(params: ListWorkplacesDto, orgId?: string) {
     const { page, pageSize } = params;
-    const where = this.buildWhere(params);
+    const where = this.buildWhere(params, orgId);
     const [items, total] = await this.prisma.$transaction([
       this.prisma.workplace.findMany({
         where,

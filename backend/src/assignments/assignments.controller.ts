@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Body,
   Controller,
@@ -180,10 +181,11 @@ export class AssignmentsController {
   @Get()
   @Roles(UserRole.SUPER_ADMIN, UserRole.MANAGER)
   findAll(
+    @Req() req: any,
     @Query(new ZodValidationPipe(listAssignmentsSchema))
     query: ListAssignmentsDto,
   ) {
-    return this.assignmentsService.findAll(query);
+    return this.assignmentsService.findAll(query, this.getOrgId(req));
   }
 
   /**
@@ -192,10 +194,11 @@ export class AssignmentsController {
   @Get('trash')
   @Roles(UserRole.SUPER_ADMIN, UserRole.MANAGER)
   findAllInTrash(
+    @Req() req: any,
     @Query(new ZodValidationPipe(listAssignmentsSchema))
     query: ListAssignmentsDto,
   ) {
-    return this.assignmentsService.findAllInTrash(query);
+    return this.assignmentsService.findAllInTrash(query, this.getOrgId(req));
   }
 
   /**
@@ -205,8 +208,8 @@ export class AssignmentsController {
    */
   @Get('users-summary')
   @Roles(UserRole.SUPER_ADMIN, UserRole.MANAGER)
-  getUsersAssignmentsSummary() {
-    return this.assignmentsService.getUsersAssignmentsSummary();
+  getUsersAssignmentsSummary(@Req() req: any) {
+    return this.assignmentsService.getUsersAssignmentsSummary(this.getOrgId(req));
   }
 
   // ================================================================

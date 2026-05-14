@@ -11,6 +11,8 @@ import {
 } from '@nestjs/common';
 import { UserRole } from '@prisma/client';
 import { WorkplacesService } from './workplaces.service.js';
+import { CurrentUser } from '../common/decorators/current-user.decorator.js';
+import { JwtPayload } from '../auth/jwt-payload.interface.js';
 import {
   CreateWorkplaceDto,
   createWorkplaceSchema,
@@ -48,8 +50,9 @@ export class WorkplacesController {
   findAll(
     @Query(new ZodValidationPipe(listWorkplacesSchema))
     query: ListWorkplacesDto,
+    @CurrentUser() user: JwtPayload,
   ) {
-    return this.workplacesService.findAll(query);
+    return this.workplacesService.findAll(query, user.orgId ?? undefined);
   }
 
   // ✅ Аналогично — чтение одного workplace

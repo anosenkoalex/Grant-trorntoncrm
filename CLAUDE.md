@@ -4,6 +4,63 @@
 
 ---
 
+## 2026-05-14 — Мультитенантная изоляция данных по организациям
+
+Все основные сервисы теперь фильтруют данные по `orgId` из JWT-токена текущего пользователя. Данные одной организации больше не видны пользователям другой.
+
+### Изменения по сервисам
+
+**workplaces.service.ts** — `buildWhere` принимает `orgId?: string`, добавляет `where.orgId = orgId`; `findAll` обновлён соответственно
+
+**workplaces.controller.ts** — `findAll` использует `@CurrentUser()` и передаёт `user.orgId ?? undefined`
+
+**users.service.ts** — `findAll(params, orgId?)` добавляет `where.orgId = orgId` если задан
+
+**users.controller.ts** — `findAll` использует `@CurrentUser()` и передаёт `user.orgId ?? undefined`; добавлены импорты `CurrentUser`, `JwtPayload`
+
+**assignments.service.ts** — `buildWhere(params, orgId?)` и `buildTrashWhere(params, orgId?)` добавляют `where.user = { orgId }` для фильтрации через связь; `findAll(params, orgId?)` и `findAllInTrash(params, orgId?)` обновлены соответственно; `getUsersAssignmentsSummary(orgId?)` уже поддерживал `orgId`, остался без изменений
+
+**assignments.controller.ts** — `findAll`, `findAllInTrash`, `getUsersAssignmentsSummary` передают `this.getOrgId(req)` в сервис
+
+**statistics.service.ts** — `getStatistics(dto, orgId?)` и `getKpi(dto, orgId?)` добавляют `assignment: { user: { orgId } }` в where-фильтр смен
+
+**statistics.controller.ts** — оба метода используют `@CurrentUser()` и передают `user.orgId ?? undefined`; добавлены импорты `CurrentUser`, `JwtPayload`
+
+**planner.service.ts / planner.controller.ts** — уже были изолированы через `auth.orgId` (не изменялись)
+
+**Изменённые файлы:**
+
+- `backend/src/workplaces/workplaces.service.ts`
+- `backend/src/workplaces/workplaces.controller.ts`
+- `backend/src/users/users.service.ts`
+- `backend/src/users/users.controller.ts`
+- `backend/src/assignments/assignments.service.ts`
+- `backend/src/assignments/assignments.controller.ts`
+- `backend/src/statistics/statistics.service.ts`
+- `backend/src/statistics/statistics.controller.ts`
+
+---
+
+## 2026-05-14 — Stripe webhook: совместимость с API 2026-04-22.dahlia
+
+- **billing.service.ts**: исправлена обработка `checkout.session.completed` и `customer.subscription.updated` — поле `current_period_end` читается из `sub.items.data[0]` с fallback на верхний уровень (новый Stripe API 2026-04-22.dahlia перенёс поле внутрь items)
+
+**Изменённые файлы:**
+
+- `backend/src/billing/billing.service.ts`
+
+---
+
+## 2026-05-14 — Переменная окружения VITE_API_URL
+
+- **api/client.ts**: `baseURL` теперь читается из `import.meta.env.VITE_API_URL`, с fallback на `/api`
+
+**Изменённые файлы:**
+
+- `frontend/src/api/client.ts`
+
+---
+
 ## 2026-05-14 — Страница регистрации: брендинг и переключатель языков
 
 - **Register.tsx**: заменено «Armico CRM» → «Grant Thornton CRM»; добавлен header с логотипом-ссылкой на `/` и переключателем языков EN/TR/RU (Select + useTranslation/i18next, сохранение в localStorage); лого убрано из тела формы, осталось только в шапке

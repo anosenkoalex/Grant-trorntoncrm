@@ -17,6 +17,8 @@ import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe.js';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../common/guards/roles.guard.js';
 import { Roles } from '../common/decorators/roles.decorator.js';
+import { CurrentUser } from '../common/decorators/current-user.decorator.js';
+import { JwtPayload } from '../auth/jwt-payload.interface.js';
 import { UserRole } from '@prisma/client';
 
 @Controller('users')
@@ -40,8 +42,11 @@ export class UsersController {
    */
   @Get()
   @Roles(UserRole.SUPER_ADMIN)
-  findAll(@Query(new ZodValidationPipe(listUsersSchema)) query: ListUsersDto) {
-    return this.usersService.findAll(query);
+  findAll(
+    @Query(new ZodValidationPipe(listUsersSchema)) query: ListUsersDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.usersService.findAll(query, user.orgId ?? undefined);
   }
 
   /**

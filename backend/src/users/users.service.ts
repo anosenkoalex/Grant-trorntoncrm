@@ -242,10 +242,11 @@ export class UsersService implements OnModuleInit {
   }
 
   // ===== LIST / UPDATE / DELETE =====
-  async findAll(params: ListUsersDto) {
+  async findAll(params: ListUsersDto, orgId?: string) {
     const { page, pageSize, role, search } = params;
     const where: Prisma.UserWhereInput = { isSystemUser: false };
 
+    if (orgId) where.orgId = orgId;
     if (role) where.role = role;
     if (search?.trim()) {
       const q = search.trim();

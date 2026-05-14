@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   BadRequestException,
   ConflictException,
@@ -132,10 +133,14 @@ export class AssignmentsService {
    * Базовый where для обычных списков:
    *  - берём только НЕ удалённые (deletedAt = null)
    */
-  private buildWhere(params: ListAssignmentsDto): Prisma.AssignmentWhereInput {
+  private buildWhere(params: ListAssignmentsDto, orgId?: string): Prisma.AssignmentWhereInput {
     const where: Prisma.AssignmentWhereInput = {
       deletedAt: null,
     };
+
+    if (orgId) {
+      where.user = { orgId };
+    }
 
     if (params.userId) {
       where.userId = params.userId;
@@ -176,10 +181,15 @@ export class AssignmentsService {
    */
   private buildTrashWhere(
     params: ListAssignmentsDto,
+    orgId?: string,
   ): Prisma.AssignmentWhereInput {
     const where: Prisma.AssignmentWhereInput = {
       deletedAt: { not: null },
     };
+
+    if (orgId) {
+      where.user = { orgId };
+    }
 
     if (params.userId) {
       where.userId = params.userId;
@@ -446,10 +456,10 @@ export class AssignmentsService {
     return { success: true } as const;
   }
 
-  async findAll(params: ListAssignmentsDto) {
+  async findAll(params: ListAssignmentsDto, orgId?: string) {
     const page = params.page ?? 1;
     const pageSize = params.pageSize ?? 10;
-    const where = this.buildWhere(params);
+    const where = this.buildWhere(params, orgId);
 
     const [items, total] = await Promise.all([
       this.prisma.assignment.findMany({
@@ -497,10 +507,10 @@ export class AssignmentsService {
    * Список назначений в корзине (deletedAt != null).
    * Это пригодится для экрана "Корзина" на фронте.
    */
-  async findAllInTrash(params: ListAssignmentsDto) {
+  async findAllInTrash(params: ListAssignmentsDto, orgId?: string) {
     const page = params.page ?? 1;
     const pageSize = params.pageSize ?? 10;
-    const where = this.buildTrashWhere(params);
+    const where = this.buildTrashWhere(params, orgId);
 
     const [items, total] = await Promise.all([
       this.prisma.assignment.findMany({
