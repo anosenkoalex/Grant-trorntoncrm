@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Badge,
   Button,
@@ -22,7 +24,7 @@ import {
 } from 'antd';
 const { useBreakpoint } = Grid;
 import type { ColumnsType } from 'antd/es/table';
-import { PlusOutlined, PaperClipOutlined } from '@ant-design/icons';
+import { PlusOutlined, PaperClipOutlined, CalendarOutlined } from '@ant-design/icons';
 import { FileAttachment } from '../components/FileAttachment.js';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs, { Dayjs } from 'dayjs';
@@ -248,6 +250,26 @@ const downloadCsv = (rows: Assignment[], prefix: string) => {
   a.click();
   a.remove();
   window.URL.revokeObjectURL(url);
+};
+
+const toGCalDate = (iso: string): string => {
+  const d = new Date(iso);
+  return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+};
+
+const buildGoogleCalendarUrl = (record: Assignment): string => {
+  const start = toGCalDate(record.startsAt);
+  const end = toGCalDate(
+    record.endsAt ?? dayjs(record.startsAt).add(1, 'day').toISOString(),
+  );
+  const workplace = record.workplace
+    ? `${record.workplace.code ? record.workplace.code + ' — ' : ''}${record.workplace.name}`
+    : '';
+  const employee = record.user?.fullName ?? record.user?.email ?? '';
+  const text = encodeURIComponent(`Назначение: ${workplace}`);
+  const details = encodeURIComponent(`Сотрудник: ${employee}\nРабочее место: ${workplace}`);
+  const location = encodeURIComponent(record.workplace?.location ?? workplace);
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${start}/${end}&details=${details}&location=${location}`;
 };
 
 const AssignmentsPage = () => {
@@ -1463,6 +1485,16 @@ const assignmentsWithAdjustment = useMemo(() => {
                 onClick={() => setFilesModalAssignment(record)}
               >
                 {t('assignments.files', 'Файлы')}
+              </Button>
+
+              <Button
+                type="link"
+                icon={<CalendarOutlined />}
+                href={buildGoogleCalendarUrl(record)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {t('assignments.addToGoogleCalendar', 'Google Calendar')}
               </Button>
 
               <Button

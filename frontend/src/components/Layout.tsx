@@ -54,7 +54,7 @@ const TYPE_COLORS: Partial<Record<NotificationType, string>> = {
 };
 
 function buildNotificationText(item: Notification) {
-  const payload: Record<string, unknown> = (item.payload as any) ?? {};
+  const payload: Record<string, unknown> = (item.payload as Record<string, unknown>) ?? {};
 
   const title =
     TYPE_LABELS[item.type] ??
@@ -97,7 +97,8 @@ type NotificationsDropdownProps = {
   userId: string;
 };
 
-function NotificationsDropdown({ userId: _userId }: NotificationsDropdownProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function NotificationsDropdown(_props: NotificationsDropdownProps) {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
 
@@ -380,6 +381,14 @@ const AppLayout = () => {
         },
         { key: 'hr', path: '/hr', label: t('layout.hr', 'HR') },
       );
+    }
+
+    if (isAdmin) {
+      items.push({
+        key: 'billing',
+        path: '/billing',
+        label: t('layout.billing', 'Биллинг'),
+      });
     }
 
     if (isAdmin || isDevUser) {

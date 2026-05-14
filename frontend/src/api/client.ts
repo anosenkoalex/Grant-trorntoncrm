@@ -876,6 +876,7 @@ export const fetchAssignmentRequests = async (params?: {
     requesterId: requesterId ?? userId,
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const resp = await api.get<any>('/assignments/requests', { params: mappedParams });
 
   const raw = resp.data;
@@ -935,6 +936,7 @@ export const fetchScheduleAdjustments = async (params: {
   userId?: string;
   assignmentId?: string;
 }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const resp = await api.get<any>('/assignments/adjustments', { params });
 
   const raw = resp.data;
@@ -1263,6 +1265,8 @@ export type FetchVacationsParams = {
   userId?: string;
   page?: number;
   pageSize?: number;
+  dateFrom?: string;
+  dateTo?: string;
 };
 
 export const fetchVacations = async (
@@ -1279,5 +1283,109 @@ export const approveVacation = async (id: string): Promise<VacationRequest> => {
 
 export const rejectVacation = async (id: string, comment?: string): Promise<VacationRequest> => {
   const { data } = await api.patch<VacationRequest>(`/hr/vacations/${id}/reject`, { comment });
+  return data;
+};
+
+/* -------------------- AUTOMATION NOTIFICATION LOG -------------------- */
+
+export type NotificationLogItem = {
+  id: string;
+  orgId: string;
+  userId: string | null;
+  userLabel: string | null;
+  type: string;
+  channel: 'SYSTEM' | 'TELEGRAM';
+  createdAt: string;
+  user?: { id: string; fullName: string | null; email: string } | null;
+};
+
+export const fetchNotificationLog = async (
+  params: { page?: number; pageSize?: number } = {},
+): Promise<{ items: NotificationLogItem[]; total: number; page: number; pageSize: number }> => {
+  const { data } = await api.get('/automation/notification-log', { params });
+  return data;
+};
+
+/* -------------------- BILLING -------------------- */
+
+export type SubscriptionPlan = 'STARTER' | 'BUSINESS' | 'ENTERPRISE';
+export type SubscriptionStatus = 'ACTIVE' | 'CANCELLED' | 'PAST_DUE' | 'TRIALING' | 'INCOMPLETE';
+
+export type Subscription = {
+  id: string;
+  orgId: string;
+  stripeCustomerId: string;
+  stripeSubId: string | null;
+  stripePriceId: string | null;
+  plan: SubscriptionPlan;
+  status: SubscriptionStatus;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Invoice = {
+  id: string;
+  amount: number;
+  currency: string;
+  date: string;
+  status: string;
+  pdf: string | null;
+};
+
+export type BillingInfo = {
+  subscription: Subscription | null;
+  invoices: Invoice[];
+};
+
+export type RegisterPayload = {
+  companyName: string;
+  adminEmail: string;
+  password: string;
+  plan: SubscriptionPlan;
+};
+
+export const initiateRegistration = async (payload: RegisterPayload): Promise<{ url: string }> => {
+  const { data } = await api.post<{ url: string }>('/billing/register', payload);
+  return data;
+};
+
+export const fetchBillingInfo = async (): Promise<BillingInfo> => {
+  const { data } = await api.get<BillingInfo>('/billing/info');
+  return data;
+};
+
+export const createPortalSession = async (returnUrl: string): Promise<{ url: string }> => {
+  const { data } = await api.post<{ url: string }>('/billing/portal', { returnUrl });
+  return data;
+};
+
+/* -------------------- SUPER ADMIN -------------------- */
+
+export type OrgSummary = {
+  id: string;
+  name: string;
+  slug: string;
+  createdAt: string;
+  userCount: number;
+  subscription: {
+    plan: SubscriptionPlan;
+    status: SubscriptionStatus;
+    currentPeriodEnd: string | null;
+  } | null;
+};
+
+export const fetchSuperAdminOrgs = async (): Promise<OrgSummary[]> => {
+  const { data } = await api.get<OrgSummary[]>('/super-admin/orgs');
+  return data;
+};
+
+export const fetchSuperAdminStats = async (): Promise<{
+  orgCount: number;
+  userCount: number;
+  activeSubscriptions: number;
+}> => {
+  const { data } = await api.get('/super-admin/stats');
   return data;
 };

@@ -7,20 +7,106 @@ import {
   Skeleton,
   Space,
   Switch,
+  Table,
+  Tag,
   Typography,
   message,
 } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import dayjs from 'dayjs';
 import {
   fetchAutomationSettings,
+  fetchNotificationLog,
   updateAutomationSettings,
+  type NotificationLogItem,
   type UpdateAutomationSettingsPayload,
 } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.js';
 
 const { Title, Text } = Typography;
+
+const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
+  ASSIGNMENT_CREATED: 'Назначение создано',
+  ASSIGNMENT_UPDATED: 'Назначение обновлено',
+  ASSIGNMENT_CANCELLED: 'Назначение отменено',
+  ASSIGNMENT_MOVED: 'Назначение перенесено',
+  SYSTEM: 'Системное',
+  REMINDER: 'Напоминание',
+};
+
+function NotificationLogTable() {
+  const { t } = useTranslation();
+  const [page, setPage] = useState(1);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['notification-log', page],
+    queryFn: () => fetchNotificationLog({ page, pageSize: 50 }),
+  });
+
+  const columns = [
+    {
+      title: t('automation.logDate', 'Дата'),
+      dataIndex: 'createdAt',
+      width: 160,
+      render: (v: string) => dayjs(v).format('DD.MM.YYYY HH:mm'),
+    },
+    {
+      title: t('automation.logType', 'Тип события'),
+      dataIndex: 'type',
+      render: (v: string) => NOTIFICATION_TYPE_LABELS[v] ?? v,
+    },
+    {
+      title: t('automation.logRecipient', 'Получатель'),
+      render: (_: unknown, r: NotificationLogItem) => {
+        if (r.channel === 'TELEGRAM') return <Text type="secondary">—</Text>;
+        const label = r.user?.fullName ?? r.user?.email ?? r.userLabel ?? r.userId ?? '—';
+        return label;
+      },
+    },
+    {
+      title: t('automation.logChannel', 'Канал'),
+      dataIndex: 'channel',
+      width: 120,
+      render: (v: string) =>
+        v === 'TELEGRAM' ? (
+          <Tag color="blue">Telegram</Tag>
+        ) : (
+          <Tag color="green">{t('automation.logChannelSystem', 'Система')}</Tag>
+        ),
+    },
+  ];
+
+  return (
+    <Card
+      title={t('automation.logTitle', 'Лог уведомлений')}
+      style={{ marginTop: 24 }}
+      extra={
+        <Text type="secondary" style={{ fontSize: 12 }}>
+          {t('automation.logDesc', 'История отправленных уведомлений')}
+        </Text>
+      }
+    >
+      <Table
+        rowKey="id"
+        dataSource={data?.items ?? []}
+        columns={columns}
+        loading={isLoading}
+        size="small"
+        pagination={{
+          current: page,
+          pageSize: 50,
+          total: data?.total ?? 0,
+          onChange: (p) => setPage(p),
+          hideOnSinglePage: true,
+          showTotal: (total) => `${t('automation.logTotal', 'Всего')}: ${total}`,
+        }}
+        locale={{ emptyText: t('automation.logEmpty', 'Уведомлений ещё не отправлялось') }}
+      />
+    </Card>
+  );
+}
 
 export default function AutomationSettingsPage() {
   const { t } = useTranslation();
@@ -159,6 +245,8 @@ export default function AutomationSettingsPage() {
           </div>
         </Form>
       )}
+
+      <NotificationLogTable />
     </div>
   );
 }

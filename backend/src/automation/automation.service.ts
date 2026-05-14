@@ -66,6 +66,46 @@ export class AutomationService {
     });
   }
 
+  async getNotificationLog(orgId: string, params: { page?: number; pageSize?: number }) {
+    const { page = 1, pageSize = 50 } = params;
+    const skip = (page - 1) * pageSize;
+
+    const [items, total] = await Promise.all([
+      this.prisma.notificationLog.findMany({
+        where: { orgId },
+        include: { user: { select: { id: true, fullName: true, email: true } } },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: pageSize,
+      }),
+      this.prisma.notificationLog.count({ where: { orgId } }),
+    ]);
+
+    return { items, total, page, pageSize };
+  }
+
+  private async logNotification(
+    orgId: string,
+    userId: string | null,
+    userLabel: string | null,
+    type: string,
+    channel: 'SYSTEM' | 'TELEGRAM',
+  ) {
+    try {
+      await this.prisma.notificationLog.create({
+        data: {
+          orgId,
+          userId: userId ?? undefined,
+          userLabel: userLabel ?? undefined,
+          type,
+          channel,
+        },
+      });
+    } catch (err) {
+      this.logger.error('Failed to write notification log', err);
+    }
+  }
+
   /**
    * Условно отправляет уведомления по типу назначений.
    * Проверяет настройки автоматизации для данной организации.
@@ -84,13 +124,36 @@ export class AutomationService {
 
     await this.notifications.notifyMany(userIds, type, payload);
 
+    // Log system notifications
+    const users = userIds.length > 0
+      ? await this.prisma.user.findMany({
+          where: { id: { in: userIds } },
+          select: { id: true, fullName: true, email: true },
+        })
+      : [];
+
+    const userMap = new Map(users.map((u) => [u.id, u]));
+    for (const uid of userIds) {
+      const u = userMap.get(uid);
+      await this.logNotification(
+        orgId,
+        uid,
+        u ? (u.fullName ?? u.email) : null,
+        type,
+        'SYSTEM',
+      );
+    }
+
     // Telegram уведомление для событий назначения
     if (
       type === NotificationType.ASSIGNMENT_CREATED ||
       type === NotificationType.ASSIGNMENT_UPDATED ||
       type === NotificationType.ASSIGNMENT_CANCELLED
     ) {
-      await this.telegram.notifyAssignment(type, payload);
+      const sent = await this.telegram.notifyAssignment(type, payload);
+      if (sent) {
+        await this.logNotification(orgId, null, null, type, 'TELEGRAM');
+      }
     }
   }
 
@@ -105,7 +168,6 @@ export class AutomationService {
     try {
       const now = new Date();
 
-      // Получаем все настройки (enabled и disabled) — чтобы знать, кому НЕ слать
       const allOrgSettings = await this.prisma.automationSettings.findMany({
         select: { orgId: true, reminderEnabled: true, reminderHoursBefore: true },
       });
@@ -113,7 +175,6 @@ export class AutomationService {
       const configuredOrgIds = allOrgSettings.map((s) => s.orgId);
       const enabledSettings = allOrgSettings.filter((s) => s.reminderEnabled);
 
-      // Организации без настроек — дефолт: включено, 24 ч.
       const unconfiguredOrgs = await this.prisma.org.findMany({
         where:
           configuredOrgIds.length > 0 ? { id: { notIn: configuredOrgIds } } : {},
@@ -128,7 +189,6 @@ export class AutomationService {
       let totalSent = 0;
 
       for (const { orgId, hoursBefore } of targets) {
-        // ±30 мин окно вокруг нужного момента
         const from = new Date(now.getTime() + (hoursBefore - 0.5) * 3_600_000);
         const to = new Date(now.getTime() + (hoursBefore + 0.5) * 3_600_000);
 
@@ -145,7 +205,7 @@ export class AutomationService {
             userId: true,
             workplaceId: true,
             workplace: { select: { code: true, name: true } },
-            user: { select: { fullName: true } },
+            user: { select: { fullName: true, email: true } },
           },
         });
 
@@ -164,6 +224,14 @@ export class AutomationService {
               title: `Напоминание: назначение через ${hoursBefore} ч.`,
               body: wpLabel,
             },
+          );
+
+          await this.logNotification(
+            orgId,
+            a.userId,
+            a.user.fullName ?? a.user.email,
+            'REMINDER',
+            'SYSTEM',
           );
 
           await this.prisma.assignment.update({

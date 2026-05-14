@@ -15,6 +15,11 @@ import { useAuth } from '../context/AuthContext.js';
 import InstructionsPage from '../pages/Instructions.js';
 import AutomationSettingsPage from '../pages/AutomationSettings.js';
 import HRPage from '../pages/HR.js';
+import LandingPage from '../pages/Landing.js';
+import RegisterPage from '../pages/Register.js';
+import RegisterSuccessPage from '../pages/RegisterSuccess.js';
+import BillingPage from '../pages/Billing.js';
+import SuperAdminPage from '../pages/SuperAdmin.js';
 
 const ProtectedRoute = () => {
   const { token } = useAuth();
@@ -33,6 +38,22 @@ const AppRoutes = () => {
   const defaultPath = user?.role === 'USER' ? '/my-place' : '/dashboard';
 
   const element = useRoutes([
+    // Публичная лендинг-страница
+    {
+      path: '/landing',
+      element: <LandingPage />,
+    },
+
+    // Регистрация
+    {
+      path: '/register',
+      element: token ? <Navigate to={defaultPath} replace /> : <RegisterPage />,
+    },
+    {
+      path: '/register/success',
+      element: <RegisterSuccessPage />,
+    },
+
     // 🔹 Страница инструкции — ОТДЕЛЬНО, без AppLayout и без проверки токена
     {
       path: '/instructions',
@@ -73,6 +94,12 @@ const AppRoutes = () => {
 
         // hr
         { path: 'hr', element: <HRPage /> },
+
+        // биллинг
+        { path: 'billing', element: <BillingPage /> },
+
+        // super-admin панель
+        { path: 'super-admin', element: <SuperAdminPage /> },
 
         // dev-панель
         { path: 'dev', element: <DevPage /> },

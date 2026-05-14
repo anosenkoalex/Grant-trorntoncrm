@@ -11,6 +11,13 @@ export const envSchema = z.object({
   SMTP_PASS: z.string().min(1).optional(),
   MAIL_FROM: z.string().min(1).optional(),
   APP_URL: z.string().min(1).optional(),
+  STRIPE_SECRET_KEY: z.string().min(1).optional(),
+  STRIPE_PUBLISHABLE_KEY: z.string().min(1).optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
+  STRIPE_PRICE_STARTER: z.string().min(1).optional(),
+  STRIPE_PRICE_BUSINESS: z.string().min(1).optional(),
+  STRIPE_PRICE_ENTERPRISE: z.string().min(1).optional(),
+  PLATFORM_ADMIN_EMAIL: z.string().email().optional(),
 });
 
 export type EnvSchema = z.infer<typeof envSchema>;

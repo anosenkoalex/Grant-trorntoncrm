@@ -38,14 +38,14 @@ export class TelegramService {
     this.logger.log('Telegram settings updated');
   }
 
-  async sendMessage(text: string): Promise<void> {
+  async sendMessage(text: string): Promise<boolean> {
     const settings = await this.getSettings();
 
-    if (!settings.enabled) return;
+    if (!settings.enabled) return false;
 
     if (!settings.token || !settings.chatId) {
       this.logger.warn('Telegram token/chatId not set, skip');
-      return;
+      return false;
     }
 
     try {
@@ -55,13 +55,15 @@ export class TelegramService {
         { timeout: 8000 },
       );
       this.logger.log('Telegram message sent');
+      return true;
     } catch (err) {
       const msg = err instanceof Error ? err.message : JSON.stringify(err);
       this.logger.error(`Telegram send failed: ${msg}`);
+      return false;
     }
   }
 
-  async notifyAssignment(type: NotificationType, payload: Prisma.JsonObject): Promise<void> {
+  async notifyAssignment(type: NotificationType, payload: Prisma.JsonObject): Promise<boolean> {
     const typeEmoji: Partial<Record<NotificationType, string>> = {
       ASSIGNMENT_CREATED: '🆕',
       ASSIGNMENT_UPDATED: '✏️',
@@ -100,6 +102,6 @@ export class TelegramService {
       lines.push(title);
     }
 
-    await this.sendMessage(lines.join('\n'));
+    return this.sendMessage(lines.join('\n'));
   }
 }

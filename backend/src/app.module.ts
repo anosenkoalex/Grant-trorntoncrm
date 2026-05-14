@@ -21,6 +21,8 @@ import { FilesModule } from './files/files.module.js';
 import { TelegramModule } from './telegram/telegram.module.js';
 import { ApiKeysModule } from './api-keys/api-keys.module.js';
 import { HrModule } from './hr/hr.module.js';
+import { BillingModule } from './billing/billing.module.js';
+import { SuperAdminModule } from './super-admin/super-admin.module.js';
 
 @Module({
   imports: [
@@ -50,6 +52,8 @@ import { HrModule } from './hr/hr.module.js';
     TelegramModule,
     ApiKeysModule,
     HrModule,
+    BillingModule,
+    SuperAdminModule,
   ],
 })
 export class AppModule {}

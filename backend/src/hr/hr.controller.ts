@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Body,
   Controller,
@@ -10,7 +11,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { UserRole, VacationStatus, VacationType } from '@prisma/client';
+import { UserRole, VacationStatus } from '@prisma/client';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../common/guards/roles.guard.js';
 import { Roles } from '../common/decorators/roles.decorator.js';
@@ -48,6 +49,8 @@ export class HrController {
     @Query('userId') userId: string | undefined,
     @Query('page') page: string | undefined,
     @Query('pageSize') pageSize: string | undefined,
+    @Query('dateFrom') dateFrom: string | undefined,
+    @Query('dateTo') dateTo: string | undefined,
     @Req() req: any,
   ) {
     return this.hrService.findAll(this.orgId(req), {
@@ -55,6 +58,8 @@ export class HrController {
       userId,
       page: page ? Number(page) : 1,
       pageSize: pageSize ? Number(pageSize) : 20,
+      dateFrom,
+      dateTo,
     });
   }
 

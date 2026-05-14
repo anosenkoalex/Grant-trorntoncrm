@@ -65,6 +65,20 @@ enum AdjustmentStatus {
   REJECTED
 }
 
+enum SubscriptionPlan {
+  STARTER
+  BUSINESS
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  PAST_DUE
+  TRIALING
+  INCOMPLETE
+}
+
 enum AssignmentRequestStatus {
   PENDING
   APPROVED
@@ -85,6 +99,8 @@ model Org {
   automationSettings AutomationSettings?
   apiKeys            ApiKey[]
   vacationRequests   VacationRequest[]
+  notificationLogs   NotificationLog[]
+  subscription       Subscription?
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -123,6 +139,7 @@ model User {
   createdApiKeys     ApiKey[]
   vacations          VacationRequest[]
   decidedVacations   VacationRequest[] @relation("VacationDecider")
+  notificationLogs   NotificationLog[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -432,4 +449,45 @@ model AutomationSettings {
   reminderHoursBefore Int      @default(24)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+}
+
+model NotificationLog {
+  id        String   @id @default(cuid())
+  orgId     String
+  org       Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userLabel String?
+  type      String
+  channel   String
+  createdAt DateTime @default(now())
+
+  @@index([orgId, createdAt])
+}
+
+model Subscription {
+  id                String             @id @default(cuid())
+  orgId             String             @unique
+  org               Org                @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  stripeCustomerId  String             @unique
+  stripeSubId       String?            @unique
+  stripePriceId     String?
+  plan              SubscriptionPlan   @default(STARTER)
+  status            SubscriptionStatus @default(INCOMPLETE)
+  currentPeriodEnd  DateTime?
+  cancelAtPeriodEnd Boolean            @default(false)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+}
+
+model PendingRegistration {
+  id          String           @id @default(cuid())
+  companyName String
+  adminEmail  String
+  password    String
+  plan        SubscriptionPlan
+  sessionId   String           @unique
+  processedAt DateTime?
+  createdAt   DateTime         @default(now())
+  expiresAt   DateTime
 }
