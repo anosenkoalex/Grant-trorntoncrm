@@ -47,18 +47,26 @@ export class BillingService {
     const key = `STRIPE_PRICE_${plan}` as const;
     const priceId = this.config.get<string>(key);
     if (!priceId) {
-      throw new BadRequestException(`Stripe price for plan ${plan} is not configured`);
+      throw new BadRequestException(
+        `Stripe price for plan ${plan} is not configured`,
+      );
     }
     return priceId;
   }
 
   async initiateRegistration(dto: InitiateRegistrationDto) {
     const stripe = this.getStripe();
-    const appUrl = this.config.get<string>('APP_URL') ?? 'http://localhost:5173';
+    const appUrl =
+      this.config.get<string>('APP_URL') ?? 'http://localhost:5173';
 
-    const existing = await this.prisma.user.findUnique({ where: { email: dto.adminEmail } });
+    const existing = await this.prisma.user.findUnique({
+      where: { email: dto.adminEmail },
+    });
     if (existing) {
-      throw new BadRequestException({ code: 'EMAIL_TAKEN', message: 'Email already in use' });
+      throw new BadRequestException({
+        code: 'EMAIL_TAKEN',
+        message: 'Email already in use',
+      });
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 10);
@@ -110,13 +118,19 @@ export class BillingService {
 
     switch (event.type) {
       case 'checkout.session.completed':
-        await this.handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
+        await this.handleCheckoutCompleted(
+          event.data.object as Stripe.Checkout.Session,
+        );
         break;
       case 'customer.subscription.updated':
-        await this.handleSubscriptionUpdated(event.data.object as Stripe.Subscription);
+        await this.handleSubscriptionUpdated(
+          event.data.object as Stripe.Subscription,
+        );
         break;
       case 'customer.subscription.deleted':
-        await this.handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
+        await this.handleSubscriptionDeleted(
+          event.data.object as Stripe.Subscription,
+        );
         break;
     }
 
@@ -130,11 +144,18 @@ export class BillingService {
 
     if (!pending || pending.processedAt) return;
 
-    const slug = pending.companyName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + Date.now();
+    const slug =
+      pending.companyName
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '') +
+      '-' +
+      Date.now();
 
-    const subId = typeof session.subscription === 'string'
-      ? session.subscription
-      : session.subscription?.id;
+    const subId =
+      typeof session.subscription === 'string'
+        ? session.subscription
+        : session.subscription?.id;
 
     const plan = pending.plan;
     let stripePriceId: string | null = null;
@@ -164,9 +185,10 @@ export class BillingService {
         },
       });
 
-      const customerId = typeof session.customer === 'string'
-        ? session.customer
-        : session.customer?.id ?? '';
+      const customerId =
+        typeof session.customer === 'string'
+          ? session.customer
+          : (session.customer?.id ?? '');
 
       await tx.subscription.create({
         data: {
@@ -190,7 +212,8 @@ export class BillingService {
   }
 
   private async handleSubscriptionUpdated(sub: Stripe.Subscription) {
-    const customerId = typeof sub.customer === 'string' ? sub.customer : sub.customer.id;
+    const customerId =
+      typeof sub.customer === 'string' ? sub.customer : sub.customer.id;
     const existing = await this.prisma.subscription.findUnique({
       where: { stripeCustomerId: customerId },
     });
@@ -216,7 +239,8 @@ export class BillingService {
   }
 
   private async handleSubscriptionDeleted(sub: Stripe.Subscription) {
-    const customerId = typeof sub.customer === 'string' ? sub.customer : sub.customer.id;
+    const customerId =
+      typeof sub.customer === 'string' ? sub.customer : sub.customer.id;
     await this.prisma.subscription.updateMany({
       where: { stripeCustomerId: customerId },
       data: { status: SubscriptionStatus.CANCELLED },
@@ -236,7 +260,9 @@ export class BillingService {
     return map[status] ?? SubscriptionStatus.INCOMPLETE;
   }
 
-  private async planFromPriceId(priceId: string | undefined): Promise<SubscriptionPlan | null> {
+  private async planFromPriceId(
+    priceId: string | undefined,
+  ): Promise<SubscriptionPlan | null> {
     if (!priceId) return null;
     const plans: SubscriptionPlan[] = ['STARTER', 'BUSINESS', 'ENTERPRISE'];
     for (const plan of plans) {
@@ -254,7 +280,14 @@ export class BillingService {
       return { subscription: null, invoices: [] };
     }
 
-    let invoices: { id: string; amount: number; currency: string; date: Date; status: string; pdf: string | null }[] = [];
+    let invoices: {
+      id: string;
+      amount: number;
+      currency: string;
+      date: Date;
+      status: string;
+      pdf: string | null;
+    }[] = [];
     if (this.stripe && subscription.stripeCustomerId) {
       try {
         const stripeInvoices = await this.stripe.invoices.list({
@@ -279,7 +312,9 @@ export class BillingService {
 
   async createPortalSession(orgId: string, returnUrl: string) {
     const stripe = this.getStripe();
-    const subscription = await this.prisma.subscription.findUnique({ where: { orgId } });
+    const subscription = await this.prisma.subscription.findUnique({
+      where: { orgId },
+    });
     if (!subscription) throw new NotFoundException('No subscription found');
 
     const session = await stripe.billingPortal.sessions.create({

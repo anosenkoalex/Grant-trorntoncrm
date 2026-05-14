@@ -30,7 +30,10 @@ export class TelegramService {
     };
 
     if (existing) {
-      await this.prisma.telegramSettings.update({ where: { id: existing.id }, data });
+      await this.prisma.telegramSettings.update({
+        where: { id: existing.id },
+        data,
+      });
     } else {
       await this.prisma.telegramSettings.create({ data });
     }
@@ -63,7 +66,10 @@ export class TelegramService {
     }
   }
 
-  async notifyAssignment(type: NotificationType, payload: Prisma.JsonObject): Promise<boolean> {
+  async notifyAssignment(
+    type: NotificationType,
+    payload: Prisma.JsonObject,
+  ): Promise<boolean> {
     const typeEmoji: Partial<Record<NotificationType, string>> = {
       ASSIGNMENT_CREATED: '🆕',
       ASSIGNMENT_UPDATED: '✏️',
@@ -93,7 +99,8 @@ export class TelegramService {
 
     if (typeof user === 'string' && user) lines.push(`👤 ${user}`);
     if (typeof code === 'string' && code) {
-      const namePart = typeof workplace === 'string' && workplace ? ` — ${workplace}` : '';
+      const namePart =
+        typeof workplace === 'string' && workplace ? ` — ${workplace}` : '';
       lines.push(`🏢 ${code}${namePart}`);
     } else if (typeof workplace === 'string' && workplace) {
       lines.push(`🏢 ${workplace}`);

@@ -25,11 +25,15 @@ import dayjs from 'dayjs';
 
 // Отчёт по отработанным часам
 const createWorkReportSchema = z.object({
-  date: z.string().min(1, 'Дата обязательна'),        // YYYY-MM-DD
-  hours: z
-    .coerce.number()                                  // приводим строку/число к number
+  date: z.string().min(1, 'Дата обязательна'), // YYYY-MM-DD
+  hours: z.coerce
+    .number() // приводим строку/число к number
     .min(0, 'Часы не могут быть отрицательными'),
-  workplaceId: z.string().min(1, 'Рабочее место обязательно').optional().nullable(),
+  workplaceId: z
+    .string()
+    .min(1, 'Рабочее место обязательно')
+    .optional()
+    .nullable(),
   comment: z.string().max(1000).optional().nullable(),
 });
 type CreateWorkReportDto = z.infer<typeof createWorkReportSchema>;
@@ -106,10 +110,7 @@ export class MeController {
       throw new NotFoundException('Пользователь не найден');
     }
 
-    const isValid = await bcrypt.compare(
-      body.currentPassword,
-      dbUser.password,
-    );
+    const isValid = await bcrypt.compare(body.currentPassword, dbUser.password);
 
     if (!isValid) {
       throw new BadRequestException('Неверный текущий пароль');
@@ -197,10 +198,7 @@ export class MeController {
           },
         },
         shifts: {
-          orderBy: [
-            { date: 'asc' as const },
-            { startsAt: 'asc' as const },
-          ],
+          orderBy: [{ date: 'asc' as const }, { startsAt: 'asc' as const }],
         },
       },
       orderBy: [{ startsAt: 'asc' as const }],
@@ -258,10 +256,7 @@ export class MeController {
           },
         },
         shifts: {
-          orderBy: [
-            { date: 'asc' as const },
-            { startsAt: 'asc' as const },
-          ],
+          orderBy: [{ date: 'asc' as const }, { startsAt: 'asc' as const }],
         },
       },
       orderBy: [{ startsAt: 'asc' as const }],

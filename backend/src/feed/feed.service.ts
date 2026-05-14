@@ -19,11 +19,19 @@ export class FeedService {
     return this.getFeed({ take });
   }
 
-  async getScopedFeed(params: { take?: number; userId?: string; orgId?: string }) {
+  async getScopedFeed(params: {
+    take?: number;
+    userId?: string;
+    orgId?: string;
+  }) {
     return this.getFeed(params);
   }
 
-  private async getFeed(params: { take?: number; userId?: string; orgId?: string }) {
+  private async getFeed(params: {
+    take?: number;
+    userId?: string;
+    orgId?: string;
+  }) {
     const limit = Math.min(Math.max(params.take ?? 20, 1), 100);
 
     const [assignments, workplaces] = await Promise.all([
@@ -84,7 +92,8 @@ export class FeedService {
           action:
             assignment.status === AssignmentStatus.ARCHIVED
               ? 'cancelled'
-              : assignment.updatedAt.getTime() === assignment.createdAt.getTime()
+              : assignment.updatedAt.getTime() ===
+                  assignment.createdAt.getTime()
                 ? 'created'
                 : 'updated',
           user: assignment.user

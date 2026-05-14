@@ -55,10 +55,18 @@ export class AutomationService {
         reminderHoursBefore: dto.reminderHoursBefore ?? 24,
       },
       update: {
-        ...(dto.triggerOnCreate !== undefined && { triggerOnCreate: dto.triggerOnCreate }),
-        ...(dto.triggerOnUpdate !== undefined && { triggerOnUpdate: dto.triggerOnUpdate }),
-        ...(dto.triggerOnCancel !== undefined && { triggerOnCancel: dto.triggerOnCancel }),
-        ...(dto.reminderEnabled !== undefined && { reminderEnabled: dto.reminderEnabled }),
+        ...(dto.triggerOnCreate !== undefined && {
+          triggerOnCreate: dto.triggerOnCreate,
+        }),
+        ...(dto.triggerOnUpdate !== undefined && {
+          triggerOnUpdate: dto.triggerOnUpdate,
+        }),
+        ...(dto.triggerOnCancel !== undefined && {
+          triggerOnCancel: dto.triggerOnCancel,
+        }),
+        ...(dto.reminderEnabled !== undefined && {
+          reminderEnabled: dto.reminderEnabled,
+        }),
         ...(dto.reminderHoursBefore !== undefined && {
           reminderHoursBefore: dto.reminderHoursBefore,
         }),
@@ -66,14 +74,19 @@ export class AutomationService {
     });
   }
 
-  async getNotificationLog(orgId: string, params: { page?: number; pageSize?: number }) {
+  async getNotificationLog(
+    orgId: string,
+    params: { page?: number; pageSize?: number },
+  ) {
     const { page = 1, pageSize = 50 } = params;
     const skip = (page - 1) * pageSize;
 
     const [items, total] = await Promise.all([
       this.prisma.notificationLog.findMany({
         where: { orgId },
-        include: { user: { select: { id: true, fullName: true, email: true } } },
+        include: {
+          user: { select: { id: true, fullName: true, email: true } },
+        },
         orderBy: { createdAt: 'desc' },
         skip,
         take: pageSize,
@@ -118,19 +131,32 @@ export class AutomationService {
   ): Promise<void> {
     const settings = await this.getSettings(orgId);
 
-    if (type === NotificationType.ASSIGNMENT_CREATED && !settings.triggerOnCreate) return;
-    if (type === NotificationType.ASSIGNMENT_UPDATED && !settings.triggerOnUpdate) return;
-    if (type === NotificationType.ASSIGNMENT_CANCELLED && !settings.triggerOnCancel) return;
+    if (
+      type === NotificationType.ASSIGNMENT_CREATED &&
+      !settings.triggerOnCreate
+    )
+      return;
+    if (
+      type === NotificationType.ASSIGNMENT_UPDATED &&
+      !settings.triggerOnUpdate
+    )
+      return;
+    if (
+      type === NotificationType.ASSIGNMENT_CANCELLED &&
+      !settings.triggerOnCancel
+    )
+      return;
 
     await this.notifications.notifyMany(userIds, type, payload);
 
     // Log system notifications
-    const users = userIds.length > 0
-      ? await this.prisma.user.findMany({
-          where: { id: { in: userIds } },
-          select: { id: true, fullName: true, email: true },
-        })
-      : [];
+    const users =
+      userIds.length > 0
+        ? await this.prisma.user.findMany({
+            where: { id: { in: userIds } },
+            select: { id: true, fullName: true, email: true },
+          })
+        : [];
 
     const userMap = new Map(users.map((u) => [u.id, u]));
     for (const uid of userIds) {
@@ -169,7 +195,11 @@ export class AutomationService {
       const now = new Date();
 
       const allOrgSettings = await this.prisma.automationSettings.findMany({
-        select: { orgId: true, reminderEnabled: true, reminderHoursBefore: true },
+        select: {
+          orgId: true,
+          reminderEnabled: true,
+          reminderHoursBefore: true,
+        },
       });
 
       const configuredOrgIds = allOrgSettings.map((s) => s.orgId);
@@ -177,12 +207,17 @@ export class AutomationService {
 
       const unconfiguredOrgs = await this.prisma.org.findMany({
         where:
-          configuredOrgIds.length > 0 ? { id: { notIn: configuredOrgIds } } : {},
+          configuredOrgIds.length > 0
+            ? { id: { notIn: configuredOrgIds } }
+            : {},
         select: { id: true },
       });
 
       const targets: { orgId: string; hoursBefore: number }[] = [
-        ...enabledSettings.map((s) => ({ orgId: s.orgId, hoursBefore: s.reminderHoursBefore })),
+        ...enabledSettings.map((s) => ({
+          orgId: s.orgId,
+          hoursBefore: s.reminderHoursBefore,
+        })),
         ...unconfiguredOrgs.map((o) => ({ orgId: o.id, hoursBefore: 24 })),
       ];
 
@@ -210,7 +245,9 @@ export class AutomationService {
         });
 
         for (const a of assignments) {
-          const wpLabel = [a.workplace.code, a.workplace.name].filter(Boolean).join(' — ');
+          const wpLabel = [a.workplace.code, a.workplace.name]
+            .filter(Boolean)
+            .join(' — ');
 
           await this.notifications.notifyMany(
             [a.userId],

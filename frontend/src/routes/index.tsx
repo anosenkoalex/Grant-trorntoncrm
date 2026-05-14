@@ -83,7 +83,10 @@ const AppRoutes = () => {
         { path: '/users', element: <UsersPage /> },
         { path: '/users/create', element: <UsersCreatePage /> },
         { path: '/statistics', element: <StatisticsPage /> },
-        { path: '/schedule-adjustments', element: <AssignmentAdjustmentsPage /> },
+        {
+          path: '/schedule-adjustments',
+          element: <AssignmentAdjustmentsPage />,
+        },
         { path: '/automation-settings', element: <AutomationSettingsPage /> },
         { path: '/hr', element: <HRPage /> },
         { path: '/billing', element: <BillingPage /> },
@@ -95,7 +98,11 @@ const AppRoutes = () => {
     // Все остальные URL
     {
       path: '*',
-      element: token ? <Navigate to={defaultPath} replace /> : <Navigate to="/" replace />,
+      element: token ? (
+        <Navigate to={defaultPath} replace />
+      ) : (
+        <Navigate to="/" replace />
+      ),
     },
   ]);
 

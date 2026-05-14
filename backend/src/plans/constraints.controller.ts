@@ -23,7 +23,8 @@ export class ConstraintsController {
 
   @Post()
   upsert(
-    @Body(new ZodValidationPipe(upsertConstraintSchema)) payload: UpsertConstraintDto,
+    @Body(new ZodValidationPipe(upsertConstraintSchema))
+    payload: UpsertConstraintDto,
   ) {
     return this.plansService.upsertConstraint(payload);
   }

@@ -111,8 +111,7 @@ export class SmsService {
 
       this.logger.log(`SMS sent to ${phone}`);
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : JSON.stringify(err);
+      const message = err instanceof Error ? err.message : JSON.stringify(err);
       this.logger.error(`Failed to send SMS to ${phone}: ${message}`);
     }
   }
@@ -146,9 +145,7 @@ export class SmsService {
     }
 
     if (!assignment.user.phone) {
-      this.logger.warn(
-        `User ${assignment.user.id} has no phone, skip SMS`,
-      );
+      this.logger.warn(`User ${assignment.user.id} has no phone, skip SMS`);
       return;
     }
 

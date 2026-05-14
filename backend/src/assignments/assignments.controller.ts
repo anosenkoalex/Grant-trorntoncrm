@@ -61,11 +61,17 @@ const requestScheduleAdjustmentSchema = z.object({
   startsAt: z
     .string()
     .optional()
-    .refine((val) => !val || !Number.isNaN(Date.parse(val)), 'Некорректный формат времени начала'),
+    .refine(
+      (val) => !val || !Number.isNaN(Date.parse(val)),
+      'Некорректный формат времени начала',
+    ),
   endsAt: z
     .string()
     .optional()
-    .refine((val) => !val || !Number.isNaN(Date.parse(val)), 'Некорректный формат времени окончания'),
+    .refine(
+      (val) => !val || !Number.isNaN(Date.parse(val)),
+      'Некорректный формат времени окончания',
+    ),
   kind: z.enum(['DEFAULT', 'OFFICE', 'REMOTE', 'DAY_OFF']).optional(),
   comment: z.string().min(1, 'Комментарий обязателен').max(2000),
 });
@@ -474,7 +480,10 @@ export class AssignmentsController {
         destination: './uploads',
         filename: (_req, file, cb) => {
           const ext = extname(file.originalname);
-          cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
+          cb(
+            null,
+            `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`,
+          );
         },
       }),
       limits: { fileSize: 20 * 1024 * 1024 },

@@ -329,7 +329,9 @@ export class PlansService {
       const overlapping = rangeSlots.some((slot) => {
         return (
           slot.userId === userId &&
-          !(slot.dateEnd < payload.dateStart || slot.dateStart > payload.dateEnd)
+          !(
+            slot.dateEnd < payload.dateStart || slot.dateStart > payload.dateEnd
+          )
         );
       });
 

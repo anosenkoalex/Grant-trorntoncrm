@@ -100,9 +100,10 @@ const UsersPage = () => {
 
   // ====== MODAL: назначения по сотруднику ======
   const [assignmentsModalOpen, setAssignmentsModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<
-    Pick<User, 'id' | 'email' | 'fullName'> | null
-  >(null);
+  const [selectedUser, setSelectedUser] = useState<Pick<
+    User,
+    'id' | 'email' | 'fullName'
+  > | null>(null);
   const [assPage, setAssPage] = useState(1);
   const [assPageSize, setAssPageSize] = useState(10);
 
@@ -207,7 +208,11 @@ const UsersPage = () => {
   const userAssignmentsQuery = useQuery<PaginatedResponse<Assignment>>({
     queryKey: [
       'user-assignments',
-      { userId: selectedUser?.id ?? null, page: assPage, pageSize: assPageSize },
+      {
+        userId: selectedUser?.id ?? null,
+        page: assPage,
+        pageSize: assPageSize,
+      },
     ],
     queryFn: async () => {
       if (!selectedUser?.id) {
@@ -223,12 +228,15 @@ const UsersPage = () => {
         pageSize: assPageSize,
       })) as AssignmentsApiResponse;
 
-      if (!Array.isArray((raw as any).data) && Array.isArray((raw as any).items)) {
+      if (
+        !Array.isArray((raw as any).data) &&
+        Array.isArray((raw as any).items)
+      ) {
         const r = raw as any;
         return {
           data: r.items ?? [],
           meta: {
-            total: r.total ?? (r.items?.length ?? 0),
+            total: r.total ?? r.items?.length ?? 0,
             page: r.page ?? assPage,
             pageSize: r.pageSize ?? assPageSize,
           },
@@ -627,9 +635,7 @@ const UsersPage = () => {
         onOk={handleModalOk}
         okText={t('common.save')}
         cancelText={t('common.cancel')}
-        confirmLoading={
-          createMutation.isPending || updateMutation.isPending
-        }
+        confirmLoading={createMutation.isPending || updateMutation.isPending}
       >
         <Form form={form} layout="vertical">
           <Form.Item label={t('users.fullName')} name="fullName">
@@ -662,10 +668,7 @@ const UsersPage = () => {
                 <Input.Password />
               </Form.Item>
 
-              <Form.Item
-                name="sendPasswordOnCreate"
-                valuePropName="checked"
-              >
+              <Form.Item name="sendPasswordOnCreate" valuePropName="checked">
                 <Checkbox>{t('users.sendPassword')}</Checkbox>
               </Form.Item>
             </>
@@ -715,10 +718,7 @@ const UsersPage = () => {
           <>
             <div style={{ marginBottom: 12 }}>
               <Typography.Text type="secondary">
-                {t(
-                  'assignments.listForUser',
-                  'Назначения сотрудника',
-                )}
+                {t('assignments.listForUser', 'Назначения сотрудника')}
               </Typography.Text>
             </div>
 

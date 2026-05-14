@@ -1,14 +1,11 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
   server: {
     host: true,
-    allowedHosts: [
-      'grant-thornton.online',
-      'www.grant-thornton.online',
-    ],
+    allowedHosts: ['grant-thornton.online', 'www.grant-thornton.online'],
     proxy: {
       '/api': {
         target: 'http://localhost:3000',
@@ -17,4 +14,4 @@ export default defineConfig({
       },
     },
   },
-})
+});

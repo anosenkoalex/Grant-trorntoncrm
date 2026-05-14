@@ -82,11 +82,7 @@ export class NotificationsService {
     await this.prisma.$transaction(actions);
   }
 
-  async createSystemNotification(
-    userId: string,
-    title: string,
-    body?: string,
-  ) {
+  async createSystemNotification(userId: string, title: string, body?: string) {
     return this.prisma.notification.create({
       data: {
         userId,

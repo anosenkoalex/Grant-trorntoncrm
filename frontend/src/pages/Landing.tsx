@@ -319,7 +319,8 @@ export default function LandingPage() {
       <Footer
         style={{ textAlign: 'center', background: '#f0f2f5', color: '#888' }}
       >
-        © {new Date().getFullYear()} Grant Thornton CRM. {t('landing.footerRights')}
+        © {new Date().getFullYear()} Grant Thornton CRM.{' '}
+        {t('landing.footerRights')}
       </Footer>
     </Layout>
   );

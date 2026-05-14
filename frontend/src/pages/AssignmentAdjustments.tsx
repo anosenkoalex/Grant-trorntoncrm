@@ -62,7 +62,9 @@ const AssignmentAdjustmentsPage = () => {
   const approveMutation = useMutation({
     mutationFn: (id: string) => approveScheduleAdjustment(id),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['schedule-adjustments'] });
+      void queryClient.invalidateQueries({
+        queryKey: ['schedule-adjustments'],
+      });
       message.success('Запрос корректировки одобрен');
     },
     onError: (error: unknown) => {
@@ -74,7 +76,9 @@ const AssignmentAdjustmentsPage = () => {
   const rejectMutation = useMutation({
     mutationFn: (id: string) => rejectScheduleAdjustment(id),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['schedule-adjustments'] });
+      void queryClient.invalidateQueries({
+        queryKey: ['schedule-adjustments'],
+      });
       message.success('Запрос корректировки отклонён');
     },
     onError: (error: unknown) => {
@@ -124,17 +128,16 @@ const AssignmentAdjustmentsPage = () => {
             ? dayjs(record.endsAt).format('HH:mm')
             : null;
 
-          const time =
-            start && end ? `${start} → ${end}` : 'Без времени';
+          const time = start && end ? `${start} → ${end}` : 'Без времени';
 
           const type =
             record.kind === 'DAY_OFF'
               ? 'Day Off'
               : record.kind === 'OFFICE'
-              ? 'Офис'
-              : record.kind === 'REMOTE'
-              ? 'Удалёнка'
-              : 'Обычная';
+                ? 'Офис'
+                : record.kind === 'REMOTE'
+                  ? 'Удалёнка'
+                  : 'Обычная';
 
           return `${time} (${type})`;
         },
@@ -153,8 +156,8 @@ const AssignmentAdjustmentsPage = () => {
             {v === 'PENDING'
               ? 'Ожидание'
               : v === 'APPROVED'
-              ? 'Одобрено'
-              : 'Отклонено'}
+                ? 'Одобрено'
+                : 'Отклонено'}
           </Tag>
         ),
       },

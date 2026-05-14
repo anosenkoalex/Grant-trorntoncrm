@@ -93,19 +93,23 @@ const WorkplacesPage = () => {
   const isMobile = !screens.md;
 
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>(
-    'all',
-  );
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'active' | 'inactive'
+  >('all');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingWorkplace, setEditingWorkplace] = useState<Workplace | null>(null);
+  const [editingWorkplace, setEditingWorkplace] = useState<Workplace | null>(
+    null,
+  );
   const [form] = Form.useForm();
 
   // ====== MODAL: назначения по рабочему месту ======
   const [assignmentsModalOpen, setAssignmentsModalOpen] = useState(false);
-  const [selectedWorkplace, setSelectedWorkplace] = useState<Workplace | null>(null);
+  const [selectedWorkplace, setSelectedWorkplace] = useState<Workplace | null>(
+    null,
+  );
   const [assPage, setAssPage] = useState(1);
   const [assPageSize, setAssPageSize] = useState(10);
 
@@ -222,12 +226,15 @@ const WorkplacesPage = () => {
         pageSize: assPageSize,
       })) as AssignmentsApiResponse;
 
-      if (!Array.isArray((raw as any).data) && Array.isArray((raw as any).items)) {
+      if (
+        !Array.isArray((raw as any).data) &&
+        Array.isArray((raw as any).items)
+      ) {
         const r = raw as any;
         return {
           data: r.items ?? [],
           meta: {
-            total: r.total ?? (r.items?.length ?? 0),
+            total: r.total ?? r.items?.length ?? 0,
             page: r.page ?? assPage,
             pageSize: r.pageSize ?? assPageSize,
           },
@@ -402,7 +409,10 @@ const WorkplacesPage = () => {
             (a, b) => dayjs(a.date).valueOf() - dayjs(b.date).valueOf(),
           );
 
-          const totalHours = sorted.reduce((sum, s) => sum + getShiftHours(s), 0);
+          const totalHours = sorted.reduce(
+            (sum, s) => sum + getShiftHours(s),
+            0,
+          );
 
           const popContent = (
             <div style={{ width: 520 }}>
@@ -430,7 +440,9 @@ const WorkplacesPage = () => {
               >
                 {sorted.map((s) => {
                   const d = dayjs(s.date);
-                  const start = s.startsAt ? dayjs(s.startsAt).format('HH:mm') : '—';
+                  const start = s.startsAt
+                    ? dayjs(s.startsAt).format('HH:mm')
+                    : '—';
                   const end = s.endsAt ? dayjs(s.endsAt).format('HH:mm') : '—';
                   const h = getShiftHours(s);
 
@@ -446,7 +458,8 @@ const WorkplacesPage = () => {
                       }}
                     >
                       <Typography.Text>
-                        {d.isValid() ? d.format('DD.MM.YYYY') : '—'} — {start}–{end}
+                        {d.isValid() ? d.format('DD.MM.YYYY') : '—'} — {start}–
+                        {end}
                       </Typography.Text>
                       <Typography.Text
                         type="secondary"

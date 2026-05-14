@@ -1,5 +1,16 @@
 import { useState, useContext, createContext, ReactNode } from 'react';
-import { Layout, Typography, Card, Menu, Space, Form, Input, Select, Checkbox, Button } from 'antd';
+import {
+  Layout,
+  Typography,
+  Card,
+  Menu,
+  Space,
+  Form,
+  Input,
+  Select,
+  Checkbox,
+  Button,
+} from 'antd';
 
 const { Sider, Content } = Layout;
 const { Title, Paragraph, Text } = Typography;
@@ -63,7 +74,9 @@ const adminSections: Section[] = [
           управления:
         </Paragraph>
         <ul>
-          <li>сотрудниками и их ролями (администратор, менеджер, пользователь);</li>
+          <li>
+            сотрудниками и их ролями (администратор, менеджер, пользователь);
+          </li>
           <li>рабочими местами (проекты, точки, компании, офисы);</li>
           <li>назначениями сотрудников на рабочие места и их сменами;</li>
           <li>фактически отработанными часами (отчёты сотрудников по дням);</li>
@@ -71,7 +84,14 @@ const adminSections: Section[] = [
         </ul>
 
         <Title level={4}>Основные разделы админской части</Title>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16, marginBottom: 24 }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: 16,
+            marginBottom: 24,
+          }}
+        >
           <Card
             style={{
               width: 900,
@@ -98,7 +118,9 @@ const adminSections: Section[] = [
                 <Paragraph style={{ marginBottom: 4, marginTop: 4 }}>
                   Список сотрудников, роли и доступы.
                 </Paragraph>
-                <OpenSectionButton target="users">Открыть раздел</OpenSectionButton>
+                <OpenSectionButton target="users">
+                  Открыть раздел
+                </OpenSectionButton>
               </div>
               <div
                 style={{
@@ -111,7 +133,9 @@ const adminSections: Section[] = [
                 <Paragraph style={{ marginBottom: 4, marginTop: 4 }}>
                   Объекты, точки, проекты для назначения людей.
                 </Paragraph>
-                <OpenSectionButton target="workplaces">Открыть раздел</OpenSectionButton>
+                <OpenSectionButton target="workplaces">
+                  Открыть раздел
+                </OpenSectionButton>
               </div>
               <div
                 style={{
@@ -124,7 +148,9 @@ const adminSections: Section[] = [
                 <Paragraph style={{ marginBottom: 4, marginTop: 4 }}>
                   Привязка сотрудников к рабочим местам и сменам.
                 </Paragraph>
-                <OpenSectionButton target="assignments">Открыть раздел</OpenSectionButton>
+                <OpenSectionButton target="assignments">
+                  Открыть раздел
+                </OpenSectionButton>
               </div>
               <div
                 style={{
@@ -137,7 +163,9 @@ const adminSections: Section[] = [
                 <Paragraph style={{ marginBottom: 4, marginTop: 4 }}>
                   Наглядный календарь смен по людям и объектам.
                 </Paragraph>
-                <OpenSectionButton target="planner">Открыть раздел</OpenSectionButton>
+                <OpenSectionButton target="planner">
+                  Открыть раздел
+                </OpenSectionButton>
               </div>
               <div
                 style={{
@@ -150,7 +178,9 @@ const adminSections: Section[] = [
                 <Paragraph style={{ marginBottom: 4, marginTop: 4 }}>
                   Личный кабинет сотрудника: смены, запросы, отчёты по часам.
                 </Paragraph>
-                <OpenSectionButton target="mySchedule">Открыть раздел</OpenSectionButton>
+                <OpenSectionButton target="mySchedule">
+                  Открыть раздел
+                </OpenSectionButton>
               </div>
               <div
                 style={{
@@ -163,7 +193,9 @@ const adminSections: Section[] = [
                 <Paragraph style={{ marginBottom: 4, marginTop: 4 }}>
                   Сводка по часам и сменам, сравнение плана и факта.
                 </Paragraph>
-                <OpenSectionButton target="statistics">Открыть раздел</OpenSectionButton>
+                <OpenSectionButton target="statistics">
+                  Открыть раздел
+                </OpenSectionButton>
               </div>
             </div>
           </Card>
@@ -175,31 +207,32 @@ const adminSections: Section[] = [
             авторизации для администратора/менеджера.
           </li>
           <li>
-            <Text strong>Пользователи</Text> — создание и управление сотрудниками,
-            назначение ролей, сброс паролей.
+            <Text strong>Пользователи</Text> — создание и управление
+            сотрудниками, назначение ролей, сброс паролей.
           </li>
           <li>
-            <Text strong>Рабочие места</Text> — список точек/проектов, куда назначаются
-            сотрудники.
+            <Text strong>Рабочие места</Text> — список точек/проектов, куда
+            назначаются сотрудники.
           </li>
           <li>
-            <Text strong>Назначения и Планировщик</Text> — управление графиком и сменами.
+            <Text strong>Назначения и Планировщик</Text> — управление графиком и
+            сменами.
           </li>
           <li>
-            <Text strong>Моё расписание</Text> — личный кабинет сотрудника (для роли USER),
-            где он видит свои смены и заполняет отчёты по часам.
+            <Text strong>Моё расписание</Text> — личный кабинет сотрудника (для
+            роли USER), где он видит свои смены и заполняет отчёты по часам.
           </li>
           <li>
-            <Text strong>Статистика</Text> — отчёты по часам и сменам по сотрудникам и
-            рабочим местам, включая отчётные часы.
+            <Text strong>Статистика</Text> — отчёты по часам и сменам по
+            сотрудникам и рабочим местам, включая отчётные часы.
           </li>
           <li>
-            <Text strong>Запросы корректировок</Text> — список запросов сотрудников на
-            изменение расписания.
+            <Text strong>Запросы корректировок</Text> — список запросов
+            сотрудников на изменение расписания.
           </li>
           <li>
-            <Text strong>Dev-панель</Text> — служебные инструменты (используется только
-            разработчиком/техподдержкой).
+            <Text strong>Dev-панель</Text> — служебные инструменты (используется
+            только разработчиком/техподдержкой).
           </li>
         </ul>
 
@@ -207,10 +240,16 @@ const adminSections: Section[] = [
         <ol>
           <li>Администратор создаёт сотрудников и рабочие места.</li>
           <li>Через «Планировщик» формируется график смен по сотрудникам.</li>
-          <li>Сотрудники видят свои смены в «Моём расписании» и отчитываются по часам.</li>
-          <li>Администратор контролирует и анализирует данные в «Статистике».</li>
           <li>
-            При необходимости обрабатываются запросы на корректировку смен и назначений.
+            Сотрудники видят свои смены в «Моём расписании» и отчитываются по
+            часам.
+          </li>
+          <li>
+            Администратор контролирует и анализирует данные в «Статистике».
+          </li>
+          <li>
+            При необходимости обрабатываются запросы на корректировку смен и
+            назначений.
           </li>
         </ol>
       </>
@@ -227,7 +266,14 @@ const adminSections: Section[] = [
     body: (
       <>
         <Title level={4}>Страница входа</Title>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16, marginBottom: 24 }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: 16,
+            marginBottom: 24,
+          }}
+        >
           <Card
             style={{
               width: 420,
@@ -268,17 +314,19 @@ const adminSections: Section[] = [
         </div>
 
         <Paragraph>
-          Вход в систему Grant Thornton CRM осуществляется по адресу, который выдали
-          администраторы (например:{' '}
+          Вход в систему Grant Thornton CRM осуществляется по адресу, который
+          выдали администраторы (например:{' '}
           <Text code>https://grant-thornton.online</Text>).
         </Paragraph>
         <ul>
           <li>
-            Пользователь вводит <Text strong>e-mail</Text> и <Text strong>пароль</Text>.
+            Пользователь вводит <Text strong>e-mail</Text> и{' '}
+            <Text strong>пароль</Text>.
           </li>
           <li>При успешном входе система определяет роль пользователя.</li>
           <li>
-            В зависимости от роли выполняется автоматический переход на нужную страницу.
+            В зависимости от роли выполняется автоматический переход на нужную
+            страницу.
           </li>
         </ul>
 
@@ -297,28 +345,31 @@ const adminSections: Section[] = [
         <Title level={4}>Роли пользователей и права</Title>
         <ul>
           <li>
-            <Text strong>SUPER_ADMIN</Text> — полный доступ ко всем разделам, включая
-            Dev-панель и системные настройки.
+            <Text strong>SUPER_ADMIN</Text> — полный доступ ко всем разделам,
+            включая Dev-панель и системные настройки.
           </li>
           <li>
-            <Text strong>MANAGER</Text> — управление назначениями, планировщиком и
-            статистикой, доступ к пользователям и рабочим местам (по договорённости).
+            <Text strong>MANAGER</Text> — управление назначениями, планировщиком
+            и статистикой, доступ к пользователям и рабочим местам (по
+            договорённости).
           </li>
           <li>
-            <Text strong>USER</Text> — доступ только к разделу «Моё расписание», заполнение
-            отчётов по часам и просмотр личной статистики.
+            <Text strong>USER</Text> — доступ только к разделу «Моё расписание»,
+            заполнение отчётов по часам и просмотр личной статистики.
           </li>
         </ul>
 
         <Title level={4}>Главная (Dashboard)</Title>
         <Paragraph>
-          После входа администратор/менеджер попадает на главную страницу (Dashboard), где
-          в дальнейшем можно разместить:
+          После входа администратор/менеджер попадает на главную страницу
+          (Dashboard), где в дальнейшем можно разместить:
         </Paragraph>
         <ul>
           <li>краткое приветствие;</li>
           <li>быстрые ссылки на основные разделы;</li>
-          <li>виджеты или статистику «по верхам» (можно добавить в будущем).</li>
+          <li>
+            виджеты или статистику «по верхам» (можно добавить в будущем).
+          </li>
         </ul>
       </>
     ),
@@ -326,159 +377,180 @@ const adminSections: Section[] = [
       'Скрин страницы логина (форма входа) + скрин после входа для администратора (Dashboard).',
   },
 
-{
-  key: 'dashboard',
-  menuLabel: '3. Главная (Dashboard)',
-  title: 'Главная страница (Dashboard)',
-  description:
-    'Стартовая страница администратора и менеджера: сводные показатели и последние события.',
-  body: (
-    <>
-      <Title level={4}>Кто видит Dashboard</Title>
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16, marginBottom: 24 }}>
-        <Card
+  {
+    key: 'dashboard',
+    menuLabel: '3. Главная (Dashboard)',
+    title: 'Главная страница (Dashboard)',
+    description:
+      'Стартовая страница администратора и менеджера: сводные показатели и последние события.',
+    body: (
+      <>
+        <Title level={4}>Кто видит Dashboard</Title>
+        <div
           style={{
-            width: 980,
-            borderRadius: 12,
-            border: '1px solid #f0f0f0',
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: 16,
+            marginBottom: 24,
           }}
-          bodyStyle={{ padding: 20 }}
         >
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.2fr', gap: 16 }}>
-            <div>
-              <div style={{ display: 'flex', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
+          <Card
+            style={{
+              width: 980,
+              borderRadius: 12,
+              border: '1px solid #f0f0f0',
+            }}
+            bodyStyle={{ padding: 20 }}
+          >
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '2fr 1.2fr',
+                gap: 16,
+              }}
+            >
+              <div>
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: 12,
+                    marginBottom: 12,
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  <Card
+                    style={{
+                      flex: 1,
+                      minWidth: 180,
+                      borderRadius: 10,
+                      border: '1px solid #f0f0f0',
+                    }}
+                    bodyStyle={{ padding: 12 }}
+                  >
+                    <Text type="secondary">Активных назначений</Text>
+                    <Title level={4} style={{ margin: 0 }}>
+                      128
+                    </Title>
+                  </Card>
+                  <Card
+                    style={{
+                      flex: 1,
+                      minWidth: 180,
+                      borderRadius: 10,
+                      border: '1px solid #f0f0f0',
+                    }}
+                    bodyStyle={{ padding: 12 }}
+                  >
+                    <Text type="secondary">Сотрудников</Text>
+                    <Title level={4} style={{ margin: 0 }}>
+                      42
+                    </Title>
+                  </Card>
+                  <Card
+                    style={{
+                      flex: 1,
+                      minWidth: 180,
+                      borderRadius: 10,
+                      border: '1px solid #f0f0f0',
+                    }}
+                    bodyStyle={{ padding: 12 }}
+                  >
+                    <Text type="secondary">Рабочих мест</Text>
+                    <Title level={4} style={{ margin: 0 }}>
+                      15
+                    </Title>
+                  </Card>
+                </div>
                 <Card
                   style={{
-                    flex: 1,
-                    minWidth: 180,
                     borderRadius: 10,
                     border: '1px solid #f0f0f0',
                   }}
                   bodyStyle={{ padding: 12 }}
                 >
-                  <Text type="secondary">Активных назначений</Text>
-                  <Title level={4} style={{ margin: 0 }}>
-                    128
-                  </Title>
-                </Card>
-                <Card
-                  style={{
-                    flex: 1,
-                    minWidth: 180,
-                    borderRadius: 10,
-                    border: '1px solid #f0f0f0',
-                  }}
-                  bodyStyle={{ padding: 12 }}
-                >
-                  <Text type="secondary">Сотрудников</Text>
-                  <Title level={4} style={{ margin: 0 }}>
-                    42
-                  </Title>
-                </Card>
-                <Card
-                  style={{
-                    flex: 1,
-                    minWidth: 180,
-                    borderRadius: 10,
-                    border: '1px solid #f0f0f0',
-                  }}
-                  bodyStyle={{ padding: 12 }}
-                >
-                  <Text type="secondary">Рабочих мест</Text>
-                  <Title level={4} style={{ margin: 0 }}>
-                    15
-                  </Title>
+                  <Text strong>Последние события</Text>
+                  <div style={{ marginTop: 8, fontSize: 13 }}>
+                    <div style={{ padding: '4px 0' }}>
+                      Иванов Иван назначен на OFFICE-01 с 01.03.2025
+                    </div>
+                    <div style={{ padding: '4px 0' }}>
+                      Запрос на корректировку от Петрова Петра одобрен
+                    </div>
+                    <div style={{ padding: '4px 0' }}>
+                      Создано новое рабочее место: REMOTE-01 — Удалённый проект
+                    </div>
+                  </div>
                 </Card>
               </div>
-              <Card
-                style={{
-                  borderRadius: 10,
-                  border: '1px solid #f0f0f0',
-                }}
-                bodyStyle={{ padding: 12 }}
-              >
-                <Text strong>Последние события</Text>
-                <div style={{ marginTop: 8, fontSize: 13 }}>
-                  <div style={{ padding: '4px 0' }}>
-                    Иванов Иван назначен на OFFICE-01 с 01.03.2025
-                  </div>
-                  <div style={{ padding: '4px 0' }}>
-                    Запрос на корректировку от Петрова Петра одобрен
-                  </div>
-                  <div style={{ padding: '4px 0' }}>
-                    Создано новое рабочее место: REMOTE-01 — Удалённый проект
-                  </div>
-                </div>
-              </Card>
+              <div>
+                <Card
+                  style={{
+                    borderRadius: 10,
+                    border: '1px solid #f0f0f0',
+                  }}
+                  bodyStyle={{ padding: 12 }}
+                >
+                  <Text strong>Пример вида для MANAGER</Text>
+                  <Paragraph style={{ marginTop: 8, fontSize: 13 }}>
+                    Для менеджера можно оставить только ленту событий без
+                    больших карточек показателей. Это делает интерфейс проще и
+                    фокусирует внимание на ежедневных изменениях.
+                  </Paragraph>
+                </Card>
+              </div>
             </div>
-            <div>
-              <Card
-                style={{
-                  borderRadius: 10,
-                  border: '1px solid #f0f0f0',
-                }}
-                bodyStyle={{ padding: 12 }}
-              >
-                <Text strong>Пример вида для MANAGER</Text>
-                <Paragraph style={{ marginTop: 8, fontSize: 13 }}>
-                  Для менеджера можно оставить только ленту событий без больших карточек
-                  показателей. Это делает интерфейс проще и фокусирует внимание на
-                  ежедневных изменениях.
-                </Paragraph>
-              </Card>
-            </div>
-          </div>
-        </Card>
-      </div>
+          </Card>
+        </div>
 
-      <ul>
-        <li>
-          Роль <Text code>USER</Text> не имеет доступа к Dashboard и после входа
-          автоматически перенаправляется в раздел <Text strong>«Моё расписание»</Text>.
-        </li>
-        <li>
-          Роли <Text code>MANAGER</Text> и <Text code>SUPER_ADMIN</Text> попадают на
-          Dashboard сразу после входа.
-        </li>
-      </ul>
+        <ul>
+          <li>
+            Роль <Text code>USER</Text> не имеет доступа к Dashboard и после
+            входа автоматически перенаправляется в раздел{' '}
+            <Text strong>«Моё расписание»</Text>.
+          </li>
+          <li>
+            Роли <Text code>MANAGER</Text> и <Text code>SUPER_ADMIN</Text>{' '}
+            попадают на Dashboard сразу после входа.
+          </li>
+        </ul>
 
-      <Title level={4}>Dashboard для SUPER_ADMIN</Title>
-      <Paragraph>
-        Для администратора отображаются карточки со сводными показателями и блок
-        «Последние события».
-      </Paragraph>
-      <ul>
-        <li>
-          <Text strong>Активные назначения</Text> — количество действующих назначений.
-          Клик ведёт в раздел <Text code>Назначения</Text>.
-        </li>
-        <li>
-          <Text strong>Сотрудники</Text> — общее количество пользователей. Клик ведёт
-          в раздел <Text code>Пользователи</Text>.
-        </li>
-        <li>
-          <Text strong>Рабочие места</Text> — количество рабочих мест (объектов). Клик
-          ведёт в раздел <Text code>Рабочие места</Text>.
-        </li>
-      </ul>
+        <Title level={4}>Dashboard для SUPER_ADMIN</Title>
+        <Paragraph>
+          Для администратора отображаются карточки со сводными показателями и
+          блок «Последние события».
+        </Paragraph>
+        <ul>
+          <li>
+            <Text strong>Активные назначения</Text> — количество действующих
+            назначений. Клик ведёт в раздел <Text code>Назначения</Text>.
+          </li>
+          <li>
+            <Text strong>Сотрудники</Text> — общее количество пользователей.
+            Клик ведёт в раздел <Text code>Пользователи</Text>.
+          </li>
+          <li>
+            <Text strong>Рабочие места</Text> — количество рабочих мест
+            (объектов). Клик ведёт в раздел <Text code>Рабочие места</Text>.
+          </li>
+        </ul>
 
-      <Title level={4}>Последние события</Title>
-      <Paragraph>
-        В блоке «Последние события» отображается лента обновлений (назначения,
-        корректировки, изменения справочников). Клик по событию переводит в
-        соответствующий раздел системы.
-      </Paragraph>
+        <Title level={4}>Последние события</Title>
+        <Paragraph>
+          В блоке «Последние события» отображается лента обновлений (назначения,
+          корректировки, изменения справочников). Клик по событию переводит в
+          соответствующий раздел системы.
+        </Paragraph>
 
-      <Title level={4}>Dashboard для MANAGER</Title>
-      <Paragraph>
-        Для менеджера показывается упрощённая лента событий (Feed) без карточек
-        сводных показателей администратора.
-      </Paragraph>
-    </>
-  ),
-  screenshotNote:
-    'Скрин Dashboard для SUPER_ADMIN (карточки + последние события). Скрин Dashboard для MANAGER (лента Feed).',
-},
+        <Title level={4}>Dashboard для MANAGER</Title>
+        <Paragraph>
+          Для менеджера показывается упрощённая лента событий (Feed) без
+          карточек сводных показателей администратора.
+        </Paragraph>
+      </>
+    ),
+    screenshotNote:
+      'Скрин Dashboard для SUPER_ADMIN (карточки + последние события). Скрин Dashboard для MANAGER (лента Feed).',
+  },
   {
     key: 'users',
     menuLabel: '4. Пользователи',
@@ -500,7 +572,8 @@ const adminSections: Section[] = [
         </Paragraph>
         <ul>
           <li>
-            <Text strong>Заголовок</Text> — название раздела, обычно «Пользователи».
+            <Text strong>Заголовок</Text> — название раздела, обычно
+            «Пользователи».
           </li>
           <li>
             <Text strong>Кнопка «Добавить пользователя»</Text> — открывает окно
@@ -509,28 +582,33 @@ const adminSections: Section[] = [
         </ul>
 
         <Title level={4}>Фильтры над таблицей</Title>
-        <Paragraph>Под заголовком находятся фильтры, которые сразу обновляют список:</Paragraph>
+        <Paragraph>
+          Под заголовком находятся фильтры, которые сразу обновляют список:
+        </Paragraph>
         <ul>
           <li>
             <Text strong>Фильтр по роли</Text> — выпадающий список с ролями{' '}
             <Text code>USER</Text> (обычный сотрудник) и{' '}
             <Text code>MANAGER</Text> (менеджер). Пользователи с ролью
-            администратора (<Text code>SUPER_ADMIN</Text>) в таблицу не попадают.
+            администратора (<Text code>SUPER_ADMIN</Text>) в таблицу не
+            попадают.
           </li>
           <li>
-            <Text strong>Поиск</Text> — строка поиска по имени или e-mail. Позволяет
-            быстро найти нужного человека и содержит кнопку очистки ввода.
+            <Text strong>Поиск</Text> — строка поиска по имени или e-mail.
+            Позволяет быстро найти нужного человека и содержит кнопку очистки
+            ввода.
           </li>
         </ul>
         <Paragraph>
-          При изменении фильтров или строки поиска список автоматически обновляется,
-          а пагинация возвращается на первую страницу.
+          При изменении фильтров или строки поиска список автоматически
+          обновляется, а пагинация возвращается на первую страницу.
         </Paragraph>
 
         <Title level={4}>Список пользователей (таблица)</Title>
         <Paragraph>
-          В таблице показаны все пользователи, кроме администраторов (<Text code>SUPER_ADMIN</Text>).
-          Это сделано для того, чтобы случайно не удалить технические учётные записи.
+          В таблице показаны все пользователи, кроме администраторов (
+          <Text code>SUPER_ADMIN</Text>). Это сделано для того, чтобы случайно
+          не удалить технические учётные записи.
         </Paragraph>
         <Paragraph>Основные колонки таблицы:</Paragraph>
         <ul>
@@ -539,12 +617,12 @@ const adminSections: Section[] = [
             ФИО ещё не заполнено, вместо него показывается e-mail пользователя.
           </li>
           <li>
-            <Text strong>E-mail</Text> — основной логин пользователя. На этот адрес
-            уходят письма с паролем и уведомления.
+            <Text strong>E-mail</Text> — основной логин пользователя. На этот
+            адрес уходят письма с паролем и уведомления.
           </li>
           <li>
-            <Text strong>Телефон</Text> — контактный номер. Если номер не указан,
-            отображается прочерк «—».
+            <Text strong>Телефон</Text> — контактный номер. Если номер не
+            указан, отображается прочерк «—».
           </li>
           <li>
             <Text strong>Роль</Text> — показывается в понятном виде:
@@ -580,14 +658,14 @@ const adminSections: Section[] = [
             в таблице.
           </li>
           <li>
-            <Text strong>«Отправить пароль»</Text> — отправляет сотруднику письмо
-            с доступом на его e-mail. После нажатия система покажет уведомление,
-            получилось отправить письмо или произошла ошибка.
+            <Text strong>«Отправить пароль»</Text> — отправляет сотруднику
+            письмо с доступом на его e-mail. После нажатия система покажет
+            уведомление, получилось отправить письмо или произошла ошибка.
           </li>
           <li>
-            <Text strong>«Удалить»</Text> — открывает окно с подтверждением. Если
-            вы подтверждаете удаление, пользователь удаляется из списка, а таблица
-            автоматически обновляется.
+            <Text strong>«Удалить»</Text> — открывает окно с подтверждением.
+            Если вы подтверждаете удаление, пользователь удаляется из списка, а
+            таблица автоматически обновляется.
           </li>
         </ul>
 
@@ -597,7 +675,14 @@ const adminSections: Section[] = [
           в интерфейсе. В реальной системе это стандартная форма, здесь она
           приведена как статический макет для ориентира.
         </Paragraph>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16, marginBottom: 24 }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: 16,
+            marginBottom: 24,
+          }}
+        >
           <Card
             style={{
               width: 480,
@@ -633,7 +718,10 @@ const adminSections: Section[] = [
                   options={[
                     { label: 'Сотрудник (USER)', value: 'USER' },
                     { label: 'Менеджер (MANAGER)', value: 'MANAGER' },
-                    { label: 'Администратор (SUPER_ADMIN)', value: 'SUPER_ADMIN' },
+                    {
+                      label: 'Администратор (SUPER_ADMIN)',
+                      value: 'SUPER_ADMIN',
+                    },
                   ]}
                 />
               </Form.Item>
@@ -671,21 +759,29 @@ const adminSections: Section[] = [
       <>
         <Title level={4}>Назначение раздела</Title>
         <Paragraph>
-          Раздел <Text strong>«Рабочие места»</Text> служит для описания точек, где сотрудники
-          могут работать: филиалы, локации, проекты, сменные посты и т.д. Каждое рабочее место
-          может иметь свои назначения сотрудников и собственный цвет для визуального
-          отличия в графиках.
+          Раздел <Text strong>«Рабочие места»</Text> служит для описания точек,
+          где сотрудники могут работать: филиалы, локации, проекты, сменные
+          посты и т.д. Каждое рабочее место может иметь свои назначения
+          сотрудников и собственный цвет для визуального отличия в графиках.
         </Paragraph>
 
         <Title level={4}>Доступ к разделу</Title>
         <Paragraph>
-          Раздел доступен только администраторам (обычно роли <Text strong>SUPER_ADMIN</Text>).
-          При отсутствии организации или прав доступа пользователь увидит служебное сообщение
-          вместо таблицы рабочих мест.
+          Раздел доступен только администраторам (обычно роли{' '}
+          <Text strong>SUPER_ADMIN</Text>). При отсутствии организации или прав
+          доступа пользователь увидит служебное сообщение вместо таблицы рабочих
+          мест.
         </Paragraph>
 
         <Title level={4}>Список рабочих мест</Title>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16, marginBottom: 24 }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: 16,
+            marginBottom: 24,
+          }}
+        >
           <Card
             style={{
               width: 720,
@@ -694,7 +790,13 @@ const adminSections: Section[] = [
             }}
             bodyStyle={{ padding: 16 }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginBottom: 12,
+              }}
+            >
               <Input
                 placeholder="Поиск по коду или названию"
                 style={{ maxWidth: 260 }}
@@ -756,53 +858,63 @@ const adminSections: Section[] = [
           </Card>
         </div>
 
-        <Paragraph>В основной таблице отображается список всех рабочих мест организации:</Paragraph>
+        <Paragraph>
+          В основной таблице отображается список всех рабочих мест организации:
+        </Paragraph>
         <ul>
           <li>
-            <Text strong>Поиск по названию/коду</Text> — строка поиска для быстрого
-            нахождения нужного рабочего места по части кода или названия.
+            <Text strong>Поиск по названию/коду</Text> — строка поиска для
+            быстрого нахождения нужного рабочего места по части кода или
+            названия.
           </li>
           <li>
-            <Text strong>Фильтр по статусу</Text> — позволяет скрывать архивные/неактивные
-            места, оставляя только актуальные.
+            <Text strong>Фильтр по статусу</Text> — позволяет скрывать
+            архивные/неактивные места, оставляя только актуальные.
           </li>
           <li>
-            <Text strong>Основные столбцы</Text>: Код, Название, Статус, Цвет (иконка или сам цвет)
-            и Действия.
+            <Text strong>Основные столбцы</Text>: Код, Название, Статус, Цвет
+            (иконка или сам цвет) и Действия.
           </li>
           <li>
-            <Text strong>Клик по строке</Text> (если не попадать по кнопкам/ссылкам внутри) открывает
-            модальное окно с назначениями на это рабочее место — это быстрый способ посмотреть,
-            кто и когда здесь работает, без перехода в другие разделы.
+            <Text strong>Клик по строке</Text> (если не попадать по
+            кнопкам/ссылкам внутри) открывает модальное окно с назначениями на
+            это рабочее место — это быстрый способ посмотреть, кто и когда здесь
+            работает, без перехода в другие разделы.
           </li>
         </ul>
 
         <Title level={4}>Создание/редактирование рабочего места</Title>
         <Paragraph>
-          По кнопке <Text strong>«Создать рабочее место»</Text> открывается форма с полями:
+          По кнопке <Text strong>«Создать рабочее место»</Text> открывается
+          форма с полями:
         </Paragraph>
         <ul>
           <li>
-            <Text strong>Код</Text> — уникальный короткий идентификатор места (латиница/цифры).
-            Используется в таблицах и в заголовках модалок, например <Text code>CODE — Название</Text>.
+            <Text strong>Код</Text> — уникальный короткий идентификатор места
+            (латиница/цифры). Используется в таблицах и в заголовках модалок,
+            например <Text code>CODE — Название</Text>.
           </li>
           <li>
-            <Text strong>Название</Text> — человекочитаемое название рабочего места (филиал, проект и т.д.).
+            <Text strong>Название</Text> — человекочитаемое название рабочего
+            места (филиал, проект и т.д.).
           </li>
           <li>
-            <Text strong>Статус</Text> — активно/архив. Архивные места не используются для новых назначений,
-            но остаются в истории и статистике.
+            <Text strong>Статус</Text> — активно/архив. Архивные места не
+            используются для новых назначений, но остаются в истории и
+            статистике.
           </li>
           <li>
-            <Text strong>Цвет рабочего места</Text> — выбирается через color‑picker (поле с выбором цвета).
-            Этот цвет используется для визуального отличия рабочего места в графиках и планировщике
+            <Text strong>Цвет рабочего места</Text> — выбирается через
+            color‑picker (поле с выбором цвета). Этот цвет используется для
+            визуального отличия рабочего места в графиках и планировщике
             (блоки/ячейки по этому месту будут подсвечены выбранным цветом).
           </li>
         </ul>
         <Paragraph>
-          При редактировании рабочего места администратор может изменить название, цвет и статус.
-          Изменение кода желательно делать только при необходимости, так как он может использоваться
-          во внешних интеграциях или внутренних ссылках.
+          При редактировании рабочего места администратор может изменить
+          название, цвет и статус. Изменение кода желательно делать только при
+          необходимости, так как он может использоваться во внешних интеграциях
+          или внутренних ссылках.
         </Paragraph>
 
         <Title level={4}>Действия в таблице рабочих мест</Title>
@@ -810,23 +922,34 @@ const adminSections: Section[] = [
         <ul>
           <li>
             <Text strong>«Открыть»</Text> — открывает модальное окно
-            <Text strong>«Назначения на это рабочее место»</Text>. Это такой же эффект, как и
-            клик по строке таблицы: можно быстро увидеть всех людей, назначенных на данное место,
-            и их периоды работы.
+            <Text strong>«Назначения на это рабочее место»</Text>. Это такой же
+            эффект, как и клик по строке таблицы: можно быстро увидеть всех
+            людей, назначенных на данное место, и их периоды работы.
           </li>
           <li>
-            <Text strong>«Редактировать»</Text> — открывает форму редактирования выбранного рабочего места
-            с уже заполненными полями (код, название, статус, цвет).
+            <Text strong>«Редактировать»</Text> — открывает форму редактирования
+            выбранного рабочего места с уже заполненными полями (код, название,
+            статус, цвет).
           </li>
           <li>
-            <Text strong>«Удалить»</Text> (если предусмотрено) — переводит рабочее место в архив или
-            удаляет его из активного списка. Полное удаление обычно не рекомендуется, чтобы не терять
-            связь с прошлыми назначениями и статистикой.
+            <Text strong>«Удалить»</Text> (если предусмотрено) — переводит
+            рабочее место в архив или удаляет его из активного списка. Полное
+            удаление обычно не рекомендуется, чтобы не терять связь с прошлыми
+            назначениями и статистикой.
           </li>
         </ul>
 
-        <Title level={4}>Модальное окно «Назначения на это рабочее место»</Title>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16, marginBottom: 24 }}>
+        <Title level={4}>
+          Модальное окно «Назначения на это рабочее место»
+        </Title>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: 16,
+            marginBottom: 24,
+          }}
+        >
           <Card
             style={{
               width: 720,
@@ -887,81 +1010,113 @@ const adminSections: Section[] = [
                 <span>Активно</span>
                 <span>
                   12 дн. / 96 ч
-                  <span style={{ opacity: 0.6, marginLeft: 4 }}>(наведите для деталей)</span>
+                  <span style={{ opacity: 0.6, marginLeft: 4 }}>
+                    (наведите для деталей)
+                  </span>
                 </span>
               </div>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12, fontSize: 12, opacity: 0.7 }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                marginTop: 12,
+                fontSize: 12,
+                opacity: 0.7,
+              }}
+            >
               Страница 1 из 3
             </div>
           </Card>
         </div>
 
         <Paragraph>
-          По клику на строку рабочего места или кнопке <Text strong>«Открыть»</Text> открывается
-          отдельное модальное окно со списком назначений, привязанных к этому месту.
+          По клику на строку рабочего места или кнопке{' '}
+          <Text strong>«Открыть»</Text> открывается отдельное модальное окно со
+          списком назначений, привязанных к этому месту.
         </Paragraph>
         <Paragraph>Структура модального окна:</Paragraph>
         <ul>
           <li>
-            <Text strong>Заголовок</Text> вида <Text code>«Рабочее место: CODE — Название»</Text> —
-            сразу видно, с каким местом сейчас работаем.
+            <Text strong>Заголовок</Text> вида{' '}
+            <Text code>«Рабочее место: CODE — Название»</Text> — сразу видно, с
+            каким местом сейчас работаем.
           </li>
           <li>
-            <Text strong>Подзаголовок</Text> — текст о том, что ниже приведены назначения именно для
-            этого рабочего места.
+            <Text strong>Подзаголовок</Text> — текст о том, что ниже приведены
+            назначения именно для этого рабочего места.
           </li>
           <li>
             <Text strong>Таблица назначений</Text> с колонками:
             <ul>
               <li>
-                <Text strong>Сотрудник</Text> — ФИО или email сотрудника, назначенного на это место.
+                <Text strong>Сотрудник</Text> — ФИО или email сотрудника,
+                назначенного на это место.
               </li>
               <li>
-                <Text strong>Период</Text> — отображается интервал действия назначения
-                (с даты по дату). Если в назначении есть детализированные смены, период может
-                вычисляться по первой и последней смене.
+                <Text strong>Период</Text> — отображается интервал действия
+                назначения (с даты по дату). Если в назначении есть
+                детализированные смены, период может вычисляться по первой и
+                последней смене.
               </li>
               <li>
-                <Text strong>Статус</Text> — активное назначение или уже архивное.
+                <Text strong>Статус</Text> — активное назначение или уже
+                архивное.
               </li>
               <li>
-                <Text strong>Смены</Text> — краткая сводка по сменам внутри назначения для этого места.
-                Обычно показан текст вида <Text code>«N дн. / X ч»</Text>, где N — количество дней,
-                а X — суммарное количество часов по всем сменам.
+                <Text strong>Смены</Text> — краткая сводка по сменам внутри
+                назначения для этого места. Обычно показан текст вида{' '}
+                <Text code>«N дн. / X ч»</Text>, где N — количество дней, а X —
+                суммарное количество часов по всем сменам.
               </li>
             </ul>
           </li>
           <li>
-            <Text strong>Детали смен (popover)</Text> — при наведении на сводку «Смены»
-            открывается всплывающее окно со списком смен по датам:
+            <Text strong>Детали смен (popover)</Text> — при наведении на сводку
+            «Смены» открывается всплывающее окно со списком смен по датам:
             <ul>
-              <li>каждый день отдельной строкой: дата, интервал времени (с–по) и тип смены;</li>
-              <li>рядом могут отображаться часы по каждой смене и общий итог по назначению.</li>
+              <li>
+                каждый день отдельной строкой: дата, интервал времени (с–по) и
+                тип смены;
+              </li>
+              <li>
+                рядом могут отображаться часы по каждой смене и общий итог по
+                назначению.
+              </li>
             </ul>
-            Это позволяет не уходить в раздел «Назначения», чтобы посмотреть, как именно
-            сотрудник работает на этом месте по дням.
+            Это позволяет не уходить в раздел «Назначения», чтобы посмотреть,
+            как именно сотрудник работает на этом месте по дням.
           </li>
           <li>
-            <Text strong>Пагинация</Text> — если назначений на это место много, внизу модального окна
-            есть переключатель страниц (страница / количество на странице). Менеджер может листать
-            список назначений, не закрывая модалку.
+            <Text strong>Пагинация</Text> — если назначений на это место много,
+            внизу модального окна есть переключатель страниц (страница /
+            количество на странице). Менеджер может листать список назначений,
+            не закрывая модалку.
           </li>
         </ul>
 
         <Title level={4}>Архивация рабочих мест</Title>
         <Paragraph>
-          Если рабочее место временно не используется, его можно перевести в статус «архив».
-          В этом случае оно:
+          Если рабочее место временно не используется, его можно перевести в
+          статус «архив». В этом случае оно:
         </Paragraph>
         <ul>
-          <li>не доступно для новых назначений в разделах «Назначения» и «Планировщик»;</li>
-          <li>продолжает отображаться в истории и статистике, если по нему были назначения;</li>
-          <li>может быть возвращено в актив, если снова начинает использоваться.</li>
+          <li>
+            не доступно для новых назначений в разделах «Назначения» и
+            «Планировщик»;
+          </li>
+          <li>
+            продолжает отображаться в истории и статистике, если по нему были
+            назначения;
+          </li>
+          <li>
+            может быть возвращено в актив, если снова начинает использоваться.
+          </li>
         </ul>
         <Paragraph>
-          Полное удаление рабочих мест обычно не рекомендуется, так как это может разорвать связь
-          с прошлыми назначениями и затруднить анализ статистики.
+          Полное удаление рабочих мест обычно не рекомендуется, так как это
+          может разорвать связь с прошлыми назначениями и затруднить анализ
+          статистики.
         </Paragraph>
       </>
     ),
@@ -978,21 +1133,29 @@ const adminSections: Section[] = [
       <>
         <Title level={4}>Назначение раздела</Title>
         <Paragraph>
-          Раздел <Text strong>«Назначения»</Text> используется для управления тем, кто из
-          сотрудников на каком рабочем месте работает, в какие даты и по какому графику.
-          Здесь же обрабатываются заявки сотрудников на новые назначения и запросы на
-          корректировку уже существующих назначений.
+          Раздел <Text strong>«Назначения»</Text> используется для управления
+          тем, кто из сотрудников на каком рабочем месте работает, в какие даты
+          и по какому графику. Здесь же обрабатываются заявки сотрудников на
+          новые назначения и запросы на корректировку уже существующих
+          назначений.
         </Paragraph>
 
         <Title level={4}>Доступ к разделу</Title>
         <Paragraph>
           Раздел доступен только ролям <Text strong>SUPER_ADMIN</Text> и{' '}
-          <Text strong>MANAGER</Text>. Обычный сотрудник при попытке открыть страницу
-          увидит сообщение об отсутствии прав (status 403).
+          <Text strong>MANAGER</Text>. Обычный сотрудник при попытке открыть
+          страницу увидит сообщение об отсутствии прав (status 403).
         </Paragraph>
 
         <Title level={4}>Верхняя панель</Title>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16, marginBottom: 24 }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: 16,
+            marginBottom: 24,
+          }}
+        >
           <Card
             style={{
               width: 900,
@@ -1001,7 +1164,14 @@ const adminSections: Section[] = [
             }}
             bodyStyle={{ padding: 16 }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, gap: 12 }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginBottom: 12,
+                gap: 12,
+              }}
+            >
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 <Button type="default">Назначения</Button>
                 <Button>Корзина</Button>
@@ -1029,7 +1199,10 @@ const adminSections: Section[] = [
                   { label: 'Только архивные', value: 'archived' },
                 ]}
               />
-              <Input placeholder="Фильтр по периоду / дате" style={{ minWidth: 220 }} />
+              <Input
+                placeholder="Фильтр по периоду / дате"
+                style={{ minWidth: 220 }}
+              />
               <div style={{ marginLeft: 'auto', fontSize: 13, opacity: 0.8 }}>
                 Свободных сотрудников: <Text strong>4</Text>
                 <Button type="link" size="small" style={{ paddingLeft: 4 }}>
@@ -1045,89 +1218,102 @@ const adminSections: Section[] = [
         </Paragraph>
         <ul>
           <li>
-            <Text strong>«Назначения»</Text> — основной режим. Отображаются все действующие
-            и архивные назначения. В этом режиме можно создавать и редактировать
-            назначения, завершать их, уведомлять сотрудников и переходить к запросам
-            корректировок.
+            <Text strong>«Назначения»</Text> — основной режим. Отображаются все
+            действующие и архивные назначения. В этом режиме можно создавать и
+            редактировать назначения, завершать их, уведомлять сотрудников и
+            переходить к запросам корректировок.
           </li>
           <li>
-            <Text strong>«Корзина»</Text> — режим просмотра удалённых назначений.
-            В этом режиме недоступно создание и редактирование, но можно восстановить или
-            окончательно удалить назначения, а также выгрузить их в Excel (CSV).
+            <Text strong>«Корзина»</Text> — режим просмотра удалённых
+            назначений. В этом режиме недоступно создание и редактирование, но
+            можно восстановить или окончательно удалить назначения, а также
+            выгрузить их в Excel (CSV).
           </li>
           <li>
-            <Text strong>«Запросы на назначение»</Text> — кнопка открывает отдельное окно
-            для последовательной обработки заявок сотрудников на новые назначения.
-            На кнопке отображается счётчик невыполненных запросов.
+            <Text strong>«Запросы на назначение»</Text> — кнопка открывает
+            отдельное окно для последовательной обработки заявок сотрудников на
+            новые назначения. На кнопке отображается счётчик невыполненных
+            запросов.
           </li>
           <li>
-            <Text strong>«Запросы на корректировку»</Text> — кнопка с числом открытых
-            запросов на изменение расписания. По клику переводит в отдельный раздел
-            со списком всех запросов корректировки.
+            <Text strong>«Запросы на корректировку»</Text> — кнопка с числом
+            открытых запросов на изменение расписания. По клику переводит в
+            отдельный раздел со списком всех запросов корректировки.
           </li>
           <li>
-            <Text strong>«Добавить назначение»</Text> — доступно в режиме «Назначения».
-            Открывает модальное окно создания нового назначения с выбором сотрудника,
-            рабочего места, периода и графика смен.
+            <Text strong>«Добавить назначение»</Text> — доступно в режиме
+            «Назначения». Открывает модальное окно создания нового назначения с
+            выбором сотрудника, рабочего места, периода и графика смен.
           </li>
         </ul>
 
         <Title level={4}>Фильтры и индикатор свободных сотрудников</Title>
-        <Paragraph>Под верхней панелью расположены фильтры и служебная информация:</Paragraph>
+        <Paragraph>
+          Под верхней панелью расположены фильтры и служебная информация:
+        </Paragraph>
         <ul>
           <li>
-            <Text strong>Фильтр по сотруднику</Text> — выпадающий список всех сотрудников
-            с ролью USER. В подсказке для каждого показывается, сколько у него активных
-            назначений (0 / 1 / 2+). При выборе фильтрует таблицу по выбранному сотруднику.
+            <Text strong>Фильтр по сотруднику</Text> — выпадающий список всех
+            сотрудников с ролью USER. В подсказке для каждого показывается,
+            сколько у него активных назначений (0 / 1 / 2+). При выборе
+            фильтрует таблицу по выбранному сотруднику.
           </li>
           <li>
-            <Text strong>Фильтр по рабочему месту</Text> — список активных рабочих мест.
-            При выборе показывает только назначения по выбранному рабочему месту.
+            <Text strong>Фильтр по рабочему месту</Text> — список активных
+            рабочих мест. При выборе показывает только назначения по выбранному
+            рабочему месту.
           </li>
           <li>
             <Text strong>Фильтр по статусу</Text> — позволяет отфильтровать{' '}
-            <Text code>ACTIVE</Text> / <Text code>ARCHIVED</Text> в основном режиме.
+            <Text code>ACTIVE</Text> / <Text code>ARCHIVED</Text> в основном
+            режиме.
           </li>
           <li>
-            <Text strong>Фильтр по периоду</Text> — выбор диапазона дат и времени (с
-            тайм-пикером). Ограничивает выборку назначений по пересечению с указанным
-            периодом.
+            <Text strong>Фильтр по периоду</Text> — выбор диапазона дат и
+            времени (с тайм-пикером). Ограничивает выборку назначений по
+            пересечению с указанным периодом.
           </li>
           <li>
             Справа отображается строка вида{' '}
-            <Text strong>«Свободных сотрудников: N»</Text>. Это сотрудники с ролью USER,
-            у которых <Text strong>нет активных назначений</Text>. Рядом ссылка-кнопка{' '}
-            <Text strong>«Показать»</Text> — открывает модальное окно со списком таких
-            сотрудников (ФИО и email), чтобы менеджер мог быстро подобрать кого-то
-            «свободного» для нового назначения.
+            <Text strong>«Свободных сотрудников: N»</Text>. Это сотрудники с
+            ролью USER, у которых <Text strong>нет активных назначений</Text>.
+            Рядом ссылка-кнопка <Text strong>«Показать»</Text> — открывает
+            модальное окно со списком таких сотрудников (ФИО и email), чтобы
+            менеджер мог быстро подобрать кого-то «свободного» для нового
+            назначения.
           </li>
         </ul>
 
         <Title level={4}>Таблица назначений</Title>
-        <Paragraph>В режиме «Назначения» таблица содержит следующие колонки:</Paragraph>
+        <Paragraph>
+          В режиме «Назначения» таблица содержит следующие колонки:
+        </Paragraph>
         <ul>
           <li>
-            <Text strong>Сотрудник</Text> — ФИО или email сотрудника. Если у сотрудника
-            в момент создания/редактирования уже есть два активных назначения, здесь
-            может появиться оранжевый тег{' '}
-            <Text code>«У сотрудника уже 2 активных назначения»</Text>, чтобы визуально
-            предупредить менеджера.
+            <Text strong>Сотрудник</Text> — ФИО или email сотрудника. Если у
+            сотрудника в момент создания/редактирования уже есть два активных
+            назначения, здесь может появиться оранжевый тег{' '}
+            <Text code>«У сотрудника уже 2 активных назначения»</Text>, чтобы
+            визуально предупредить менеджера.
           </li>
           <li>
-            <Text strong>Рабочее место</Text> — отображается код и название в формате{' '}
-            <Text code>CODE — Название</Text>.
+            <Text strong>Рабочее место</Text> — отображается код и название в
+            формате <Text code>CODE — Название</Text>.
           </li>
           <li>
-            <Text strong>Период</Text> — дата начала и конца назначения в формате{' '}
-            <Text code>DD.MM.YYYY → DD.MM.YYYY</Text>. Это кликабельная ссылка: при нажатии
-            открывается модальное окно редактирования назначения.
+            <Text strong>Период</Text> — дата начала и конца назначения в
+            формате <Text code>DD.MM.YYYY → DD.MM.YYYY</Text>. Это кликабельная
+            ссылка: при нажатии открывается модальное окно редактирования
+            назначения.
           </li>
           <li>
-            <Text strong>Статус</Text> — тег со значением <Text code>ACTIVE</Text> (зелёный)
-            или <Text code>ARCHIVED</Text> (серый). Если по назначению есть хотя бы один
-            PENDING-запрос на корректировку, рядом появляется дополнительный оранжевый тег{' '}
-            <Text code>«Есть запрос корректировки»</Text>. По клику по соответствующей ссылке
-            в действиях можно открыть отдельное окно сравнения графиков.
+            <Text strong>Статус</Text> — тег со значением{' '}
+            <Text code>ACTIVE</Text> (зелёный) или <Text code>ARCHIVED</Text>{' '}
+            (серый). Если по назначению есть хотя бы один PENDING-запрос на
+            корректировку, рядом появляется дополнительный оранжевый тег{' '}
+            <Text code>«Есть запрос корректировки»</Text>. По клику по
+            соответствующей ссылке в действиях можно открыть отдельное окно
+            сравнения графиков.
           </li>
           <li>
             <Text strong>Действия</Text> — набор ссылок:
@@ -1137,23 +1323,27 @@ const adminSections: Section[] = [
                 редактирования выбранного назначения.
               </li>
               <li>
-                <Text strong>«Завершить»</Text> — доступно для активных назначений.
-                После подтверждения помечает назначение завершённым (ARCHIVED).
+                <Text strong>«Завершить»</Text> — доступно для активных
+                назначений. После подтверждения помечает назначение завершённым
+                (ARCHIVED).
               </li>
               <li>
-                <Text strong>«Уведомить»</Text> — доступно для активных назначений,
-                у которых указан email сотрудника. Показывает подтверждающее окно с
-                кратким описанием (кого и по какому месту уведомляем) и отправляет
-                уведомление по email. Если email отсутствует, кнопка отключена.
+                <Text strong>«Уведомить»</Text> — доступно для активных
+                назначений, у которых указан email сотрудника. Показывает
+                подтверждающее окно с кратким описанием (кого и по какому месту
+                уведомляем) и отправляет уведомление по email. Если email
+                отсутствует, кнопка отключена.
               </li>
               <li>
-                <Text strong>«Запрос корректировки»</Text> (или аналогичная подпись) —
-                появляется, если по назначению существуют запросы корректировки. Открывает
-                модалку сравнения исходного и предложенного графика.
+                <Text strong>«Запрос корректировки»</Text> (или аналогичная
+                подпись) — появляется, если по назначению существуют запросы
+                корректировки. Открывает модалку сравнения исходного и
+                предложенного графика.
               </li>
               <li>
-                <Text strong>«Удалить»</Text> — доступно для архивных назначений.
-                После подтверждения перемещает назначение в корзину (не окончательное удаление).
+                <Text strong>«Удалить»</Text> — доступно для архивных
+                назначений. После подтверждения перемещает назначение в корзину
+                (не окончательное удаление).
               </li>
             </ul>
           </li>
@@ -1161,8 +1351,8 @@ const adminSections: Section[] = [
 
         <Title level={4}>Режим «Корзина»</Title>
         <Paragraph>
-          В режиме <Text strong>«Корзина»</Text> таблица показывает только удалённые
-          назначения. Вместо стандартных действий доступны:
+          В режиме <Text strong>«Корзина»</Text> таблица показывает только
+          удалённые назначения. Вместо стандартных действий доступны:
         </Paragraph>
         <ul>
           <li>
@@ -1170,27 +1360,38 @@ const adminSections: Section[] = [
             возвращает назначение из корзины в основной список.
           </li>
           <li>
-            Слева от строк работают чекбоксы множественного выбора. В верхней панели
-            появляются дополнительные кнопки:
+            Слева от строк работают чекбоксы множественного выбора. В верхней
+            панели появляются дополнительные кнопки:
             <ul>
               <li>
-                <Text strong>«Скачать выбранные»</Text> — выгружает только отмеченные
-                назначения в CSV-файл (удобно как бэкап перед очисткой корзины).
+                <Text strong>«Скачать выбранные»</Text> — выгружает только
+                отмеченные назначения в CSV-файл (удобно как бэкап перед
+                очисткой корзины).
               </li>
               <li>
                 <Text strong>«Удалить выбранные»</Text> — безвозвратное удаление
                 выбранных назначений из корзины.
               </li>
               <li>
-                <Text strong>«Скачать и удалить»</Text> — сначала формирует CSV-файл
-                с выбранными назначениями, затем сразу удаляет их из корзины.
+                <Text strong>«Скачать и удалить»</Text> — сначала формирует
+                CSV-файл с выбранными назначениями, затем сразу удаляет их из
+                корзины.
               </li>
             </ul>
           </li>
         </ul>
 
-        <Title level={4}>Модальное окно «Создать / редактировать назначение»</Title>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16, marginBottom: 24 }}>
+        <Title level={4}>
+          Модальное окно «Создать / редактировать назначение»
+        </Title>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: 16,
+            marginBottom: 24,
+          }}
+        >
           <Card
             style={{
               width: 900,
@@ -1223,7 +1424,9 @@ const adminSections: Section[] = [
               <Form.Item label="Рабочее место">
                 <Select
                   placeholder="Выберите рабочее место"
-                  options={[{ label: 'OFFICE-01 — Офис на Абая', value: 'OFFICE-01' }]}
+                  options={[
+                    { label: 'OFFICE-01 — Офис на Абая', value: 'OFFICE-01' },
+                  ]}
                 />
               </Form.Item>
               <Form.Item label="Период назначения">
@@ -1238,8 +1441,18 @@ const adminSections: Section[] = [
                     fontSize: 13,
                   }}
                 >
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
-                    <Input placeholder="Общее время: 09:00–18:00" style={{ maxWidth: 220 }} />
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: 8,
+                      marginBottom: 8,
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    <Input
+                      placeholder="Общее время: 09:00–18:00"
+                      style={{ maxWidth: 220 }}
+                    />
                     <Checkbox defaultChecked>Применить ко всем датам</Checkbox>
                   </div>
                   <div
@@ -1251,7 +1464,10 @@ const adminSections: Section[] = [
                   >
                     <div style={{ fontWeight: 500 }}>01.03.2025</div>
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                      <Input placeholder="09:00–18:00" style={{ maxWidth: 160 }} />
+                      <Input
+                        placeholder="09:00–18:00"
+                        style={{ maxWidth: 160 }}
+                      />
                       <Select
                         style={{ minWidth: 160 }}
                         defaultValue="DEFAULT"
@@ -1283,27 +1499,30 @@ const adminSections: Section[] = [
         </div>
 
         <Paragraph>
-          Это базовая форма, которая используется как для создания нового назначения,
-          так и для редактирования существующего. В режиме одобрения запроса на
-          назначение она заполняется автоматически данными из заявки.
+          Это базовая форма, которая используется как для создания нового
+          назначения, так и для редактирования существующего. В режиме одобрения
+          запроса на назначение она заполняется автоматически данными из заявки.
         </Paragraph>
         <ul>
           <li>
-            <Text strong>Сотрудник</Text> — выпадающий список пользователей с ролью USER.
-            В режиме одобрения запроса поле заблокировано и уже содержит инициатора заявки.
+            <Text strong>Сотрудник</Text> — выпадающий список пользователей с
+            ролью USER. В режиме одобрения запроса поле заблокировано и уже
+            содержит инициатора заявки.
           </li>
           <li>
-            <Text strong>Рабочее место</Text> — выбор рабочего места. В режиме одобрения
-            заявки — предзаполнено и при необходимости может быть изменено вручную.
+            <Text strong>Рабочее место</Text> — выбор рабочего места. В режиме
+            одобрения заявки — предзаполнено и при необходимости может быть
+            изменено вручную.
           </li>
           <li>
-            <Text strong>Статус</Text> — по умолчанию ACTIVE. При одобрении запроса
-            статус фиксируется как активный.
+            <Text strong>Статус</Text> — по умолчанию ACTIVE. При одобрении
+            запроса статус фиксируется как активный.
           </li>
           <li>
-            <Text strong>Период</Text> — выбор диапазона дат (без времени). При изменении
-            диапазона автоматически пересобирается список дат в блоке «График смен».
-            В режиме одобрения запроса период уже заполнен по данным заявки.
+            <Text strong>Период</Text> — выбор диапазона дат (без времени). При
+            изменении диапазона автоматически пересобирается список дат в блоке
+            «График смен». В режиме одобрения запроса период уже заполнен по
+            данным заявки.
           </li>
         </ul>
         <Paragraph>
@@ -1311,49 +1530,50 @@ const adminSections: Section[] = [
         </Paragraph>
         <ul>
           <li>
-            Вверху — общий тайм-пикер для всех дней и чекбокс «Применить ко всем датам».
-            При выборе времени и включённом чекбоксе указанный интервал копируется во
-            все дни внизу.
+            Вверху — общий тайм-пикер для всех дней и чекбокс «Применить ко всем
+            датам». При выборе времени и включённом чекбоксе указанный интервал
+            копируется во все дни внизу.
           </li>
           <li>
-            Для каждого дня из выбранного диапазона создаётся секция с датой и списком
-            интервалов. Внутри:
+            Для каждого дня из выбранного диапазона создаётся секция с датой и
+            списком интервалов. Внутри:
             <ul>
               <li>Интервалы времени (RangePicker по времени).</li>
               <li>
-                Тип смены — выпадающий список: «Обычная смена», «Офис», «Удалёнка»,
-                «Day off / больничный».
+                Тип смены — выпадающий список: «Обычная смена», «Офис»,
+                «Удалёнка», «Day off / больничный».
               </li>
               <li>
-                Кнопка «Добавить интервал» — добавляет ещё один промежуток в течение дня.
+                Кнопка «Добавить интервал» — добавляет ещё один промежуток в
+                течение дня.
               </li>
               <li>
-                Кнопка «Удалить» рядом с интервалом — удаляет конкретный интервал
-                (если интервалов несколько).
+                Кнопка «Удалить» рядом с интервалом — удаляет конкретный
+                интервал (если интервалов несколько).
               </li>
             </ul>
           </li>
           <li>
-            При сохранении система собирает общий диапазон startsAt/endsAt и массив смен
-            по дням. Если ни один день не содержит заполненных интервалов, сохранение
-            не разрешается.
+            При сохранении система собирает общий диапазон startsAt/endsAt и
+            массив смен по дням. Если ни один день не содержит заполненных
+            интервалов, сохранение не разрешается.
           </li>
         </ul>
 
         <Title level={4}>Обработка «Запросов на назначение»</Title>
         <Paragraph>
-          Кнопка «Запросы на назначение» открывает отдельное модальное окно, внутри
-          которого запросы показываются по одному:
+          Кнопка «Запросы на назначение» открывает отдельное модальное окно,
+          внутри которого запросы показываются по одному:
         </Paragraph>
         <ul>
           <li>
-            Сверху выводится счётчик вида «Запрос 1 из N» и стрелки для переключения
-            между заявками (если их несколько).
+            Сверху выводится счётчик вида «Запрос 1 из N» и стрелки для
+            переключения между заявками (если их несколько).
           </li>
           <li>
-            В карточке запроса показываются: сотрудник, рабочее место, период
-            (с даты по дату) и список предложенных интервалов по дням (если сотрудник
-            их указал в комментарии).
+            В карточке запроса показываются: сотрудник, рабочее место, период (с
+            даты по дату) и список предложенных интервалов по дням (если
+            сотрудник их указал в комментарии).
           </li>
           <li>
             Кнопка «Одобрить» закрывает это окно и открывает модалку назначения,
@@ -1361,40 +1581,46 @@ const adminSections: Section[] = [
             интервалы смен).
           </li>
           <li>
-            Кнопка «Отказать» открывает подтверждение и при согласии помечает запрос
-            как отклонённый без создания назначения. Заявка исчезает из списка.
+            Кнопка «Отказать» открывает подтверждение и при согласии помечает
+            запрос как отклонённый без создания назначения. Заявка исчезает из
+            списка.
           </li>
           <li>
-            Если сервер сообщает, что запрос уже был обработан (например, другим менеджером),
-            система локально убирает его из списка и показывает соответствующее уведомление.
+            Если сервер сообщает, что запрос уже был обработан (например, другим
+            менеджером), система локально убирает его из списка и показывает
+            соответствующее уведомление.
           </li>
         </ul>
 
         <Title level={4}>Модалка запросов корректировок по назначению</Title>
         <Paragraph>
-          При наличии запросов на корректировку по конкретному назначению в таблице
-          действий появляется отдельная ссылка, открывающая модалку сравнения графиков.
+          При наличии запросов на корректировку по конкретному назначению в
+          таблице действий появляется отдельная ссылка, открывающая модалку
+          сравнения графиков.
         </Paragraph>
         <Paragraph>
           В этой модалке для выбранного назначения отображаются две колонки:
         </Paragraph>
         <ul>
           <li>
-            «Назначенный график (было)» — по датам выводятся интервалы, которые сейчас
-            закреплены за сотрудником: время и статус смены.
+            «Назначенный график (было)» — по датам выводятся интервалы, которые
+            сейчас закреплены за сотрудником: время и статус смены.
           </li>
           <li>
             «Предложенная корректировка (стало)» — по тем же датам показываются
-            интервалы и статусы, которые сотрудник предлагает в запросах. Если по дате
-            нет изменений — явно показывается, что изменений нет.
+            интервалы и статусы, которые сотрудник предлагает в запросах. Если
+            по дате нет изменений — явно показывается, что изменений нет.
           </li>
         </ul>
         <Paragraph>
-          Ниже выводится краткое текстовое резюме того, по каким датам сотрудник менял
-          только время, только статус или и то, и другое. Внизу две кнопки:
+          Ниже выводится краткое текстовое резюме того, по каким датам сотрудник
+          менял только время, только статус или и то, и другое. Внизу две
+          кнопки:
         </Paragraph>
         <ul>
-          <li>«Одобрить» — последовательно одобряет все отображаемые запросы.</li>
+          <li>
+            «Одобрить» — последовательно одобряет все отображаемые запросы.
+          </li>
           <li>«Отклонить» — последовательно отклоняет все запросы.</li>
         </ul>
       </>
@@ -1412,8 +1638,8 @@ const adminSections: Section[] = [
       <>
         <Title level={4}>1. Личный кабинет сотрудника — «Моё расписание»</Title>
         <Paragraph>
-          Страница <Text strong>«Моё расписание»</Text> — это личный кабинет сотрудника.
-          Здесь собраны:
+          Страница <Text strong>«Моё расписание»</Text> — это личный кабинет
+          сотрудника. Здесь собраны:
         </Paragraph>
         <ul>
           <li>его текущие назначения и рабочее место;</li>
@@ -1425,7 +1651,14 @@ const adminSections: Section[] = [
         </ul>
 
         <Title level={5}>Карточка «Моё расписание»</Title>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16, marginBottom: 24 }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: 16,
+            marginBottom: 24,
+          }}
+        >
           <Card
             style={{
               width: 900,
@@ -1450,7 +1683,8 @@ const adminSections: Section[] = [
               </Button>
             </div>
             <Paragraph style={{ marginBottom: 12 }}>
-              Текущее рабочее место: <Text strong>OFFICE-01 — Офис на Абая</Text>
+              Текущее рабочее место:{' '}
+              <Text strong>OFFICE-01 — Офис на Абая</Text>
             </Paragraph>
             <div
               style={{
@@ -1500,11 +1734,15 @@ const adminSections: Section[] = [
         </div>
 
         <Paragraph>
-          В верхнем блоке страницы отображается карточка <Text strong>«Моё расписание»</Text>.
-          В правой части заголовка есть кнопка{' '}
-          <Text strong>«Сменить пароль»</Text>, которая открывает модалку смены пароля.
+          В верхнем блоке страницы отображается карточка{' '}
+          <Text strong>«Моё расписание»</Text>. В правой части заголовка есть
+          кнопка <Text strong>«Сменить пароль»</Text>, которая открывает модалку
+          смены пароля.
         </Paragraph>
-        <Paragraph>Содержимое карточки зависит от того, привязан ли сотрудник к рабочему месту:</Paragraph>
+        <Paragraph>
+          Содержимое карточки зависит от того, привязан ли сотрудник к рабочему
+          месту:
+        </Paragraph>
         <ul>
           <li>
             Если сотрудник привязан к рабочему месту — показывается блок
@@ -1514,79 +1752,93 @@ const adminSections: Section[] = [
             Ниже — таблица его назначений с колонками:
             <ul>
               <li>
-                <Text strong>Рабочее место</Text> — название (или идентификатор, если названия нет).
+                <Text strong>Рабочее место</Text> — название (или идентификатор,
+                если названия нет).
               </li>
               <li>
-                <Text strong>Интервал</Text> — кнопка-ссылка с диапазоном дат назначения. По клику
-                открывается модалка <Text strong>«Детали назначения»</Text>.
+                <Text strong>Интервал</Text> — кнопка-ссылка с диапазоном дат
+                назначения. По клику открывается модалка{' '}
+                <Text strong>«Детали назначения»</Text>.
               </li>
               <li>
-                <Text strong>Статус</Text> — цветной тег: Активно / Архив / Ожидает / Отклонено.
+                <Text strong>Статус</Text> — цветной тег: Активно / Архив /
+                Ожидает / Отклонено.
               </li>
               <li>
-                <Text strong>Действия по назначению</Text> — для активных назначений доступна
-                кнопка <Text strong>«Запросить корректировку расписания»</Text>.
+                <Text strong>Действия по назначению</Text> — для активных
+                назначений доступна кнопка{' '}
+                <Text strong>«Запросить корректировку расписания»</Text>.
               </li>
             </ul>
           </li>
           <li>
-            Строки таблицы кликабельны: по клику на строку или на интервал открывается модалка
-            с детальным расписанием по дням.
+            Строки таблицы кликабельны: по клику на строку или на интервал
+            открывается модалка с детальным расписанием по дням.
           </li>
           <li>
-            Если назначений пока нет — показывается информационный экран с подсказкой обратиться
-            к администратору.
+            Если назначений пока нет — показывается информационный экран с
+            подсказкой обратиться к администратору.
           </li>
           <li>
-            Если сотрудник вообще не привязан к рабочему месту — вместо таблицы выводится
-            сообщение: <Text strong>«Вы не привязаны к рабочему месту»</Text>.
+            Если сотрудник вообще не привязан к рабочему месту — вместо таблицы
+            выводится сообщение:{' '}
+            <Text strong>«Вы не привязаны к рабочему месту»</Text>.
           </li>
         </ul>
 
         <Title level={5}>Модалка «Детали назначения»</Title>
         <Paragraph>
-          Открывается при клике по строке назначения или по ссылке в колонке «Интервал».
-          В заголовке указано название рабочего места.
+          Открывается при клике по строке назначения или по ссылке в колонке
+          «Интервал». В заголовке указано название рабочего места.
         </Paragraph>
         <Paragraph>Внутри:</Paragraph>
         <ul>
           <li>список смен по дням в виде списка;</li>
-          <li>для каждой строки — дата, время начала и конца смены, количество часов;</li>
+          <li>
+            для каждой строки — дата, время начала и конца смены, количество
+            часов;
+          </li>
           <li>смены отсортированы по дате и времени;</li>
-          <li>если по назначению нет ни слотов, ни смен — показывается заглушка «Для этого назначения нет смен».</li>
+          <li>
+            если по назначению нет ни слотов, ни смен — показывается заглушка
+            «Для этого назначения нет смен».
+          </li>
         </ul>
 
         <Title level={5}>Модалка «Запрос на корректировку расписания»</Title>
         <Paragraph>
-          Кнопка <Text strong>«Запросить корректировку расписания»</Text> доступна
-          только для активных назначений. По нажатию открывается модалка, где сотрудник
-          может предложить новые интервалы работы.
+          Кнопка <Text strong>«Запросить корректировку расписания»</Text>{' '}
+          доступна только для активных назначений. По нажатию открывается
+          модалка, где сотрудник может предложить новые интервалы работы.
         </Paragraph>
         <ul>
           <li>
-            Интервалы автоматически подставляются из текущего расписания (по слотам или сменам).
+            Интервалы автоматически подставляются из текущего расписания (по
+            слотам или сменам).
           </li>
           <li>
-            Сотрудник может добавлять дни и дополнительные интервал(ы) внутри дня, менять время
-            и тип смены (обычная, офис, удалёнка, выходной/больничный).
+            Сотрудник может добавлять дни и дополнительные интервал(ы) внутри
+            дня, менять время и тип смены (обычная, офис, удалёнка,
+            выходной/больничный).
           </li>
           <li>
-            Система не даёт отправить интервалы, у которых время окончания раньше времени начала.
+            Система не даёт отправить интервалы, у которых время окончания
+            раньше времени начала.
           </li>
           <li>
-            При отправке формируется понятный текстовый комментарий для администратора:
-            по каждой дате указаны время и тип смены.
+            При отправке формируется понятный текстовый комментарий для
+            администратора: по каждой дате указаны время и тип смены.
           </li>
         </ul>
         <Paragraph>
-          После успешной отправки модалка закрывается, а запрос появляется на стороне
-          администратора в разделе «Запросы корректировок».
+          После успешной отправки модалка закрывается, а запрос появляется на
+          стороне администратора в разделе «Запросы корректировок».
         </Paragraph>
 
         <Title level={5}>Модалка смены пароля</Title>
         <Paragraph>
-          Кнопка <Text strong>«Сменить пароль»</Text> в верхней карточке открывает модальное окно
-          с формой:
+          Кнопка <Text strong>«Сменить пароль»</Text> в верхней карточке
+          открывает модальное окно с формой:
         </Paragraph>
         <ul>
           <li>текущий пароль;</li>
@@ -1594,58 +1846,65 @@ const adminSections: Section[] = [
           <li>подтверждение нового пароля.</li>
         </ul>
         <Paragraph>
-          Перед отправкой система проверяет, что новый пароль совпадает с подтверждением.
-          В случае ошибки выводится текстовое пояснение. При успехе пользователь видит сообщение
-          об успешной смене пароля.
+          Перед отправкой система проверяет, что новый пароль совпадает с
+          подтверждением. В случае ошибки выводится текстовое пояснение. При
+          успехе пользователь видит сообщение об успешной смене пароля.
         </Paragraph>
 
         <Title level={4}>2. Блок «Запрос назначения»</Title>
         <Paragraph>
-          Под основной карточкой расположен блок <Text strong>«Запрос назначения»</Text>.
-          Он нужен, когда сотруднику нужно получить новое назначение или изменить рабочее место.
+          Под основной карточкой расположен блок{' '}
+          <Text strong>«Запрос назначения»</Text>. Он нужен, когда сотруднику
+          нужно получить новое назначение или изменить рабочее место.
         </Paragraph>
         <ul>
           <li>
-            Вверху — краткое описание, в каких случаях использовать запрос (нет назначений или
-            требуется новое место).
+            Вверху — краткое описание, в каких случаях использовать запрос (нет
+            назначений или требуется новое место).
           </li>
           <li>
-            Если у пользователя уже есть запросы без решения — показывается информационный баннер
-            с количеством таких запросов, а кнопка отправки нового запроса отключается.
+            Если у пользователя уже есть запросы без решения — показывается
+            информационный баннер с количеством таких запросов, а кнопка
+            отправки нового запроса отключается.
           </li>
           <li>
-            Если последний запрос был отклонён и с момента отклонения прошло не больше недели —
-            показывается жёлтое предупреждение с датой отклонённого запроса. Пользователь может
-            его закрыть; состояние запоминается в браузере.
+            Если последний запрос был отклонён и с момента отклонения прошло не
+            больше недели — показывается жёлтое предупреждение с датой
+            отклонённого запроса. Пользователь может его закрыть; состояние
+            запоминается в браузере.
           </li>
           <li>
-            Кнопка <Text strong>«Запросить назначение»</Text> открывает модалку с формой
-            запроса нового назначения.
+            Кнопка <Text strong>«Запросить назначение»</Text> открывает модалку
+            с формой запроса нового назначения.
           </li>
         </ul>
 
         <Title level={5}>Модалка «Запрос назначения»</Title>
         <Paragraph>
-          Модальное окно <Text strong>«Запрос назначения»</Text> по структуре похоже на форму
-          создания назначения у администратора, но работает как просьба от сотрудника.
+          Модальное окно <Text strong>«Запрос назначения»</Text> по структуре
+          похоже на форму создания назначения у администратора, но работает как
+          просьба от сотрудника.
         </Paragraph>
         <ul>
           <li>
-            <Text strong>Рабочее место</Text> — выпадающий список активных мест. По умолчанию
-            подставляется текущее место сотрудника (если есть) или первое доступное из списка.
+            <Text strong>Рабочее место</Text> — выпадающий список активных мест.
+            По умолчанию подставляется текущее место сотрудника (если есть) или
+            первое доступное из списка.
           </li>
           <li>
-            <Text strong>Период</Text> — выбор диапазона дат (RangePicker). По нему строится
-            список дней, для которых сотрудник задаёт интервалы работы.
+            <Text strong>Период</Text> — выбор диапазона дат (RangePicker). По
+            нему строится список дней, для которых сотрудник задаёт интервалы
+            работы.
           </li>
           <li>
-            <Text strong>Общий интервал времени</Text> — таймпикер «для всех дат».
-            При включённой опции «Применить ко всем датам» система автоматически
-            создаёт одинаковые интервалы для каждого дня выбранного периода.
+            <Text strong>Общий интервал времени</Text> — таймпикер «для всех
+            дат». При включённой опции «Применить ко всем датам» система
+            автоматически создаёт одинаковые интервалы для каждого дня
+            выбранного периода.
           </li>
           <li>
-            <Text strong>Дни и интервалы</Text> — ниже отображаются все дни периода.
-            Для каждого дня можно:
+            <Text strong>Дни и интервалы</Text> — ниже отображаются все дни
+            периода. Для каждого дня можно:
             <ul>
               <li>изменить время начала и окончания смены;</li>
               <li>изменить тип смены (обычная, офис, удалёнка, выходной);</li>
@@ -1654,34 +1913,41 @@ const adminSections: Section[] = [
             </ul>
           </li>
           <li>
-            При попытке отправки система проверяет, что для всех интервалов время окончания
-            позже времени начала. Если есть ошибки — выводится предупреждение.
+            При попытке отправки система проверяет, что для всех интервалов
+            время окончания позже времени начала. Если есть ошибки — выводится
+            предупреждение.
           </li>
           <li>
-            Для администратора автоматически формируется текстовый комментарий со списком дат,
-            интервалов и типов смен — он прикрепляется к запросу.
+            Для администратора автоматически формируется текстовый комментарий
+            со списком дат, интервалов и типов смен — он прикрепляется к
+            запросу.
           </li>
         </ul>
         <Paragraph>
-          После успешной отправки запрос появляется в разделе «Запросы на назначения»
-          у администратора, а на карточке «Запрос назначения» у сотрудника видно, что
-          запрос уже отправлен и находится на рассмотрении.
+          После успешной отправки запрос появляется в разделе «Запросы на
+          назначения» у администратора, а на карточке «Запрос назначения» у
+          сотрудника видно, что запрос уже отправлен и находится на
+          рассмотрении.
         </Paragraph>
 
         <Title level={4}>3. Блок «Отчёт по отработанным часам»</Title>
         <Paragraph>
-          Рядом с «Запросом назначения» расположен блок <Text strong>«Отчёт по отработанным часам»</Text>.
-          Здесь сотрудник фиксирует, сколько часов он фактически отработал в тот или иной день.
+          Рядом с «Запросом назначения» расположен блок{' '}
+          <Text strong>«Отчёт по отработанным часам»</Text>. Здесь сотрудник
+          фиксирует, сколько часов он фактически отработал в тот или иной день.
         </Paragraph>
         <ul>
           <li>
-            В тексте подсказки объясняется, что отчёт нужно заполнять каждый рабочий день.
+            В тексте подсказки объясняется, что отчёт нужно заполнять каждый
+            рабочий день.
           </li>
           <li>
-            Если на сегодня есть активные назначения — показывается тег с количеством назначений.
+            Если на сегодня есть активные назначения — показывается тег с
+            количеством назначений.
           </li>
           <li>
-            Кнопка <Text strong>«Заполнить отчёт»</Text> открывает модалку с формой отчёта.
+            Кнопка <Text strong>«Заполнить отчёт»</Text> открывает модалку с
+            формой отчёта.
           </li>
         </ul>
 
@@ -1689,24 +1955,35 @@ const adminSections: Section[] = [
         <Paragraph>Форма максимально простая:</Paragraph>
         <ul>
           <li>
-            <Text strong>Дата</Text> — по умолчанию подставляется сегодня. Можно выбрать любой день.
+            <Text strong>Дата</Text> — по умолчанию подставляется сегодня. Можно
+            выбрать любой день.
           </li>
           <li>
-            <Text strong>Количество часов</Text> — числовое поле (в часах). Проверяется, что значение
-            не отрицательное и корректно введено.
+            <Text strong>Количество часов</Text> — числовое поле (в часах).
+            Проверяется, что значение не отрицательное и корректно введено.
           </li>
           <li>
-            При открытии модалки система подгружает ранее сохранённые отчёты за месяц выбранной даты
-            и подставляет сохранённые часы (если для этого дня отчёт уже был).
+            При открытии модалки система подгружает ранее сохранённые отчёты за
+            месяц выбранной даты и подставляет сохранённые часы (если для этого
+            дня отчёт уже был).
           </li>
           <li>
-            После сохранения данные отправляются на сервер, локально обновляются и используются
-            в личной статистике (блок «Моя статистика»).
+            После сохранения данные отправляются на сервер, локально обновляются
+            и используются в личной статистике (блок «Моя статистика»).
           </li>
         </ul>
 
-        <Title level={4}>4. Мини-планировщик «График назначений (все сотрудники)»</Title>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16, marginBottom: 24 }}>
+        <Title level={4}>
+          4. Мини-планировщик «График назначений (все сотрудники)»
+        </Title>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: 16,
+            marginBottom: 24,
+          }}
+        >
           <Card
             style={{
               width: 900,
@@ -1730,30 +2007,59 @@ const adminSections: Section[] = [
             >
               <div style={{ background: '#fafafa', padding: 6 }}>Сотрудник</div>
               {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((d) => (
-                <div key={d} style={{ background: '#fafafa', padding: 6, textAlign: 'center' }}>
+                <div
+                  key={d}
+                  style={{
+                    background: '#fafafa',
+                    padding: 6,
+                    textAlign: 'center',
+                  }}
+                >
                   {d}
                 </div>
               ))}
-              <div style={{ padding: 6, borderTop: '1px solid #f0f0f0' }}>Иванов Иван</div>
+              <div style={{ padding: 6, borderTop: '1px solid #f0f0f0' }}>
+                Иванов Иван
+              </div>
               <div style={{ padding: 6, borderTop: '1px solid #f0f0f0' }} />
               <div style={{ padding: 6, borderTop: '1px solid #f0f0f0' }}>
-                <div style={{ background: '#e6f7ff', borderRadius: 4, padding: '2px 4px' }}>
+                <div
+                  style={{
+                    background: '#e6f7ff',
+                    borderRadius: 4,
+                    padding: '2px 4px',
+                  }}
+                >
                   OFFICE-01
                 </div>
               </div>
               <div style={{ padding: 6, borderTop: '1px solid #f0f0f0' }}>
-                <div style={{ background: '#e6f7ff', borderRadius: 4, padding: '2px 4px' }}>
+                <div
+                  style={{
+                    background: '#e6f7ff',
+                    borderRadius: 4,
+                    padding: '2px 4px',
+                  }}
+                >
                   OFFICE-01
                 </div>
               </div>
               <div style={{ padding: 6, borderTop: '1px solid #f0f0f0' }} />
               <div style={{ padding: 6, borderTop: '1px solid #f0f0f0' }} />
               <div style={{ padding: 6, borderTop: '1px solid #f0f0f0' }} />
-              <div style={{ padding: 6, borderTop: '1px solid #f0f0f0' }}>Петров Пётр</div>
+              <div style={{ padding: 6, borderTop: '1px solid #f0f0f0' }}>
+                Петров Пётр
+              </div>
               <div style={{ padding: 6, borderTop: '1px solid #f0f0f0' }} />
               <div style={{ padding: 6, borderTop: '1px solid #f0f0f0' }} />
               <div style={{ padding: 6, borderTop: '1px solid #f0f0f0' }}>
-                <div style={{ background: '#fff7e6', borderRadius: 4, padding: '2px 4px' }}>
+                <div
+                  style={{
+                    background: '#fff7e6',
+                    borderRadius: 4,
+                    padding: '2px 4px',
+                  }}
+                >
                   REMOTE-01
                 </div>
               </div>
@@ -1763,77 +2069,85 @@ const adminSections: Section[] = [
               <div style={{ padding: 6, borderTop: '1px solid #f0f0f0' }} />
             </div>
             <div style={{ marginTop: 12, fontSize: 12, opacity: 0.8 }}>
-              Цвет блока соответствует цвету рабочего места (настраивается в разделе «Рабочие места»).
+              Цвет блока соответствует цвету рабочего места (настраивается в
+              разделе «Рабочие места»).
             </div>
           </Card>
         </div>
 
         <Paragraph>
           Ниже на странице расположен компактный планировщик{' '}
-          <Text strong>«График назначений (все сотрудники)»</Text>. Он показывает все активные
-          назначения по сотрудникам за выбранный период.
+          <Text strong>«График назначений (все сотрудники)»</Text>. Он
+          показывает все активные назначения по сотрудникам за выбранный период.
         </Paragraph>
         <ul>
           <li>
-            Слева — колонка с сотрудниками. Каждый сотрудник занимает строку, высота которой
-            зависит от количества перекрывающихся назначений.
+            Слева — колонка с сотрудниками. Каждый сотрудник занимает строку,
+            высота которой зависит от количества перекрывающихся назначений.
           </li>
           <li>
-            Справа — сетка по дням. В каждой строке рисуются цветные блоки назначений.
+            Справа — сетка по дням. В каждой строке рисуются цветные блоки
+            назначений.
           </li>
           <li>
-            Цвет блока берётся из цвета рабочего места (настраивается в разделе «Рабочие места»).
+            Цвет блока берётся из цвета рабочего места (настраивается в разделе
+            «Рабочие места»).
           </li>
           <li>
-            Если назначение длится несколько дней, блок растягивается на соответствующее число
-            ячеек по горизонтали.
+            Если назначение длится несколько дней, блок растягивается на
+            соответствующее число ячеек по горизонтали.
           </li>
           <li>
-            Период для сетки подбирается автоматически по минимальной и максимальной дате
-            назначений, но может быть изменён через выбор дат (в коде это делается автоматически,
-            без отдельного UI-фильтра для пользователя).
+            Период для сетки подбирается автоматически по минимальной и
+            максимальной дате назначений, но может быть изменён через выбор дат
+            (в коде это делается автоматически, без отдельного UI-фильтра для
+            пользователя).
           </li>
           <li>
-            Назначения сотрудника всегда выводятся вверху списка (строка текущего пользователя
-            поднимается выше остальных, чтобы он видел себя первым).
+            Назначения сотрудника всегда выводятся вверху списка (строка
+            текущего пользователя поднимается выше остальных, чтобы он видел
+            себя первым).
           </li>
         </ul>
         <Paragraph>
-          Этот мини-планировщик позволяет сотруднику видеть не только свои смены, но и занятость
-          других коллег по дням и рабочим местам.
+          Этот мини-планировщик позволяет сотруднику видеть не только свои
+          смены, но и занятость других коллег по дням и рабочим местам.
         </Paragraph>
 
         <Title level={4}>5. Блок «Моя статистика»</Title>
         <Paragraph>
-          Внизу страницы располагается блок <Text strong>«Моя статистика»</Text> — личный вид
-          раздела статистики только для текущего пользователя.
+          Внизу страницы располагается блок <Text strong>«Моя статистика»</Text>{' '}
+          — личный вид раздела статистики только для текущего пользователя.
         </Paragraph>
         <ul>
           <li>
-            Сотрудник выбирает период (диапазон дат). Период нельзя оставить пустым — по умолчанию
-            берётся текущий месяц.
+            Сотрудник выбирает период (диапазон дат). Период нельзя оставить
+            пустым — по умолчанию берётся текущий месяц.
           </li>
           <li>
-            Система подтягивает агрегированные данные статистики только по этому пользователю.
+            Система подтягивает агрегированные данные статистики только по этому
+            пользователю.
           </li>
           <li>
-            Показываются ключевые показатели: всего часов по сменам, всего отчётных часов,
-            ориентировочное количество рабочих дней.
+            Показываются ключевые показатели: всего часов по сменам, всего
+            отчётных часов, ориентировочное количество рабочих дней.
           </li>
           <li>
-            Ниже — компактная таблица по одному сотруднику (самому пользователю) в формате,
-            аналогичном разделу «Статистика».
+            Ниже — компактная таблица по одному сотруднику (самому пользователю)
+            в формате, аналогичном разделу «Статистика».
           </li>
           <li>
-            Если по выбранному периоду данных нет — выводится аккуратная заглушка «Нет данных».
+            Если по выбранному периоду данных нет — выводится аккуратная
+            заглушка «Нет данных».
           </li>
         </ul>
 
         <Paragraph>
-          В результате страница <Text strong>«Моё расписание»</Text> полностью закрывает потребности
-          обычного сотрудника: посмотреть свои назначения, запросить новое назначение или
-          корректировку графика, передать фактические часы работы, увидеть общий график по коллегам
-          и свою личную статистику.
+          В результате страница <Text strong>«Моё расписание»</Text> полностью
+          закрывает потребности обычного сотрудника: посмотреть свои назначения,
+          запросить новое назначение или корректировку графика, передать
+          фактические часы работы, увидеть общий график по коллегам и свою
+          личную статистику.
         </Paragraph>
       </>
     ),
@@ -1850,18 +2164,29 @@ const adminSections: Section[] = [
       <>
         <Title level={4}>Общий смысл раздела</Title>
         <Paragraph>
-          Раздел <Text strong>«Статистика назначений»</Text> показывает сводку по
-          сотрудникам за выбранный период:
+          Раздел <Text strong>«Статистика назначений»</Text> показывает сводку
+          по сотрудникам за выбранный период:
         </Paragraph>
         <ul>
           <li>сколько дней сотрудник работал;</li>
           <li>сколько часов набежало по сменам (из назначений);</li>
-          <li>сколько часов сотрудник сам отчитался в таблице «Отчёт по часам»;</li>
-          <li>по каким рабочим местам и в какие диапазоны дат были назначения.</li>
+          <li>
+            сколько часов сотрудник сам отчитался в таблице «Отчёт по часам»;
+          </li>
+          <li>
+            по каким рабочим местам и в какие диапазоны дат были назначения.
+          </li>
         </ul>
 
         <Title level={4}>Фильтры в верхней части страницы</Title>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16, marginBottom: 24 }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: 16,
+            marginBottom: 24,
+          }}
+        >
           <Card
             style={{
               width: 900,
@@ -1870,10 +2195,20 @@ const adminSections: Section[] = [
             }}
             bodyStyle={{ padding: 16 }}
           >
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
+            <div
+              style={{
+                display: 'flex',
+                gap: 8,
+                flexWrap: 'wrap',
+                marginBottom: 12,
+              }}
+            >
               <Select placeholder="Сотрудник" style={{ minWidth: 200 }} />
               <Select placeholder="Рабочее место" style={{ minWidth: 220 }} />
-              <Input placeholder="Период: 01.03.2025 → 31.03.2025" style={{ minWidth: 260 }} />
+              <Input
+                placeholder="Период: 01.03.2025 → 31.03.2025"
+                style={{ minWidth: 260 }}
+              />
               <Select
                 placeholder="Тип смены"
                 style={{ minWidth: 160 }}
@@ -1929,22 +2264,24 @@ const adminSections: Section[] = [
         <Paragraph>Вверху расположена форма с фильтрами:</Paragraph>
         <ul>
           <li>
-            <Text strong>Сотрудник</Text> — выпадающий список со всеми пользователями
-            системы (ФИО или e-mail). Позволяет сузить статистику до одного человека.
+            <Text strong>Сотрудник</Text> — выпадающий список со всеми
+            пользователями системы (ФИО или e-mail). Позволяет сузить статистику
+            до одного человека.
           </li>
           <li>
-            <Text strong>Рабочее место</Text> — список рабочих мест, которые реально
-            встречаются в строках статистики за выбранный период. Удобно смотреть
-            нагрузку только по одному объекту.
+            <Text strong>Рабочее место</Text> — список рабочих мест, которые
+            реально встречаются в строках статистики за выбранный период. Удобно
+            смотреть нагрузку только по одному объекту.
           </li>
           <li>
             <Text strong>Статус</Text> — фильтр по статусу назначения:{' '}
-            <Text code>Активно</Text> или <Text code>В архиве</Text>. Можно оставить
-            пустым — тогда учитываются все.
+            <Text code>Активно</Text> или <Text code>В архиве</Text>. Можно
+            оставить пустым — тогда учитываются все.
           </li>
           <li>
-            <Text strong>Период</Text> — <Text code>RangePicker</Text> с датами «с» и
-            «по». По умолчанию подставляется текущий месяц (с начала и до конца).
+            <Text strong>Период</Text> — <Text code>RangePicker</Text> с датами
+            «с» и «по». По умолчанию подставляется текущий месяц (с начала и до
+            конца).
           </li>
           <li>
             <Text strong>Тип смены</Text> — мультивыбор по{' '}
@@ -1959,15 +2296,15 @@ const adminSections: Section[] = [
           </li>
         </ul>
         <Paragraph>
-          При изменении любого фильтра таблица автоматически пересчитывается под новые
-          условия (с запросом к API по дате / сотруднику / рабочему месту, а статус и тип
-          смены фильтруются на фронте).
+          При изменении любого фильтра таблица автоматически пересчитывается под
+          новые условия (с запросом к API по дате / сотруднику / рабочему месту,
+          а статус и тип смены фильтруются на фронте).
         </Paragraph>
 
         <Title level={4}>Таблица сотрудников</Title>
         <Paragraph>
-          Основной блок страницы — таблица по сотрудникам. Каждая строка соответствует
-          одному пользователю.
+          Основной блок страницы — таблица по сотрудникам. Каждая строка
+          соответствует одному пользователю.
         </Paragraph>
 
         <Paragraph>Колонки таблицы:</Paragraph>
@@ -1978,22 +2315,23 @@ const adminSections: Section[] = [
             <Text strong>«Детализация по сотруднику»</Text>.
           </li>
           <li>
-            <Text strong>Назначения</Text> — текстовое резюме по рабочим местам и
-            датам за выбранный период. Формат:
+            <Text strong>Назначения</Text> — текстовое резюме по рабочим местам
+            и датам за выбранный период. Формат:
             <br />
             <Text code>«Название рабочего места DD.MM.YYYY–DD.MM.YYYY; …»</Text>
             <br />
-            Если у сотрудника несколько рабочих мест или несвязные диапазоны — они
-            перечисляются через «;».
+            Если у сотрудника несколько рабочих мест или несвязные диапазоны —
+            они перечисляются через «;».
           </li>
           <li>
-            <Text strong>Рабочих дней</Text> — количество уникальных календарных дней,
-            в которые у сотрудника была хотя бы одна смена за выбранный период.
+            <Text strong>Рабочих дней</Text> — количество уникальных календарных
+            дней, в которые у сотрудника была хотя бы одна смена за выбранный
+            период.
           </li>
           <li>
-            <Text strong>Количество часов</Text> — суммарная длительность всех смен
-            (по <Text code>AssignmentShift</Text>) за период. Значение считается в
-            часах, приводится к двум знакам после запятой, например{' '}
+            <Text strong>Количество часов</Text> — суммарная длительность всех
+            смен (по <Text code>AssignmentShift</Text>) за период. Значение
+            считается в часах, приводится к двум знакам после запятой, например{' '}
             <Text code>56.75</Text>.
           </li>
           <li>
@@ -2005,7 +2343,8 @@ const adminSections: Section[] = [
                 <Text strong>ссылка</Text>.
               </li>
               <li>
-                При клике открывается календарь с отчётными часами по дням (см. ниже).
+                При клике открывается календарь с отчётными часами по дням (см.
+                ниже).
               </li>
               <li>
                 Если отчётов нет — отображается <Text code>—</Text>.
@@ -2014,20 +2353,24 @@ const adminSections: Section[] = [
           </li>
         </ul>
 
-        <Title level={4}>Детализация по сотруднику (модалка по клику на имя)</Title>
+        <Title level={4}>
+          Детализация по сотруднику (модалка по клику на имя)
+        </Title>
         <Paragraph>
           Клик по имени сотрудника в таблице открывает модальное окно{' '}
           <Text strong>«Детализация по сотруднику»</Text>.
         </Paragraph>
-        <Paragraph>Внутри — таблица всех смен этого сотрудника за период:</Paragraph>
+        <Paragraph>
+          Внутри — таблица всех смен этого сотрудника за период:
+        </Paragraph>
         <ul>
           <li>
             <Text strong>Дата</Text> — дата смены, по фактическому{' '}
             <Text code>startsAt</Text>, формат <Text code>DD.MM.YYYY</Text>.
           </li>
           <li>
-            <Text strong>Рабочее место</Text> — название рабочего места (если нет —
-            пустая строка).
+            <Text strong>Рабочее место</Text> — название рабочего места (если
+            нет — пустая строка).
           </li>
           <li>
             <Text strong>Тип смены</Text> — человеко-читаемое название по{' '}
@@ -2044,8 +2387,8 @@ const adminSections: Section[] = [
             исходя из <Text code>assignmentStatus</Text>.
           </li>
           <li>
-            <Text strong>Часы</Text> — длительность смены в часах. Значение так же
-            округлено до двух знаков.
+            <Text strong>Часы</Text> — длительность смены в часах. Значение так
+            же округлено до двух знаков.
           </li>
         </ul>
         <Paragraph>
@@ -2057,28 +2400,29 @@ const adminSections: Section[] = [
           Календарь отчётных часов (по клику на «Количество отчётных часов»)
         </Title>
         <Paragraph>
-          Клик по числу в колонке <Text strong>«Количество отчётных часов»</Text>{' '}
-          открывает отдельную модалку с календарём.
+          Клик по числу в колонке{' '}
+          <Text strong>«Количество отчётных часов»</Text> открывает отдельную
+          модалку с календарём.
         </Paragraph>
         <Paragraph>Как это выглядит и работает:</Paragraph>
         <ul>
           <li>
-            Заголовок модалки: <Text code>«Отчётные часы: ФИО»</Text> (если ФИО есть) или
-            просто «Отчётные часы».
+            Заголовок модалки: <Text code>«Отчётные часы: ФИО»</Text> (если ФИО
+            есть) или просто «Отчётные часы».
           </li>
           <li>
-            Внутри — компактный календарь (<Text code>fullscreen = false</Text>), где
-            каждая ячейка — день.
+            Внутри — компактный календарь (<Text code>fullscreen = false</Text>
+            ), где каждая ячейка — день.
           </li>
           <li>
-            Для каждого дня, по которому есть записи <Text code>WorkReport</Text>, под
-            числом дня показывается количество часов, например{' '}
-            <Text code>«8 ч»</Text>.
+            Для каждого дня, по которому есть записи{' '}
+            <Text code>WorkReport</Text>, под числом дня показывается количество
+            часов, например <Text code>«8 ч»</Text>.
           </li>
           <li>
-            Дни <Text strong>вне выбранного периода</Text> (левее/правее выбранного
-            Date Range) визуально «приглушены» (пониженная прозрачность), но при этом
-            календарь всё равно остаётся целостным.
+            Дни <Text strong>вне выбранного периода</Text> (левее/правее
+            выбранного Date Range) визуально «приглушены» (пониженная
+            прозрачность), но при этом календарь всё равно остаётся целостным.
           </li>
           <li>
             Если отчётных часов за период нет — в модалке показывается текст{' '}
@@ -2087,8 +2431,9 @@ const adminSections: Section[] = [
         </ul>
 
         <Paragraph>
-          Этот календарь позволяет быстро визуально оценить, по каким дням человек
-          сдавал отчёты и сколько часов по факту поставил, без копания в таблицах.
+          Этот календарь позволяет быстро визуально оценить, по каким дням
+          человек сдавал отчёты и сколько часов по факту поставил, без копания в
+          таблицах.
         </Paragraph>
 
         <Title level={4}>Связка «часы по сменам» и «отчётные часы»</Title>
@@ -2103,12 +2448,13 @@ const adminSections: Section[] = [
           </li>
           <li>
             <Text strong>Количество отчётных часов</Text> — сумма из{' '}
-            <Text code>WorkReport</Text>, то есть то, что сам сотрудник внёс как факт.
+            <Text code>WorkReport</Text>, то есть то, что сам сотрудник внёс как
+            факт.
           </li>
         </ul>
         <Paragraph>
-          Сравнение этих двух колонок позволяет видеть расхождения между планом и
-          фактом и оперативно разбираться, где не сходятся часы.
+          Сравнение этих двух колонок позволяет видеть расхождения между планом
+          и фактом и оперативно разбираться, где не сходятся часы.
         </Paragraph>
       </>
     ),
@@ -2124,19 +2470,33 @@ const adminSections: Section[] = [
     body: (
       <>
         <Paragraph>
-          Ниже собраны типичные сценарии, которые чаще всего возникают в работе. Этот
-          список можно дополнять по мере эксплуатации системы.
+          Ниже собраны типичные сценарии, которые чаще всего возникают в работе.
+          Этот список можно дополнять по мере эксплуатации системы.
         </Paragraph>
 
-        <Title level={4}>Сценарий 1. Как назначить сотрудника на рабочее место</Title>
+        <Title level={4}>
+          Сценарий 1. Как назначить сотрудника на рабочее место
+        </Title>
         <ol>
-          <li>Перейти в раздел <Text strong>«Планировщик»</Text>.</li>
+          <li>
+            Перейти в раздел <Text strong>«Планировщик»</Text>.
+          </li>
           <li>Найти сотрудника в левой части таблицы.</li>
           <li>Выбрать нужный диапазон дат по горизонтали.</li>
           <li>Создать назначение: выбрать рабочее место и тип смены.</li>
-          <li>Сохранить. Смена появится в планировщике и «Моём расписании» сотрудника.</li>
+          <li>
+            Сохранить. Смена появится в планировщике и «Моём расписании»
+            сотрудника.
+          </li>
         </ol>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12, marginBottom: 24 }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: 12,
+            marginBottom: 24,
+          }}
+        >
           <Card
             style={{
               width: 780,
@@ -2148,70 +2508,93 @@ const adminSections: Section[] = [
           >
             <Text strong>Памятка по назначению сотрудника</Text>
             <ul style={{ marginTop: 8, paddingLeft: 20, fontSize: 13 }}>
-              <li>Всегда проверяйте, что у сотрудника нет другого активного назначения на эти же даты.</li>
+              <li>
+                Всегда проверяйте, что у сотрудника нет другого активного
+                назначения на эти же даты.
+              </li>
               <li>Убедитесь, что рабочее место активно и не в архиве.</li>
-              <li>После сохранения назначения откройте «Моё расписание» сотрудника и проверьте, что смены появились.</li>
+              <li>
+                После сохранения назначения откройте «Моё расписание» сотрудника
+                и проверьте, что смены появились.
+              </li>
             </ul>
           </Card>
         </div>
-
 
         <Title level={4}>
           Сценарий 2. Как сотруднику заполнить отчёт по отработанным часам
         </Title>
         <ol>
-          <li>Сотрудник заходит в раздел <Text strong>«Моё расписание»</Text>.</li>
+          <li>
+            Сотрудник заходит в раздел <Text strong>«Моё расписание»</Text>.
+          </li>
           <li>
             Нажимает кнопку <Text code>Заполнить отчёт</Text> в блоке «Отчёт по
             отработанным часам».
           </li>
           <li>В открывшемся календаре выбирает нужный день.</li>
           <li>Вводит фактическое количество часов.</li>
-          <li>Сохраняет. Часы попадают в журнал «Отчёт по часам» и отражаются в статистике.</li>
-        </ol>
-
-        <Title level={4}>Сценарий 3. Как администратору проверить общую сводку по часам</Title>
-        <ol>
-          <li>Открыть раздел <Text strong>«Статистика»</Text>.</li>
-          <li>Выбрать период (например, месяц).</li>
           <li>
-            При необходимости указать фильтр по сотруднику или рабочему месту, чтобы
-            сузить выборку.
-          </li>
-          <li>
-            Сравнить колонки «Количество часов» и «Количество отчётных часов» — так видно
-            расхождения между планом и фактом.
+            Сохраняет. Часы попадают в журнал «Отчёт по часам» и отражаются в
+            статистике.
           </li>
         </ol>
 
         <Title level={4}>
-          Сценарий 4. Как обработать запрос сотрудника на корректировку расписания
+          Сценарий 3. Как администратору проверить общую сводку по часам
         </Title>
         <ol>
-          <li>Перейти в раздел <Text strong>«Запросы корректировок»</Text>.</li>
+          <li>
+            Открыть раздел <Text strong>«Статистика»</Text>.
+          </li>
+          <li>Выбрать период (например, месяц).</li>
+          <li>
+            При необходимости указать фильтр по сотруднику или рабочему месту,
+            чтобы сузить выборку.
+          </li>
+          <li>
+            Сравнить колонки «Количество часов» и «Количество отчётных часов» —
+            так видно расхождения между планом и фактом.
+          </li>
+        </ol>
+
+        <Title level={4}>
+          Сценарий 4. Как обработать запрос сотрудника на корректировку
+          расписания
+        </Title>
+        <ol>
+          <li>
+            Перейти в раздел <Text strong>«Запросы корректировок»</Text>.
+          </li>
           <li>Найти заявку со статусом PENDING.</li>
           <li>Открыть детали: комментарий сотрудника, желаемые даты/часы.</li>
           <li>
-            При одобрении — внести изменения в планировщик/назначения и поставить статус
-            APPROVED.
+            При одобрении — внести изменения в планировщик/назначения и
+            поставить статус APPROVED.
           </li>
           <li>При отказе — указать причину и поставить статус REJECTED.</li>
         </ol>
 
-        <Title level={4}>Сценарий 5. Как добавить нового сотрудника в систему</Title>
+        <Title level={4}>
+          Сценарий 5. Как добавить нового сотрудника в систему
+        </Title>
         <ol>
-          <li>Открыть раздел <Text strong>«Пользователи»</Text>.</li>
-          <li>Нажать <Text code>Добавить пользователя</Text>.</li>
+          <li>
+            Открыть раздел <Text strong>«Пользователи»</Text>.
+          </li>
+          <li>
+            Нажать <Text code>Добавить пользователя</Text>.
+          </li>
           <li>Заполнить e-mail, ФИО и выбрать роль.</li>
           <li>Сохранить и передать пользователю доступ.</li>
         </ol>
 
         <Title level={4}>Dev-панель</Title>
         <Paragraph>
-          <Text strong>Dev-панель</Text> предназначена для технических операций (генерация
-          тестовых данных, проверка интеграций и т.п.). Доступ к ней должен быть только у
-          разработчика или ответственного администратора. Обычным пользователям и
-          менеджерам этот раздел не обязателен.
+          <Text strong>Dev-панель</Text> предназначена для технических операций
+          (генерация тестовых данных, проверка интеграций и т.п.). Доступ к ней
+          должен быть только у разработчика или ответственного администратора.
+          Обычным пользователям и менеджерам этот раздел не обязателен.
         </Paragraph>
       </>
     ),
@@ -2229,161 +2612,439 @@ const adminSections: Section[] = [
       <>
         <Title level={4}>Статусы назначений</Title>
         <Paragraph>
-          В системе используется несколько статусов назначений. Они помогают понимать,
-          участвует ли назначение в текущем графике и статистике, или это уже история.
+          В системе используется несколько статусов назначений. Они помогают
+          понимать, участвует ли назначение в текущем графике и статистике, или
+          это уже история.
         </Paragraph>
         <ul>
           <li>
-            <Text strong>ACTIVE</Text> — активное назначение. Учитывается в графиках,
-            планировщике и статистике. Сотрудник видит его в разделе «Моё расписание»,
-            по нему можно отправлять запросы на корректировку.
+            <Text strong>ACTIVE</Text> — активное назначение. Учитывается в
+            графиках, планировщике и статистике. Сотрудник видит его в разделе
+            «Моё расписание», по нему можно отправлять запросы на корректировку.
           </li>
           <li>
-            <Text strong>ARCHIVED</Text> — архивное назначение. Назначение завершено и
-            отображается только для истории. В планировщике и активных графиках не участвует,
-            но может учитываться в статистике за прошлые периоды.
+            <Text strong>ARCHIVED</Text> — архивное назначение. Назначение
+            завершено и отображается только для истории. В планировщике и
+            активных графиках не участвует, но может учитываться в статистике за
+            прошлые периоды.
           </li>
         </ul>
 
         <Title level={4}>Статусы запросов</Title>
         <Paragraph>
-          Для запросов на назначение и на корректировку расписания используются единые
-          статусы:
+          Для запросов на назначение и на корректировку расписания используются
+          единые статусы:
         </Paragraph>
         <ul>
           <li>
-            <Text strong>PENDING</Text> — запрос ожидает решения. Отображается в списке
-            запросов у администратора/менеджера и может быть одобрен или отклонён.
+            <Text strong>PENDING</Text> — запрос ожидает решения. Отображается в
+            списке запросов у администратора/менеджера и может быть одобрен или
+            отклонён.
           </li>
           <li>
-            <Text strong>APPROVED</Text> — запрос одобрен. Для запросов на назначение —
-            по ним обычно создаётся назначение. Для запросов корректировки — график
-            приводится к предложенному сотрудником варианту.
+            <Text strong>APPROVED</Text> — запрос одобрен. Для запросов на
+            назначение — по ним обычно создаётся назначение. Для запросов
+            корректировки — график приводится к предложенному сотрудником
+            варианту.
           </li>
           <li>
-            <Text strong>REJECTED</Text> — запрос отклонён. Сотрудник видит факт отклонения
-            и может, при необходимости, отправить новый запрос с другими параметрами.
+            <Text strong>REJECTED</Text> — запрос отклонён. Сотрудник видит факт
+            отклонения и может, при необходимости, отправить новый запрос с
+            другими параметрами.
           </li>
         </ul>
 
         <Title level={4}>Типы смен (ShiftKind)</Title>
         <Paragraph>
-          Для смен может задаваться тип — это помогает в статистике и при анализе занятости.
+          Для смен может задаваться тип — это помогает в статистике и при
+          анализе занятости.
         </Paragraph>
         <ul>
           <li>
-            <Text strong>DEFAULT</Text> — обычная смена без дополнительной спецификации.
+            <Text strong>DEFAULT</Text> — обычная смена без дополнительной
+            спецификации.
           </li>
           <li>
-            <Text strong>OFFICE</Text> — офисная смена (работа в офисе/на точке).
+            <Text strong>OFFICE</Text> — офисная смена (работа в офисе/на
+            точке).
           </li>
           <li>
             <Text strong>REMOTE</Text> — удалённая смена.
           </li>
           <li>
-            <Text strong>DAY_OFF</Text> — выходной/больничный день. В графике отображается,
-            но при подсчёте рабочих часов учитывается по отдельным правилам (в зависимости
-            от настроек статистики).
+            <Text strong>DAY_OFF</Text> — выходной/больничный день. В графике
+            отображается, но при подсчёте рабочих часов учитывается по отдельным
+            правилам (в зависимости от настроек статистики).
           </li>
         </ul>
 
         <Title level={4}>Дополнительные понятия</Title>
         <ul>
           <li>
-            <Text strong>Корзина назначений</Text> — раздел, где хранятся удалённые
-            назначения. Из корзины можно либо восстановить назначение, либо выгрузить
-            и окончательно удалить. Используется для контроля истории и аккуратного
-            удаления записи.
+            <Text strong>Корзина назначений</Text> — раздел, где хранятся
+            удалённые назначения. Из корзины можно либо восстановить назначение,
+            либо выгрузить и окончательно удалить. Используется для контроля
+            истории и аккуратного удаления записи.
           </li>
           <li>
-            <Text strong>Свободные сотрудники</Text> — сотрудники без активных назначений.
-            Их список доступен в разделе «Назначения» и помогает быстро подобрать людей
-            под новые рабочие места.
+            <Text strong>Свободные сотрудники</Text> — сотрудники без активных
+            назначений. Их список доступен в разделе «Назначения» и помогает
+            быстро подобрать людей под новые рабочие места.
           </li>
           <li>
             <Text strong>Отчёт по часам</Text> — отдельные записи о фактически
-            отработанных часах сотрудников. Эти данные используются в статистике как «факт»
-            и сопоставляются с плановыми сменами из назначений.
+            отработанных часах сотрудников. Эти данные используются в статистике
+            как «факт» и сопоставляются с плановыми сменами из назначений.
           </li>
         </ul>
 
         <Title level={4}>Доступы по ролям</Title>
         <Paragraph>
-          Ниже приведена упрощённая схема доступа к основным разделам в зависимости от роли.
-          В конкретной инсталляции правила могут быть расширены, но базовая логика такая:
+          Ниже приведена упрощённая схема доступа к основным разделам в
+          зависимости от роли. В конкретной инсталляции правила могут быть
+          расширены, но базовая логика такая:
         </Paragraph>
 
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: 16 }}>
+        <table
+          style={{ width: '100%', borderCollapse: 'collapse', marginTop: 16 }}
+        >
           <thead>
             <tr>
-              <th style={{ border: '1px solid #eee', padding: 8, textAlign: 'left' }}>Раздел / функция</th>
-              <th style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>USER</th>
-              <th style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>MANAGER</th>
-              <th style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>SUPER_ADMIN</th>
+              <th
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'left',
+                }}
+              >
+                Раздел / функция
+              </th>
+              <th
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                USER
+              </th>
+              <th
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                MANAGER
+              </th>
+              <th
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                SUPER_ADMIN
+              </th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td style={{ border: '1px solid #eee', padding: 8 }}>Пользователи</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>—</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>просмотр / ограниченное редактирование</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>полный доступ</td>
+              <td style={{ border: '1px solid #eee', padding: 8 }}>
+                Пользователи
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                —
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                просмотр / ограниченное редактирование
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                полный доступ
+              </td>
             </tr>
             <tr>
-              <td style={{ border: '1px solid #eee', padding: 8 }}>Рабочие места</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>—</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>просмотр / создание назначений</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>полный доступ</td>
+              <td style={{ border: '1px solid #eee', padding: 8 }}>
+                Рабочие места
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                —
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                просмотр / создание назначений
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                полный доступ
+              </td>
             </tr>
             <tr>
-              <td style={{ border: '1px solid #eee', padding: 8 }}>Назначения</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>—</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>управление назначениями и запросами</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>управление назначениями и запросами</td>
+              <td style={{ border: '1px solid #eee', padding: 8 }}>
+                Назначения
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                —
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                управление назначениями и запросами
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                управление назначениями и запросами
+              </td>
             </tr>
             <tr>
-              <td style={{ border: '1px solid #eee', padding: 8 }}>Планировщик</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>ограниченный доступ (через «Моё расписание», если включено)</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>полный доступ</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>полный доступ</td>
+              <td style={{ border: '1px solid #eee', padding: 8 }}>
+                Планировщик
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                ограниченный доступ (через «Моё расписание», если включено)
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                полный доступ
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                полный доступ
+              </td>
             </tr>
             <tr>
-              <td style={{ border: '1px solid #eee', padding: 8 }}>Моё расписание</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>да (только своё)</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>да (при необходимости)</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>да</td>
+              <td style={{ border: '1px solid #eee', padding: 8 }}>
+                Моё расписание
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                да (только своё)
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                да (при необходимости)
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                да
+              </td>
             </tr>
             <tr>
-              <td style={{ border: '1px solid #eee', padding: 8 }}>Статистика</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>личная статистика</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>общая статистика по людям и местам</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>полный доступ</td>
+              <td style={{ border: '1px solid #eee', padding: 8 }}>
+                Статистика
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                личная статистика
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                общая статистика по людям и местам
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                полный доступ
+              </td>
             </tr>
             <tr>
-              <td style={{ border: '1px solid #eee', padding: 8 }}>Запросы на назначения</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>отправка запросов</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>обработка запросов</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>обработка запросов</td>
+              <td style={{ border: '1px solid #eee', padding: 8 }}>
+                Запросы на назначения
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                отправка запросов
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                обработка запросов
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                обработка запросов
+              </td>
             </tr>
             <tr>
-              <td style={{ border: '1px solid #eee', padding: 8 }}>Запросы корректировок</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>отправка запросов</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>обработка запросов</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>обработка запросов</td>
+              <td style={{ border: '1px solid #eee', padding: 8 }}>
+                Запросы корректировок
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                отправка запросов
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                обработка запросов
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                обработка запросов
+              </td>
             </tr>
             <tr>
-              <td style={{ border: '1px solid #eee', padding: 8 }}>Dev-панель</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>—</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>—</td>
-              <td style={{ border: '1px solid #eee', padding: 8, textAlign: 'center' }}>да</td>
+              <td style={{ border: '1px solid #eee', padding: 8 }}>
+                Dev-панель
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                —
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                —
+              </td>
+              <td
+                style={{
+                  border: '1px solid #eee',
+                  padding: 8,
+                  textAlign: 'center',
+                }}
+              >
+                да
+              </td>
             </tr>
           </tbody>
         </table>
 
         <Paragraph style={{ marginTop: 24 }}>
-          Этот раздел можно использовать как шпаргалку: если появляется новый сотрудник
-          или менеджер, ему достаточно открыть «Справочник и роли», чтобы понять, какие
-          статусные метки он увидит в интерфейсе и какие разделы ему должны быть доступны.
+          Этот раздел можно использовать как шпаргалку: если появляется новый
+          сотрудник или менеджер, ему достаточно открыть «Справочник и роли»,
+          чтобы понять, какие статусные метки он увидит в интерфейсе и какие
+          разделы ему должны быть доступны.
         </Paragraph>
       </>
     ),
@@ -2409,9 +3070,10 @@ const InstructionsPage = () => {
               Инструкция по системе «Grant Thornton CRM»
             </Title>
             <Paragraph style={{ marginBottom: 0, maxWidth: 900 }}>
-              Здесь собрана документация по основным разделам системы. В левой части
-              страницы выберите нужный раздел инструкции. По мере развития CRM текст можно
-              дополнять, а в отмеченные блоки — вставлять скриншоты.
+              Здесь собрана документация по основным разделам системы. В левой
+              части страницы выберите нужный раздел инструкции. По мере развития
+              CRM текст можно дополнять, а в отмеченные блоки — вставлять
+              скриншоты.
             </Paragraph>
           </Space>
         </Card>
@@ -2495,9 +3157,7 @@ const InstructionsPage = () => {
                       background: '#fafafa',
                     }}
                   >
-                    <Text type="secondary">
-                      {activeSection.screenshotNote}
-                    </Text>
+                    <Text type="secondary">{activeSection.screenshotNote}</Text>
                   </div>
                 )}
               </Space>

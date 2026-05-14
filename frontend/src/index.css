@@ -188,7 +188,9 @@ body {
   border-radius: 6px;
   padding: 6px;
   background-color: rgba(22, 119, 255, 0.08);
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  transition:
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
 }
 
 .planner-slot:hover .planner-slot-content {

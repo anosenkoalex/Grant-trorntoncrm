@@ -10,12 +10,7 @@ import { FilesModule } from '../files/files.module.js';
 @Module({
   imports: [AutomationModule, FilesModule],
   controllers: [AssignmentsController],
-  providers: [
-    AssignmentsService,
-    PrismaService,
-    EmailService,
-    SmsService,
-  ],
+  providers: [AssignmentsService, PrismaService, EmailService, SmsService],
   exports: [AssignmentsService],
 })
 export class AssignmentsModule {}

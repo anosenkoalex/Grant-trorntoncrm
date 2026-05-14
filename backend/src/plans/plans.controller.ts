@@ -31,7 +31,9 @@ export class PlansController {
   constructor(private readonly plansService: PlansService) {}
 
   @Post()
-  create(@Body(new ZodValidationPipe(createPlanSchema)) payload: CreatePlanDto) {
+  create(
+    @Body(new ZodValidationPipe(createPlanSchema)) payload: CreatePlanDto,
+  ) {
     return this.plansService.createPlan(payload);
   }
 

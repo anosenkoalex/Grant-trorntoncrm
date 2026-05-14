@@ -71,9 +71,9 @@ const shiftKindLabels: Record<ShiftKind, string> = {
   DAY_OFF: 'Выходной / Day off',
 };
 
-const shiftKindSelectOptions = (Object.keys(shiftKindLabels) as ShiftKind[]).map(
-  (k) => ({ value: k, label: shiftKindLabels[k] }),
-);
+const shiftKindSelectOptions = (
+  Object.keys(shiftKindLabels) as ShiftKind[]
+).map((k) => ({ value: k, label: shiftKindLabels[k] }));
 
 type EmployeeRow = {
   userId: string;
@@ -93,17 +93,23 @@ type DayWorkSummaryRow = {
 
 /* ─────────────────── KPI Cards ─────────────────── */
 
-function KpiCards({ data, loading }: { data: KpiResponse | undefined; loading: boolean }) {
+function KpiCards({
+  data,
+  loading,
+}: {
+  data: KpiResponse | undefined;
+  loading: boolean;
+}) {
   const kpi = data?.kpi;
 
   const completionColor =
     !kpi || kpi.completionRate === 0
       ? '#d9d9d9'
       : kpi.completionRate >= 90
-      ? '#52c41a'
-      : kpi.completionRate >= 60
-      ? '#faad14'
-      : '#ff4d4f';
+        ? '#52c41a'
+        : kpi.completionRate >= 60
+          ? '#faad14'
+          : '#ff4d4f';
 
   return (
     <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
@@ -177,7 +183,9 @@ function KpiCards({ data, loading }: { data: KpiResponse | undefined; loading: b
           <Statistic
             title="Без отчёта (сотрудников)"
             value={kpi?.missingReports ?? 0}
-            valueStyle={kpi && kpi.missingReports > 0 ? { color: '#cf1322' } : undefined}
+            valueStyle={
+              kpi && kpi.missingReports > 0 ? { color: '#cf1322' } : undefined
+            }
             suffix="чел."
           />
         </Card>
@@ -188,8 +196,15 @@ function KpiCards({ data, loading }: { data: KpiResponse | undefined; loading: b
 
 /* ─────────────────── Dynamics Chart ─────────────────── */
 
-function DynamicsChart({ data, loading }: { data: KpiResponse | undefined; loading: boolean }) {
-  if (loading) return <Spin style={{ display: 'block', margin: '32px auto' }} />;
+function DynamicsChart({
+  data,
+  loading,
+}: {
+  data: KpiResponse | undefined;
+  loading: boolean;
+}) {
+  if (loading)
+    return <Spin style={{ display: 'block', margin: '32px auto' }} />;
   if (!data?.dynamics?.length) {
     return (
       <Typography.Text type="secondary">
@@ -206,7 +221,10 @@ function DynamicsChart({ data, loading }: { data: KpiResponse | undefined; loadi
 
   return (
     <ResponsiveContainer width="100%" height={260}>
-      <LineChart data={chartData} margin={{ top: 4, right: 24, left: 0, bottom: 0 }}>
+      <LineChart
+        data={chartData}
+        margin={{ top: 4, right: 24, left: 0, bottom: 0 }}
+      >
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="date" tick={{ fontSize: 11 }} />
         <YAxis tick={{ fontSize: 11 }} unit=" ч" width={52} />
@@ -239,7 +257,8 @@ const workplaceColumns: ColumnsType<KpiByWorkplace> = [
     dataIndex: 'workplaceName',
     key: 'workplaceName',
     render: (v: string | null, r) => v ?? r.workplaceId,
-    sorter: (a, b) => (a.workplaceName ?? '').localeCompare(b.workplaceName ?? ''),
+    sorter: (a, b) =>
+      (a.workplaceName ?? '').localeCompare(b.workplaceName ?? ''),
   },
   {
     title: 'Сотрудников',
@@ -305,7 +324,9 @@ const StatisticsPage = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [reportUserId, setReportUserId] = useState<string | null>(null);
   const [reportUserName, setReportUserName] = useState<string>('');
-  const [selectedReportDate, setSelectedReportDate] = useState<Dayjs | null>(null);
+  const [selectedReportDate, setSelectedReportDate] = useState<Dayjs | null>(
+    null,
+  );
 
   if (!canViewStatistics) {
     return <Result status="403" title={t('admin.accessDenied')} />;
@@ -328,7 +349,11 @@ const StatisticsPage = () => {
   const workplacesQuery = useQuery({
     queryKey: ['workplaces', 'all-for-statistics'],
     queryFn: async () => {
-      const res = await fetchWorkplaces({ page: 1, pageSize: 1000, isActive: true });
+      const res = await fetchWorkplaces({
+        page: 1,
+        pageSize: 1000,
+        isActive: true,
+      });
       return (res as any).data?.items ?? (res as any).items ?? res.data ?? [];
     },
     enabled: canViewStatistics,
@@ -394,16 +419,21 @@ const StatisticsPage = () => {
     const map: Record<string, string> = {};
     for (const row of allRows) {
       if (!row.workplaceId) continue;
-      if (!map[row.workplaceId]) map[row.workplaceId] = row.workplaceName ?? row.workplaceId;
+      if (!map[row.workplaceId])
+        map[row.workplaceId] = row.workplaceName ?? row.workplaceId;
     }
-    return Object.entries(map).map(([id, name]) => ({ value: id, label: name }));
+    return Object.entries(map).map(([id, name]) => ({
+      value: id,
+      label: name,
+    }));
   }, [allRows]);
 
   const workplaceNameById = useMemo(() => {
     const map: Record<string, string> = {};
     for (const row of allRows) {
       if (!row.workplaceId) continue;
-      if (!map[row.workplaceId]) map[row.workplaceId] = row.workplaceName ?? row.workplaceId;
+      if (!map[row.workplaceId])
+        map[row.workplaceId] = row.workplaceName ?? row.workplaceId;
     }
     for (const w of workplacesQuery.data ?? []) {
       if (!map[w.id]) map[w.id] = (w.code || w.name || w.id).toString();
@@ -413,8 +443,13 @@ const StatisticsPage = () => {
 
   const filteredRows: StatisticsRow[] = useMemo(() => {
     return allRows.filter((row) => {
-      if (filters.status && row.assignmentStatus !== filters.status) return false;
-      if (filters.kinds?.length && !filters.kinds.includes(row.shiftKind as ShiftKind)) return false;
+      if (filters.status && row.assignmentStatus !== filters.status)
+        return false;
+      if (
+        filters.kinds?.length &&
+        !filters.kinds.includes(row.shiftKind as ShiftKind)
+      )
+        return false;
       return true;
     });
   }, [allRows, filters.status, filters.kinds]);
@@ -426,7 +461,10 @@ const StatisticsPage = () => {
       string,
       {
         name: string;
-        assignments: Record<string, { workplaceName: string; minDate: string; maxDate: string }>;
+        assignments: Record<
+          string,
+          { workplaceName: string; minDate: string; maxDate: string }
+        >;
         daysSet: Set<string>;
         totalHours: number;
       }
@@ -438,7 +476,12 @@ const StatisticsPage = () => {
       const displayDate = dayjs(row.startsAt ?? row.date).format('YYYY-MM-DD');
 
       if (!byUser[uid]) {
-        byUser[uid] = { name: row.userName ?? row.userId, assignments: {}, daysSet: new Set(), totalHours: 0 };
+        byUser[uid] = {
+          name: row.userName ?? row.userId,
+          assignments: {},
+          daysSet: new Set(),
+          totalHours: 0,
+        };
       }
 
       const userAgg = byUser[uid];
@@ -449,7 +492,11 @@ const StatisticsPage = () => {
       const workplaceName = row.workplaceName ?? 'Без названия';
 
       if (!userAgg.assignments[key]) {
-        userAgg.assignments[key] = { workplaceName, minDate: displayDate, maxDate: displayDate };
+        userAgg.assignments[key] = {
+          workplaceName,
+          minDate: displayDate,
+          maxDate: displayDate,
+        };
       } else {
         const a = userAgg.assignments[key];
         if (dayjs(displayDate).isBefore(a.minDate)) a.minDate = displayDate;
@@ -459,7 +506,10 @@ const StatisticsPage = () => {
 
     return Object.entries(byUser).map(([userId, agg]) => {
       const assignmentsSummary = Object.values(agg.assignments)
-        .map((a) => `${a.workplaceName} ${dayjs(a.minDate).format('DD.MM.YYYY')}–${dayjs(a.maxDate).format('DD.MM.YYYY')}`)
+        .map(
+          (a) =>
+            `${a.workplaceName} ${dayjs(a.minDate).format('DD.MM.YYYY')}–${dayjs(a.maxDate).format('DD.MM.YYYY')}`,
+        )
         .join('; ');
 
       return {
@@ -480,7 +530,8 @@ const StatisticsPage = () => {
     const rows = filteredRows.filter((r) => r.userId === detailsUserId);
     const statusOrder = (s: AssignmentStatus) => (s === 'ACTIVE' ? 0 : 1);
     return rows.slice().sort((a, b) => {
-      const so = statusOrder(a.assignmentStatus) - statusOrder(b.assignmentStatus);
+      const so =
+        statusOrder(a.assignmentStatus) - statusOrder(b.assignmentStatus);
       if (so !== 0) return so;
       const da = dayjs(a.startsAt ?? a.date);
       const db = dayjs(b.startsAt ?? b.date);
@@ -504,7 +555,11 @@ const StatisticsPage = () => {
   const workReportsQuery = useQuery<WorkReport[]>({
     queryKey: [
       'workReports',
-      { userId: reportUserId, from: effectiveFrom.format('YYYY-MM-DD'), to: effectiveTo.format('YYYY-MM-DD') },
+      {
+        userId: reportUserId,
+        from: effectiveFrom.format('YYYY-MM-DD'),
+        to: effectiveTo.format('YYYY-MM-DD'),
+      },
     ],
     queryFn: () =>
       fetchWorkReports({
@@ -518,7 +573,10 @@ const StatisticsPage = () => {
   /* ── экспорт ── */
 
   const handleExport = async () => {
-    if (!statistics) { message.error('Нет данных для экспорта'); return; }
+    if (!statistics) {
+      message.error('Нет данных для экспорта');
+      return;
+    }
 
     const start = effectiveFrom.startOf('day');
     const end = effectiveTo.startOf('day');
@@ -528,7 +586,10 @@ const StatisticsPage = () => {
       days.push(cursor);
       cursor = cursor.add(1, 'day');
     }
-    if (!days.length) { message.error('Неверный период для экспорта'); return; }
+    if (!days.length) {
+      message.error('Неверный период для экспорта');
+      return;
+    }
 
     setIsExporting(true);
     try {
@@ -543,82 +604,136 @@ const StatisticsPage = () => {
       (usersQuery.data ?? []).forEach((u) => {
         userNameById[u.id] = (u.fullName ?? '').trim() || u.email || u.id;
       });
-      allRows.forEach((row) => { if (!userNameById[row.userId]) userNameById[row.userId] = row.userName ?? row.userId; });
+      allRows.forEach((row) => {
+        if (!userNameById[row.userId])
+          userNameById[row.userId] = row.userName ?? row.userId;
+      });
       workReports.forEach((wr) => {
         if (!userNameById[wr.userId] && wr.user) {
-          userNameById[wr.user.id] = (wr.user.fullName ?? '').trim() || wr.user.email || wr.user.id;
+          userNameById[wr.user.id] =
+            (wr.user.fullName ?? '').trim() || wr.user.email || wr.user.id;
         }
       });
 
       const workplaceNameByIdExport: Record<string, string> = {};
-      allRows.forEach((row) => { if (row.workplaceId) workplaceNameByIdExport[row.workplaceId] = row.workplaceName ?? row.workplaceId; });
-      workReports.forEach((wr) => { if (wr.workplaceId) workplaceNameByIdExport[wr.workplaceId] = wr.workplace?.name ?? wr.workplace?.code ?? wr.workplaceId; });
+      allRows.forEach((row) => {
+        if (row.workplaceId)
+          workplaceNameByIdExport[row.workplaceId] =
+            row.workplaceName ?? row.workplaceId;
+      });
+      workReports.forEach((wr) => {
+        if (wr.workplaceId)
+          workplaceNameByIdExport[wr.workplaceId] =
+            wr.workplace?.name ?? wr.workplace?.code ?? wr.workplaceId;
+      });
 
       const userIds = new Set<string>();
       filteredRows.forEach((row) => userIds.add(row.userId));
 
       if (filters.workplaceId) {
         const hasWork: Record<string, boolean> = {};
-        workReports.forEach((wr) => { if (wr.hours && wr.workplaceId === filters.workplaceId) hasWork[wr.userId] = true; });
-        Array.from(userIds).forEach((uid) => { if (!hasWork[uid]) userIds.delete(uid); });
+        workReports.forEach((wr) => {
+          if (wr.hours && wr.workplaceId === filters.workplaceId)
+            hasWork[wr.userId] = true;
+        });
+        Array.from(userIds).forEach((uid) => {
+          if (!hasWork[uid]) userIds.delete(uid);
+        });
       }
 
-      if (!userIds.size) { message.warning('Нет данных по сотрудникам за выбранный период'); return; }
+      if (!userIds.size) {
+        message.warning('Нет данных по сотрудникам за выбранный период');
+        return;
+      }
 
-      const planMap: Record<string, Record<string, Record<string, number>>> = {};
+      const planMap: Record<
+        string,
+        Record<string, Record<string, number>>
+      > = {};
       filteredRows.forEach((row) => {
         const uid = row.userId;
         const dateKey = dayjs(row.startsAt ?? row.date).format('YYYY-MM-DD');
         const wid = row.workplaceId;
         if (!planMap[uid]) planMap[uid] = {};
         if (!planMap[uid][dateKey]) planMap[uid][dateKey] = {};
-        planMap[uid][dateKey][wid] = (planMap[uid][dateKey][wid] ?? 0) + row.hours;
+        planMap[uid][dateKey][wid] =
+          (planMap[uid][dateKey][wid] ?? 0) + row.hours;
       });
 
-      const reportMap: Record<string, Record<string, Record<string, number>>> = {};
+      const reportMap: Record<
+        string,
+        Record<string, Record<string, number>>
+      > = {};
       workReports.forEach((wr) => {
         const uid = wr.userId;
         const dateKey = wr.date;
-        let intervals: { workplaceId: string | null; hours: number | null }[] | null = null;
+        let intervals:
+          | { workplaceId: string | null; hours: number | null }[]
+          | null = null;
         const rawComment = (wr.comment ?? '').trim();
         if (rawComment.startsWith('{')) {
           try {
             const parsed = JSON.parse(rawComment) as any;
             if (parsed && Array.isArray(parsed.intervals)) {
               intervals = parsed.intervals.map((it: any) => ({
-                workplaceId: typeof it.workplaceId === 'string' ? it.workplaceId : wr.workplaceId ?? null,
-                hours: typeof it.hours === 'number' ? it.hours : Number.isFinite(Number(it.hours)) ? Number(it.hours) : null,
+                workplaceId:
+                  typeof it.workplaceId === 'string'
+                    ? it.workplaceId
+                    : (wr.workplaceId ?? null),
+                hours:
+                  typeof it.hours === 'number'
+                    ? it.hours
+                    : Number.isFinite(Number(it.hours))
+                      ? Number(it.hours)
+                      : null,
               }));
             }
-          } catch { /* skip */ }
+          } catch {
+            /* skip */
+          }
         }
-        if (!intervals) intervals = [{ workplaceId: wr.workplaceId ?? null, hours: wr.hours }];
+        if (!intervals)
+          intervals = [
+            { workplaceId: wr.workplaceId ?? null, hours: wr.hours },
+          ];
         intervals.forEach((interval) => {
           if (interval.hours == null) return;
           const wid = interval.workplaceId ?? 'unknown';
           if (!reportMap[uid]) reportMap[uid] = {};
           if (!reportMap[uid][dateKey]) reportMap[uid][dateKey] = {};
-          reportMap[uid][dateKey][wid] = (reportMap[uid][dateKey][wid] ?? 0) + interval.hours;
+          reportMap[uid][dateKey][wid] =
+            (reportMap[uid][dateKey][wid] ?? 0) + interval.hours;
         });
       });
 
-      const totalByUserWorkplace: Record<string, Record<string, { planned: number; reported: number }>> = {};
+      const totalByUserWorkplace: Record<
+        string,
+        Record<string, { planned: number; reported: number }>
+      > = {};
       const ensureTotalEntry = (uid: string, wid: string) => {
         if (!totalByUserWorkplace[uid]) totalByUserWorkplace[uid] = {};
-        if (!totalByUserWorkplace[uid][wid]) totalByUserWorkplace[uid][wid] = { planned: 0, reported: 0 };
+        if (!totalByUserWorkplace[uid][wid])
+          totalByUserWorkplace[uid][wid] = { planned: 0, reported: 0 };
       };
       Object.entries(planMap).forEach(([uid, byDate]) => {
         Object.values(byDate).forEach((byWorkplace) => {
-          Object.entries(byWorkplace).forEach(([wid, hours]) => { ensureTotalEntry(uid, wid); totalByUserWorkplace[uid][wid].planned += hours; });
+          Object.entries(byWorkplace).forEach(([wid, hours]) => {
+            ensureTotalEntry(uid, wid);
+            totalByUserWorkplace[uid][wid].planned += hours;
+          });
         });
       });
       Object.entries(reportMap).forEach(([uid, byDate]) => {
         Object.values(byDate).forEach((byWorkplace) => {
-          Object.entries(byWorkplace).forEach(([wid, hours]) => { ensureTotalEntry(uid, wid); totalByUserWorkplace[uid][wid].reported += hours; });
+          Object.entries(byWorkplace).forEach(([wid, hours]) => {
+            ensureTotalEntry(uid, wid);
+            totalByUserWorkplace[uid][wid].reported += hours;
+          });
         });
       });
 
-      const fmtH = (v: number) => (!v ? '0' : Number.isInteger(v) ? String(v) : v.toFixed(2));
+      const fmtH = (v: number) =>
+        !v ? '0' : Number.isInteger(v) ? String(v) : v.toFixed(2);
       const esc = (v: string | number | null | undefined) => {
         if (v === null || v === undefined) return '';
         const s = String(v);
@@ -626,7 +741,9 @@ const StatisticsPage = () => {
       };
 
       const lines: string[] = [];
-      lines.push(['Сотрудник', ...days.map((d) => d.format('DD.MM'))].map(esc).join(';'));
+      lines.push(
+        ['Сотрудник', ...days.map((d) => d.format('DD.MM'))].map(esc).join(';'),
+      );
 
       Array.from(userIds).forEach((uid) => {
         const rowCells: (string | number)[] = [userNameById[uid] ?? uid];
@@ -634,14 +751,21 @@ const StatisticsPage = () => {
           const dateKey = d.format('YYYY-MM-DD');
           const plannedByWorkplace = planMap[uid]?.[dateKey] ?? {};
           const reportedByWorkplace = reportMap[uid]?.[dateKey] ?? {};
-          const wids = new Set<string>([...Object.keys(plannedByWorkplace), ...Object.keys(reportedByWorkplace)]);
+          const wids = new Set<string>([
+            ...Object.keys(plannedByWorkplace),
+            ...Object.keys(reportedByWorkplace),
+          ]);
           const parts: string[] = [];
           wids.forEach((wid) => {
             const planned = plannedByWorkplace[wid] ?? 0;
             const reported = reportedByWorkplace[wid] ?? 0;
             if (!planned && !reported) return;
-            const wname = workplaceNameByIdExport[wid] ?? (wid === 'unknown' ? 'Без рабочего места' : wid);
-            parts.push(`${wname}: план ${fmtH(planned)}, отчёт ${fmtH(reported)}`);
+            const wname =
+              workplaceNameByIdExport[wid] ??
+              (wid === 'unknown' ? 'Без рабочего места' : wid);
+            parts.push(
+              `${wname}: план ${fmtH(planned)}, отчёт ${fmtH(reported)}`,
+            );
           });
           rowCells.push(parts.join(' | '));
         });
@@ -649,25 +773,39 @@ const StatisticsPage = () => {
       });
 
       const allWidsSet = new Set<string>();
-      Object.values(totalByUserWorkplace).forEach((bw) => Object.keys(bw).forEach((wid) => allWidsSet.add(wid)));
+      Object.values(totalByUserWorkplace).forEach((bw) =>
+        Object.keys(bw).forEach((wid) => allWidsSet.add(wid)),
+      );
       const allWids = Array.from(allWidsSet).filter((w) => w !== 'unknown');
 
       if (allWids.length) {
         lines.push('');
         lines.push(esc('Итого по рабочим местам'));
-        lines.push(['Сотрудник', ...allWids.map((wid) => workplaceNameByIdExport[wid] ?? wid)].map(esc).join(';'));
+        lines.push(
+          [
+            'Сотрудник',
+            ...allWids.map((wid) => workplaceNameByIdExport[wid] ?? wid),
+          ]
+            .map(esc)
+            .join(';'),
+        );
         Array.from(userIds).forEach((uid) => {
           const totals = totalByUserWorkplace[uid];
-          const rowCells = [userNameById[uid] ?? uid, ...allWids.map((wid) => {
-            const val = totals?.[wid];
-            if (!val || (!val.planned && !val.reported)) return '';
-            return `План ${fmtH(val.planned)}, отчёт ${fmtH(val.reported)}`;
-          })];
+          const rowCells = [
+            userNameById[uid] ?? uid,
+            ...allWids.map((wid) => {
+              const val = totals?.[wid];
+              if (!val || (!val.planned && !val.reported)) return '';
+              return `План ${fmtH(val.planned)}, отчёт ${fmtH(val.reported)}`;
+            }),
+          ];
           lines.push(rowCells.map(esc).join(';'));
         });
       }
 
-      const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob(['﻿' + lines.join('\r\n')], {
+        type: 'text/csv;charset=utf-8;',
+      });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -697,21 +835,30 @@ const StatisticsPage = () => {
     if (!reportUserId || !selectedReportDate) return [];
 
     const targetDate = selectedReportDate.format('YYYY-MM-DD');
-    const plannedByWorkplace: Record<string, { workplaceName: string; hours: number }> = {};
+    const plannedByWorkplace: Record<
+      string,
+      { workplaceName: string; hours: number }
+    > = {};
 
     filteredRows.forEach((row) => {
       if (row.userId !== reportUserId) return;
-      if (dayjs(row.startsAt ?? row.date).format('YYYY-MM-DD') !== targetDate) return;
+      if (dayjs(row.startsAt ?? row.date).format('YYYY-MM-DD') !== targetDate)
+        return;
       const wid = row.workplaceId ?? 'unknown';
       const name = row.workplaceName ?? row.workplaceId ?? '—';
-      if (!plannedByWorkplace[wid]) plannedByWorkplace[wid] = { workplaceName: name, hours: 0 };
+      if (!plannedByWorkplace[wid])
+        plannedByWorkplace[wid] = { workplaceName: name, hours: 0 };
       plannedByWorkplace[wid].hours += row.hours;
     });
 
     const plannedKeys = Object.keys(plannedByWorkplace);
     const reportedByWorkplace: Record<string, number> = {};
 
-    const addReported = (rawWid: string | null | undefined, rawHours: number | null | undefined, wr: WorkReport) => {
+    const addReported = (
+      rawWid: string | null | undefined,
+      rawHours: number | null | undefined,
+      wr: WorkReport,
+    ) => {
       if (rawHours == null) return;
       const hours = Number(rawHours);
       if (!Number.isFinite(hours) || hours <= 0) return;
@@ -721,7 +868,10 @@ const StatisticsPage = () => {
       reportedByWorkplace[key] = (reportedByWorkplace[key] ?? 0) + hours;
       if (!plannedByWorkplace[key]) {
         plannedByWorkplace[key] = {
-          workplaceName: wr.workplace?.name ?? workplaceNameById[key] ?? (key === 'unknown' ? 'Без рабочего места' : key),
+          workplaceName:
+            wr.workplace?.name ??
+            workplaceNameById[key] ??
+            (key === 'unknown' ? 'Без рабочего места' : key),
           hours: 0,
         };
       }
@@ -736,17 +886,33 @@ const StatisticsPage = () => {
           const parsed: any = JSON.parse(rawComment);
           if (parsed && Array.isArray(parsed.intervals)) {
             parsed.intervals.forEach((it: any) => {
-              const wid = typeof it?.workplaceId === 'string' ? it.workplaceId : wr.workplaceId ?? null;
-              const hrs = typeof it?.hours === 'number' ? it.hours : Number.isFinite(Number(it?.hours)) ? Number(it.hours) : null;
-              if (hrs != null) { usedIntervals = true; addReported(wid, hrs, wr); }
+              const wid =
+                typeof it?.workplaceId === 'string'
+                  ? it.workplaceId
+                  : (wr.workplaceId ?? null);
+              const hrs =
+                typeof it?.hours === 'number'
+                  ? it.hours
+                  : Number.isFinite(Number(it?.hours))
+                    ? Number(it.hours)
+                    : null;
+              if (hrs != null) {
+                usedIntervals = true;
+                addReported(wid, hrs, wr);
+              }
             });
           }
-        } catch { /* skip */ }
+        } catch {
+          /* skip */
+        }
       }
       if (!usedIntervals) addReported(wr.workplaceId, wr.hours, wr);
     });
 
-    const allIds = new Set<string>([...Object.keys(plannedByWorkplace), ...Object.keys(reportedByWorkplace)]);
+    const allIds = new Set<string>([
+      ...Object.keys(plannedByWorkplace),
+      ...Object.keys(reportedByWorkplace),
+    ]);
     const rows: DayWorkSummaryRow[] = [];
     allIds.forEach((wid) => {
       const planned = plannedByWorkplace[wid];
@@ -755,13 +921,22 @@ const StatisticsPage = () => {
       if (!plannedHours && !reportedHours) return;
       rows.push({
         workplaceId: wid,
-        workplaceName: planned?.workplaceName ?? workplaceNameById[wid] ?? (wid === 'unknown' ? 'Без рабочего места' : wid),
+        workplaceName:
+          planned?.workplaceName ??
+          workplaceNameById[wid] ??
+          (wid === 'unknown' ? 'Без рабочего места' : wid),
         plannedHours,
         reportedHours,
       });
     });
     return rows;
-  }, [reportUserId, selectedReportDate, filteredRows, workReportsQuery.data, workplaceNameById]);
+  }, [
+    reportUserId,
+    selectedReportDate,
+    filteredRows,
+    workReportsQuery.data,
+    workplaceNameById,
+  ]);
 
   const isLoading = statisticsQuery.isLoading || usersQuery.isLoading;
   const isKpiLoading = kpiQuery.isLoading;
@@ -774,7 +949,12 @@ const StatisticsPage = () => {
       dataIndex: 'name',
       key: 'name',
       render: (value: string, record) => (
-        <a onClick={() => { setDetailsUserId(record.userId); setDetailsUserName(record.name); }}>
+        <a
+          onClick={() => {
+            setDetailsUserId(record.userId);
+            setDetailsUserName(record.name);
+          }}
+        >
           {value}
         </a>
       ),
@@ -798,10 +978,18 @@ const StatisticsPage = () => {
       key: 'reportedHours',
       render: (value: number | null | undefined, record) =>
         value != null ? (
-          <a onClick={() => { setReportUserId(record.userId); setReportUserName(record.name); setSelectedReportDate(effectiveFrom); }}>
+          <a
+            onClick={() => {
+              setReportUserId(record.userId);
+              setReportUserName(record.name);
+              setSelectedReportDate(effectiveFrom);
+            }}
+          >
             {value.toFixed(2)}
           </a>
-        ) : '—',
+        ) : (
+          '—'
+        ),
     },
   ];
 
@@ -810,7 +998,8 @@ const StatisticsPage = () => {
       title: 'Дата',
       dataIndex: 'date',
       key: 'date',
-      render: (_v, record) => dayjs(record.startsAt ?? record.date).format('DD.MM.YYYY'),
+      render: (_v, record) =>
+        dayjs(record.startsAt ?? record.date).format('DD.MM.YYYY'),
     },
     {
       title: 'Рабочее место',
@@ -834,7 +1023,8 @@ const StatisticsPage = () => {
       title: 'Статус назначения',
       dataIndex: 'assignmentStatus',
       key: 'assignmentStatus',
-      render: (v: AssignmentStatus) => (v === 'ACTIVE' ? 'Активно' : 'В архиве'),
+      render: (v: AssignmentStatus) =>
+        v === 'ACTIVE' ? 'Активно' : 'В архиве',
     },
     {
       title: 'Часы',
@@ -845,9 +1035,23 @@ const StatisticsPage = () => {
   ];
 
   const daySummaryColumns: ColumnsType<DayWorkSummaryRow> = [
-    { title: 'Рабочее место', dataIndex: 'workplaceName', key: 'workplaceName' },
-    { title: 'Назначено часов', dataIndex: 'plannedHours', key: 'plannedHours', render: (v: number) => v.toFixed(2) },
-    { title: 'Отработано по отчёту', dataIndex: 'reportedHours', key: 'reportedHours', render: (v: number) => v.toFixed(2) },
+    {
+      title: 'Рабочее место',
+      dataIndex: 'workplaceName',
+      key: 'workplaceName',
+    },
+    {
+      title: 'Назначено часов',
+      dataIndex: 'plannedHours',
+      key: 'plannedHours',
+      render: (v: number) => v.toFixed(2),
+    },
+    {
+      title: 'Отработано по отчёту',
+      dataIndex: 'reportedHours',
+      key: 'reportedHours',
+      render: (v: number) => v.toFixed(2),
+    },
   ];
 
   /* ── render ── */
@@ -869,20 +1073,38 @@ const StatisticsPage = () => {
               kinds: allValues.kinds,
             });
           }}
-          style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'flex-end' }}
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 8,
+            alignItems: 'flex-end',
+          }}
         >
-          <Form.Item name="userId" label="Сотрудник" style={{ margin: 0, minWidth: 200 }}>
+          <Form.Item
+            name="userId"
+            label="Сотрудник"
+            style={{ margin: 0, minWidth: 200 }}
+          >
             <Select
               allowClear
               showSearch
-              options={usersQuery.data?.map((u) => ({ value: u.id, label: `${u.fullName ?? u.email}` })) ?? []}
+              options={
+                usersQuery.data?.map((u) => ({
+                  value: u.id,
+                  label: `${u.fullName ?? u.email}`,
+                })) ?? []
+              }
               placeholder="Сотрудник"
               optionFilterProp="label"
               style={{ width: '100%', minWidth: 200 }}
             />
           </Form.Item>
 
-          <Form.Item name="workplaceId" label="Рабочее место" style={{ margin: 0, minWidth: 200 }}>
+          <Form.Item
+            name="workplaceId"
+            label="Рабочее место"
+            style={{ margin: 0, minWidth: 200 }}
+          >
             <Select
               allowClear
               showSearch
@@ -893,11 +1115,18 @@ const StatisticsPage = () => {
             />
           </Form.Item>
 
-          <Form.Item name="status" label="Статус" style={{ margin: 0, minWidth: 160 }}>
+          <Form.Item
+            name="status"
+            label="Статус"
+            style={{ margin: 0, minWidth: 160 }}
+          >
             <Select
               allowClear
               style={{ width: '100%', minWidth: 160 }}
-              options={statusOptions.map((value) => ({ value, label: value === 'ACTIVE' ? 'Активно' : 'В архиве' }))}
+              options={statusOptions.map((value) => ({
+                value,
+                label: value === 'ACTIVE' ? 'Активно' : 'В архиве',
+              }))}
               placeholder="Любой"
             />
           </Form.Item>
@@ -906,7 +1135,11 @@ const StatisticsPage = () => {
             <RangePicker style={{ width: '100%' }} />
           </Form.Item>
 
-          <Form.Item name="kinds" label="Тип смены" style={{ margin: 0, minWidth: 200 }}>
+          <Form.Item
+            name="kinds"
+            label="Тип смены"
+            style={{ margin: 0, minWidth: 200 }}
+          >
             <Select
               mode="multiple"
               allowClear
@@ -936,7 +1169,11 @@ const StatisticsPage = () => {
       </Card>
 
       {/* Сводная таблица по рабочим местам */}
-      <Card title="Сводка по рабочим местам" size="small" style={{ marginBottom: 24 }}>
+      <Card
+        title="Сводка по рабочим местам"
+        size="small"
+        style={{ marginBottom: 24 }}
+      >
         <Table<KpiByWorkplace>
           rowKey="workplaceId"
           dataSource={kpiQuery.data?.byWorkplace ?? []}
@@ -972,10 +1209,16 @@ const StatisticsPage = () => {
       {/* Календарь отчётных часов */}
       <Modal
         open={!!reportUserId}
-        title={reportUserName ? `Отчётные часы: ${reportUserName}` : 'Отчётные часы'}
+        title={
+          reportUserName ? `Отчётные часы: ${reportUserName}` : 'Отчётные часы'
+        }
         footer={null}
         width={800}
-        onCancel={() => { setReportUserId(null); setReportUserName(''); setSelectedReportDate(null); }}
+        onCancel={() => {
+          setReportUserId(null);
+          setReportUserName('');
+          setSelectedReportDate(null);
+        }}
       >
         {!reportUserId ? null : workReportsQuery.isLoading ? (
           <Spin />
@@ -989,9 +1232,15 @@ const StatisticsPage = () => {
                 const key = value.format('YYYY-MM-DD');
                 const planned = plannedHoursByDateForReportUser[key];
                 const reported = workReportsByDate[key];
-                const outOfRange = value.isBefore(effectiveFrom, 'day') || value.isAfter(effectiveTo, 'day');
-                const hasData = (planned != null && planned > 0) || (reported != null && reported > 0);
-                const isSelected = !!selectedReportDate && value.isSame(selectedReportDate, 'day');
+                const outOfRange =
+                  value.isBefore(effectiveFrom, 'day') ||
+                  value.isAfter(effectiveTo, 'day');
+                const hasData =
+                  (planned != null && planned > 0) ||
+                  (reported != null && reported > 0);
+                const isSelected =
+                  !!selectedReportDate &&
+                  value.isSame(selectedReportDate, 'day');
 
                 return (
                   <div
@@ -999,7 +1248,11 @@ const StatisticsPage = () => {
                       textAlign: 'center',
                       borderRadius: 4,
                       padding: 2,
-                      border: isSelected ? '1px solid #1677ff' : hasData ? '1px solid #52c41a' : '1px solid transparent',
+                      border: isSelected
+                        ? '1px solid #1677ff'
+                        : hasData
+                          ? '1px solid #52c41a'
+                          : '1px solid transparent',
                       backgroundColor: isSelected ? '#e6f4ff' : undefined,
                       opacity: outOfRange ? 0.2 : hasData ? 1 : 0.4,
                     }}
@@ -1007,8 +1260,12 @@ const StatisticsPage = () => {
                     <div>{value.date()}</div>
                     {hasData && (
                       <div style={{ fontSize: 10 }}>
-                        {planned != null && planned > 0 && <div>{planned.toFixed(1)} ч план</div>}
-                        {reported != null && reported > 0 && <div>{reported.toFixed(1)} ч отчёт</div>}
+                        {planned != null && planned > 0 && (
+                          <div>{planned.toFixed(1)} ч план</div>
+                        )}
+                        {reported != null && reported > 0 && (
+                          <div>{reported.toFixed(1)} ч отчёт</div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -1035,7 +1292,8 @@ const StatisticsPage = () => {
                 )
               ) : (
                 <Typography.Text type="secondary">
-                  Выберите дату в календаре, чтобы увидеть детали по рабочим местам.
+                  Выберите дату в календаре, чтобы увидеть детали по рабочим
+                  местам.
                 </Typography.Text>
               )}
             </div>
@@ -1046,10 +1304,17 @@ const StatisticsPage = () => {
       {/* Детализация по сотруднику */}
       <Modal
         open={!!detailsUserId}
-        title={detailsUserName ? `Детализация по сотруднику: ${detailsUserName}` : 'Детализация'}
+        title={
+          detailsUserName
+            ? `Детализация по сотруднику: ${detailsUserName}`
+            : 'Детализация'
+        }
         footer={null}
         width={1000}
-        onCancel={() => { setDetailsUserId(null); setDetailsUserName(''); }}
+        onCancel={() => {
+          setDetailsUserId(null);
+          setDetailsUserName('');
+        }}
       >
         {detailsRows.length === 0 ? (
           <Typography.Text type="secondary">

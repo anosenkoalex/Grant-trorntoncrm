@@ -84,8 +84,9 @@ export class UsersService implements OnModuleInit {
   private generatePassword(length = 10): string {
     const chars =
       'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    return Array.from({ length }, () =>
-      chars[Math.floor(Math.random() * chars.length)],
+    return Array.from(
+      { length },
+      () => chars[Math.floor(Math.random() * chars.length)],
     ).join('');
   }
 
@@ -118,7 +119,7 @@ export class UsersService implements OnModuleInit {
       (data as CreateUserDto & { orgId?: string | null }).orgId ?? null;
 
     orgId = orgId
-      ? (await this.ensureOrg(orgId))?.id ?? null
+      ? ((await this.ensureOrg(orgId))?.id ?? null)
       : (await this.getDefaultOrg()).id;
 
     const sendPassword = data.sendPassword === true;
@@ -281,9 +282,7 @@ export class UsersService implements OnModuleInit {
     );
 
     return {
-      data: items.map((u) =>
-        this.presentUser(u, usersWithAssignmentsSet),
-      ),
+      data: items.map((u) => this.presentUser(u, usersWithAssignmentsSet)),
       meta: { total, page, pageSize },
     };
   }
@@ -315,8 +314,7 @@ export class UsersService implements OnModuleInit {
     if (data.position !== undefined)
       updateData.position = data.position?.trim() || null;
     if (data.role !== undefined) updateData.role = data.role;
-    if (data.phone !== undefined)
-      updateData.phone = data.phone?.trim() || null;
+    if (data.phone !== undefined) updateData.phone = data.phone?.trim() || null;
 
     const updated = await this.prisma.user.update({
       where: { id },
@@ -409,10 +407,7 @@ export class UsersService implements OnModuleInit {
     } as const;
   }
 
-  private presentUser(
-    user: SelectedUser,
-    usersWithAssignments?: Set<string>,
-  ) {
+  private presentUser(user: SelectedUser, usersWithAssignments?: Set<string>) {
     const hasActiveAssignments = usersWithAssignments
       ? usersWithAssignments.has(user.id)
       : undefined;

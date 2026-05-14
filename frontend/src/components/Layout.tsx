@@ -54,7 +54,8 @@ const TYPE_COLORS: Partial<Record<NotificationType, string>> = {
 };
 
 function buildNotificationText(item: Notification) {
-  const payload: Record<string, unknown> = (item.payload as Record<string, unknown>) ?? {};
+  const payload: Record<string, unknown> =
+    (item.payload as Record<string, unknown>) ?? {};
 
   const title =
     TYPE_LABELS[item.type] ??
@@ -64,9 +65,12 @@ function buildNotificationText(item: Notification) {
   const adjustmentType = payload.adjustmentType as string | undefined;
   let resolvedTitle = title;
   if (item.type === 'ASSIGNMENT_UPDATED' && adjustmentType) {
-    if (adjustmentType === 'REQUESTED') resolvedTitle = 'Запрос на корректировку графика';
-    else if (adjustmentType === 'APPROVED') resolvedTitle = 'Корректировка одобрена';
-    else if (adjustmentType === 'REJECTED') resolvedTitle = 'Корректировка отклонена';
+    if (adjustmentType === 'REQUESTED')
+      resolvedTitle = 'Запрос на корректировку графика';
+    else if (adjustmentType === 'APPROVED')
+      resolvedTitle = 'Корректировка одобрена';
+    else if (adjustmentType === 'REJECTED')
+      resolvedTitle = 'Корректировка отклонена';
   }
 
   // SYSTEM/REMINDER могут нести title/body
@@ -81,7 +85,9 @@ function buildNotificationText(item: Notification) {
 
   const workplaceCode = (payload.workplaceCode as string | undefined) ?? '';
   const workplaceName = (payload.workplaceName as string | undefined) ?? '';
-  const workplaceLabel = [workplaceCode, workplaceName].filter(Boolean).join(' — ');
+  const workplaceLabel = [workplaceCode, workplaceName]
+    .filter(Boolean)
+    .join(' — ');
 
   const body =
     (payload.body as string | undefined) ??
@@ -114,12 +120,14 @@ function NotificationsDropdown(_props: NotificationsDropdownProps) {
 
   const markReadMutation = useMutation({
     mutationFn: markNotificationRead,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['notifications'] }),
   });
 
   const markAllMutation = useMutation({
     mutationFn: markAllNotificationsRead,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['notifications'] }),
   });
 
   const dropdownContent = (
@@ -211,10 +219,14 @@ function NotificationsDropdown(_props: NotificationsDropdownProps) {
                   transition: 'background 0.15s',
                 }}
                 onMouseEnter={(e) => {
-                  if (isUnread) (e.currentTarget as HTMLDivElement).style.background = '#e6f0ff';
+                  if (isUnread)
+                    (e.currentTarget as HTMLDivElement).style.background =
+                      '#e6f0ff';
                 }}
                 onMouseLeave={(e) => {
-                  if (isUnread) (e.currentTarget as HTMLDivElement).style.background = '#f0f7ff';
+                  if (isUnread)
+                    (e.currentTarget as HTMLDivElement).style.background =
+                      '#f0f7ff';
                 }}
               >
                 {/* Индикатор непрочитанного */}
@@ -230,15 +242,28 @@ function NotificationsDropdown(_props: NotificationsDropdownProps) {
                 />
 
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      flexWrap: 'wrap',
+                    }}
+                  >
                     <Typography.Text
                       strong={isUnread}
-                      style={{ fontSize: 13, color: isUnread ? '#1d1d1d' : '#555' }}
+                      style={{
+                        fontSize: 13,
+                        color: isUnread ? '#1d1d1d' : '#555',
+                      }}
                     >
                       {title}
                     </Typography.Text>
                     {color && (
-                      <Tag color={color} style={{ margin: 0, fontSize: 10, padding: '0 4px' }}>
+                      <Tag
+                        color={color}
+                        style={{ margin: 0, fontSize: 10, padding: '0 4px' }}
+                      >
                         {TYPE_LABELS[item.type]}
                       </Tag>
                     )}
@@ -261,7 +286,12 @@ function NotificationsDropdown(_props: NotificationsDropdownProps) {
                   )}
 
                   <Typography.Text
-                    style={{ fontSize: 11, color: '#bbb', display: 'block', marginTop: 3 }}
+                    style={{
+                      fontSize: 11,
+                      color: '#bbb',
+                      display: 'block',
+                      marginTop: 3,
+                    }}
                   >
                     {dayjs(item.createdAt).format('DD.MM.YYYY HH:mm')}
                   </Typography.Text>
@@ -363,17 +393,34 @@ const AppLayout = () => {
   const navigationItems = useMemo(() => {
     if (!(isAdmin || isManager || isDevUser)) return [];
 
-    const items: { key: string; path: string; label: string; icon?: ReactNode }[] = [
+    const items: {
+      key: string;
+      path: string;
+      label: string;
+      icon?: ReactNode;
+    }[] = [
       { key: 'dashboard', path: '/dashboard', label: t('layout.dashboard') },
     ];
 
     if (isAdmin || isManager) {
       items.push(
-        { key: 'assignments', path: '/assignments', label: t('layout.assignments') },
+        {
+          key: 'assignments',
+          path: '/assignments',
+          label: t('layout.assignments'),
+        },
         { key: 'planner', path: '/planner', label: t('layout.planner') },
-        { key: 'workplaces', path: '/workplaces', label: t('layout.workplaces') },
+        {
+          key: 'workplaces',
+          path: '/workplaces',
+          label: t('layout.workplaces'),
+        },
         { key: 'users', path: '/users', label: t('layout.users') },
-        { key: 'statistics', path: '/statistics', label: t('layout.statistics') },
+        {
+          key: 'statistics',
+          path: '/statistics',
+          label: t('layout.statistics'),
+        },
         {
           key: 'automation-settings',
           path: '/automation-settings',
@@ -434,9 +481,14 @@ const AppLayout = () => {
           <Space size={8} style={{ overflow: 'hidden', flex: 1, minWidth: 0 }}>
             <Typography.Text
               strong
-              style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+              style={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
             >
-              {!isMobile && `${t('layout.welcome')} `}{displayName}
+              {!isMobile && `${t('layout.welcome')} `}
+              {displayName}
             </Typography.Text>
             {isFetchingProfile && <Spin size="small" />}
           </Space>
@@ -458,7 +510,13 @@ const AppLayout = () => {
             </Button>
           </Space>
         </Header>
-        <Content style={{ padding: isMobile ? 8 : 24, background: '#f5f5f5', minHeight: 0 }}>
+        <Content
+          style={{
+            padding: isMobile ? 8 : 24,
+            background: '#f5f5f5',
+            minHeight: 0,
+          }}
+        >
           <div
             style={{
               background: '#fff',
@@ -499,11 +557,18 @@ const AppLayout = () => {
                 top: 0,
                 bottom: 0,
                 zIndex: 1000,
-                transform: isSiderCollapsed ? 'translateX(-100%)' : 'translateX(0)',
+                transform: isSiderCollapsed
+                  ? 'translateX(-100%)'
+                  : 'translateX(0)',
                 transition: 'transform 0.25s ease',
                 overflow: 'hidden auto',
               }
-            : { position: 'sticky', top: 0, height: '100vh', overflow: 'hidden auto' }
+            : {
+                position: 'sticky',
+                top: 0,
+                height: '100vh',
+                overflow: 'hidden auto',
+              }
         }
       >
         <div
@@ -522,9 +587,15 @@ const AppLayout = () => {
           theme="dark"
           mode="inline"
           selectedKeys={[selectedKey]}
-          items={navigationItems.map((item) => ({ key: item.key, label: item.label, icon: item.icon }))}
+          items={navigationItems.map((item) => ({
+            key: item.key,
+            label: item.label,
+            icon: item.icon,
+          }))}
           onClick={(info) => {
-            const target = navigationItems.find((item) => item.key === info.key);
+            const target = navigationItems.find(
+              (item) => item.key === info.key,
+            );
             if (target) navigate(target.path);
             if (isMobile) closeSider();
           }}
@@ -548,7 +619,13 @@ const AppLayout = () => {
             {navigationItems.length > 0 && (
               <Button
                 type="text"
-                icon={isSiderCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                icon={
+                  isSiderCollapsed ? (
+                    <MenuUnfoldOutlined />
+                  ) : (
+                    <MenuFoldOutlined />
+                  )
+                }
                 onClick={() => setIsSiderCollapsed((p) => !p)}
                 aria-label="Toggle navigation"
                 style={{ flexShrink: 0 }}
@@ -562,7 +639,8 @@ const AppLayout = () => {
                 whiteSpace: 'nowrap',
               }}
             >
-              {!isMobile && `${t('layout.welcome')} `}{displayName}
+              {!isMobile && `${t('layout.welcome')} `}
+              {displayName}
             </Typography.Text>
             {isFetchingProfile && <Spin size="small" />}
           </Space>

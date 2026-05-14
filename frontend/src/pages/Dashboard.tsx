@@ -181,7 +181,9 @@ const Dashboard = () => {
     refetchInterval: 60_000,
   });
 
-  const feedItems: FeedItem[] = Array.isArray(feedQuery.data) ? feedQuery.data : [];
+  const feedItems: FeedItem[] = Array.isArray(feedQuery.data)
+    ? feedQuery.data
+    : [];
 
   const getNotificationView = (n: Notification): NotificationView => {
     const createdAt = dayjs((n as any).createdAt).format('DD.MM.YYYY HH:mm');
@@ -331,7 +333,7 @@ const Dashboard = () => {
     const action = item.meta.action ?? 'updated';
     const title = item.meta.code
       ? `${item.meta.code} — ${item.meta.name ?? ''}`.trim()
-      : item.meta.name ?? '';
+      : (item.meta.name ?? '');
 
     return (
       <List.Item key={`${item.type}-${item.meta.id}-${item.at}`}>
@@ -341,9 +343,7 @@ const Dashboard = () => {
           })}
           description={
             <Flex vertical gap={4}>
-              {title ? (
-                <Typography.Text>{title}</Typography.Text>
-              ) : null}
+              {title ? <Typography.Text>{title}</Typography.Text> : null}
               <Typography.Text type="secondary">{date}</Typography.Text>
             </Flex>
           }
@@ -445,10 +445,7 @@ const Dashboard = () => {
           <Row gutter={[16, 16]}>
             <Col xs={24} md={8}>
               <StatCard
-                title={t(
-                  'dashboard.activeAssignments',
-                  'Активные назначения',
-                )}
+                title={t('dashboard.activeAssignments', 'Активные назначения')}
                 value={activeAssignmentsCount}
                 loading={activeAssignmentsCountQuery.isLoading}
                 onClick={() => navigate('/assignments')}

@@ -28,13 +28,19 @@ export class ApiKeysController {
     const userId: string | undefined = req.user?.sub ?? req.user?.id;
     const orgId: string | null = req.user?.orgId ?? null;
     if (!userId) throw new UnauthorizedException();
-    return this.apiKeysService.create(body.name?.trim() || 'Unnamed key', orgId, userId);
+    return this.apiKeysService.create(
+      body.name?.trim() || 'Unnamed key',
+      orgId,
+      userId,
+    );
   }
 
   @Get()
   findAll(@Req() req: any) {
     const isAdmin = req.user?.role === UserRole.SUPER_ADMIN;
-    return this.apiKeysService.findAll(isAdmin ? undefined : (req.user?.orgId ?? null));
+    return this.apiKeysService.findAll(
+      isAdmin ? undefined : (req.user?.orgId ?? null),
+    );
   }
 
   @Delete(':id')

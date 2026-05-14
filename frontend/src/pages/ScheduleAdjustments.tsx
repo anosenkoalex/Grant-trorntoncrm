@@ -58,7 +58,10 @@ const ScheduleAdjustmentsPage = () => {
   const [pageSize, setPageSize] = useState(20);
 
   const adjustmentsQuery = useQuery<ScheduleAdjustmentsQueryResult>({
-    queryKey: ['schedule-adjustments', { page, pageSize, status: statusFilter }],
+    queryKey: [
+      'schedule-adjustments',
+      { page, pageSize, status: statusFilter },
+    ],
     queryFn: () =>
       fetchScheduleAdjustments({
         page,
@@ -81,7 +84,9 @@ const ScheduleAdjustmentsPage = () => {
       message.success(
         t('scheduleAdjustments.approved', 'Запрос корректировки одобрен'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['schedule-adjustments'] });
+      void queryClient.invalidateQueries({
+        queryKey: ['schedule-adjustments'],
+      });
       void queryClient.invalidateQueries({ queryKey: ['assignments'] });
     },
     onError: (error) => {
@@ -107,7 +112,9 @@ const ScheduleAdjustmentsPage = () => {
       message.success(
         t('scheduleAdjustments.rejected', 'Запрос корректировки отклонён'),
       );
-      void queryClient.invalidateQueries({ queryKey: ['schedule-adjustments'] });
+      void queryClient.invalidateQueries({
+        queryKey: ['schedule-adjustments'],
+      });
       void queryClient.invalidateQueries({ queryKey: ['assignments'] });
     },
     onError: (error) => {
@@ -242,8 +249,7 @@ const ScheduleAdjustmentsPage = () => {
           return null;
         }
 
-        const loading =
-          approveMutation.isPending || rejectMutation.isPending;
+        const loading = approveMutation.isPending || rejectMutation.isPending;
 
         return (
           <Space size="small">
@@ -313,10 +319,7 @@ const ScheduleAdjustmentsPage = () => {
 
   if (!canManage) {
     return (
-      <Result
-        status="403"
-        title={t('admin.accessDenied', 'Доступ запрещён')}
-      />
+      <Result status="403" title={t('admin.accessDenied', 'Доступ запрещён')} />
     );
   }
 
@@ -350,17 +353,11 @@ const ScheduleAdjustmentsPage = () => {
               },
               {
                 value: 'APPROVED',
-                label: t(
-                  'scheduleAdjustments.status.approved',
-                  'Одобрено',
-                ),
+                label: t('scheduleAdjustments.status.approved', 'Одобрено'),
               },
               {
                 value: 'REJECTED',
-                label: t(
-                  'scheduleAdjustments.status.rejected',
-                  'Отклонено',
-                ),
+                label: t('scheduleAdjustments.status.rejected', 'Отклонено'),
               },
             ]}
           />

@@ -184,13 +184,18 @@ export class DevController {
   async getTelegramSettings(@CurrentUser() user: DevCurrentUser) {
     this.ensureDev(user);
     const s = await this.telegramService.getSettings();
-    return { enabled: s.enabled, token: s.token ?? null, chatId: s.chatId ?? null };
+    return {
+      enabled: s.enabled,
+      token: s.token ?? null,
+      chatId: s.chatId ?? null,
+    };
   }
 
   @Put('telegram-settings')
   async updateTelegramSettings(
     @CurrentUser() user: DevCurrentUser,
-    @Body() body: { enabled?: boolean; token?: string | null; chatId?: string | null },
+    @Body()
+    body: { enabled?: boolean; token?: string | null; chatId?: string | null },
   ) {
     this.ensureDev(user);
     await this.telegramService.updateSettings({

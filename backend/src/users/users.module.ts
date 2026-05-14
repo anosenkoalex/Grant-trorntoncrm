@@ -14,11 +14,7 @@ import { NotificationsModule } from '../notifications/notifications.module.js';
     UsersController,
     MeController, // ✅ ВОТ ЭТОГО НЕ ХВАТАЛО
   ],
-  providers: [
-    UsersService,
-  ],
-  exports: [
-    UsersService,
-  ],
+  providers: [UsersService],
+  exports: [UsersService],
 })
 export class UsersModule {}

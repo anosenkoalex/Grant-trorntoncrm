@@ -104,10 +104,7 @@ const UsersCreatePage = () => {
           <Input.Password />
         </Form.Item>
 
-        <Form.Item
-          name="sendPassword"
-          valuePropName="checked"
-        >
+        <Form.Item name="sendPassword" valuePropName="checked">
           <Checkbox>{t('users.sendPasswordOnCreate')}</Checkbox>
         </Form.Item>
 
@@ -125,11 +122,7 @@ const UsersCreatePage = () => {
         </Form.Item>
 
         <Form.Item>
-          <Button
-            type="primary"
-            htmlType="submit"
-            loading={mutation.isLoading}
-          >
+          <Button type="primary" htmlType="submit" loading={mutation.isLoading}>
             {t('users.createAction')}
           </Button>
         </Form.Item>

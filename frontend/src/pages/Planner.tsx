@@ -43,9 +43,10 @@ const clampDateToRange = (d: Dayjs, from: Dayjs, to: Dayjs) => {
   return d;
 };
 
-function buildLanes(
-  slots: PlannerMatrixSlot[],
-): { laneById: Record<string, number>; lanesCount: number } {
+function buildLanes(slots: PlannerMatrixSlot[]): {
+  laneById: Record<string, number>;
+  lanesCount: number;
+} {
   const sorted = [...slots].sort(
     (a, b) => dayjs(a.from).valueOf() - dayjs(b.from).valueOf(),
   );
@@ -290,10 +291,7 @@ const PlannerPage = () => {
           const start = dayjs(s.from);
           if (!earliestStart || start.isBefore(earliestStart)) {
             earliestStart = start;
-            key =
-              (s.workplace.code || '') +
-              ' ' +
-              (s.workplace.name || '');
+            key = (s.workplace.code || '') + ' ' + (s.workplace.name || '');
           }
         }
 
@@ -448,8 +446,11 @@ const PlannerPage = () => {
         </Typography.Text>
       )}
 
-      {!!matrix && matrix.rows.length > 0 && fromDate && toDate && (
-        isMobile ? (
+      {!!matrix &&
+        matrix.rows.length > 0 &&
+        fromDate &&
+        toDate &&
+        (isMobile ? (
           // Мобильный вид: карточки по сотруднику / рабочему месту
           <div
             style={{
@@ -459,110 +460,100 @@ const PlannerPage = () => {
               gap: 12,
             }}
           >
-            {rowsWithLanes.map(
-              ({ row, visibleSlots, displaySubtitle }) => (
-                <Card
-                  key={row.key}
-                  size="small"
-                  style={{ borderRadius: 10 }}
-                  bodyStyle={{ padding: 12 }}
-                >
-                  <Typography.Text strong>{row.title}</Typography.Text>
-                  {displaySubtitle && (
-                    <Typography.Paragraph
-                      type="secondary"
-                      style={{
-                        marginTop: 4,
-                        marginBottom: 8,
-                        fontSize: 12,
-                      }}
-                    >
-                      {displaySubtitle}
-                    </Typography.Paragraph>
-                  )}
+            {rowsWithLanes.map(({ row, visibleSlots, displaySubtitle }) => (
+              <Card
+                key={row.key}
+                size="small"
+                style={{ borderRadius: 10 }}
+                bodyStyle={{ padding: 12 }}
+              >
+                <Typography.Text strong>{row.title}</Typography.Text>
+                {displaySubtitle && (
+                  <Typography.Paragraph
+                    type="secondary"
+                    style={{
+                      marginTop: 4,
+                      marginBottom: 8,
+                      fontSize: 12,
+                    }}
+                  >
+                    {displaySubtitle}
+                  </Typography.Paragraph>
+                )}
 
-                  {visibleSlots.length === 0 ? (
-                    <Typography.Text
-                      type="secondary"
-                      style={{ fontSize: 12 }}
-                    >
-                      {t(
-                        'planner.noAssignmentsRow',
-                        'Нет назначений в выбранном периоде',
-                      )}
-                    </Typography.Text>
-                  ) : (
-                    <Space
-                      direction="vertical"
-                      size={8}
-                      style={{ width: '100%' }}
-                    >
-                      {visibleSlots.map((slot) => {
-                        const slotStart = dayjs(slot.from);
-                        const slotEnd = dayjs(slot.to ?? slot.from);
+                {visibleSlots.length === 0 ? (
+                  <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                    {t(
+                      'planner.noAssignmentsRow',
+                      'Нет назначений в выбранном периоде',
+                    )}
+                  </Typography.Text>
+                ) : (
+                  <Space
+                    direction="vertical"
+                    size={8}
+                    style={{ width: '100%' }}
+                  >
+                    {visibleSlots.map((slot) => {
+                      const slotStart = dayjs(slot.from);
+                      const slotEnd = dayjs(slot.to ?? slot.from);
 
-                        const rawColor = slot.workplace?.color || undefined;
-                        const bgColor =
-                          rawColor || 'rgba(22,119,255,0.06)';
-                        const borderColor =
-                          rawColor || 'rgba(22,119,255,0.4)';
+                      const rawColor = slot.workplace?.color || undefined;
+                      const bgColor = rawColor || 'rgba(22,119,255,0.06)';
+                      const borderColor = rawColor || 'rgba(22,119,255,0.4)';
 
-                        return (
-                          <div
-                            key={slot.id}
+                      return (
+                        <div
+                          key={slot.id}
+                          style={{
+                            borderRadius: 6,
+                            border: `1px solid ${borderColor}`,
+                            background: bgColor,
+                            padding: 8,
+                          }}
+                        >
+                          <Typography.Text
                             style={{
-                              borderRadius: 6,
-                              border: `1px solid ${borderColor}`,
-                              background: bgColor,
-                              padding: 8,
+                              fontSize: 13,
+                              fontWeight: 500,
                             }}
                           >
-                            <Typography.Text
-                              style={{
-                                fontSize: 13,
-                                fontWeight: 500,
-                              }}
-                            >
-                              {slot.code
-                                ? `${slot.code} — ${slot.name}`
-                                : slot.name ??
-                                  slot.workplace?.name ??
-                                  row.title}
-                            </Typography.Text>
+                            {slot.code
+                              ? `${slot.code} — ${slot.name}`
+                              : (slot.name ??
+                                slot.workplace?.name ??
+                                row.title)}
+                          </Typography.Text>
 
-                            <div
-                              style={{
-                                marginTop: 4,
-                                fontSize: 12,
-                                color: '#555',
-                              }}
-                            >
-                              <div>
-                                {t('planner.period', 'Период')}:&nbsp;
-                                {slotStart.format('DD.MM.YYYY HH:mm')} —{' '}
-                                {slotEnd.format('DD.MM.YYYY HH:mm')}
-                              </div>
-                              {slot.workplace && (
-                                <div style={{ marginTop: 2 }}>
-                                  {t(
-                                    'planner.workplace',
-                                    'Рабочее место',
-                                  )}
-                                  :&nbsp;
-                                  {slot.workplace.code
-                                    ? `${slot.workplace.code} — ${slot.workplace.name}`
-                                    : slot.workplace.name}
-                                </div>
-                              )}
+                          <div
+                            style={{
+                              marginTop: 4,
+                              fontSize: 12,
+                              color: '#555',
+                            }}
+                          >
+                            <div>
+                              {t('planner.period', 'Период')}:&nbsp;
+                              {slotStart.format('DD.MM.YYYY HH:mm')} —{' '}
+                              {slotEnd.format('DD.MM.YYYY HH:mm')}
                             </div>
+                            {slot.workplace && (
+                              <div style={{ marginTop: 2 }}>
+                                {t('planner.workplace', 'Рабочее место')}
+                                :&nbsp;
+                                {slot.workplace.code
+                                  ? `${slot.workplace.code} — ${slot.workplace.name}`
+                                  : slot.workplace.name}
+                              </div>
+                            )}
                           </div>
-                        );
-                      })}
-                    </Space>
-                  )}
-                </Card>
-              ),
-            )}
+                        </div>
+                      );
+                    })}
+                  </Space>
+                )}
+              </Card>
+            ))}
           </div>
         ) : (
           // Десктопный вид: большая матрица
@@ -609,31 +600,28 @@ const PlannerPage = () => {
                   overflowY: 'hidden',
                 }}
               >
-                {rowsWithLanes.map(
-                  ({ row, lanesCount, displaySubtitle }) => (
-                    <div
-                      key={row.key}
-                      style={{
-                        height:
-                          lanesCount * ROW_HEIGHT +
-                          ROW_VERTICAL_PADDING * 2,
-                        borderBottom: '1px solid #f0f0f0',
-                        padding: `${ROW_VERTICAL_PADDING}px 12px`,
-                        boxSizing: 'border-box',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <Typography.Text strong>{row.title}</Typography.Text>
-                      {displaySubtitle && (
-                        <div style={{ fontSize: 12, color: '#888' }}>
-                          {displaySubtitle}
-                        </div>
-                      )}
-                    </div>
-                  ),
-                )}
+                {rowsWithLanes.map(({ row, lanesCount, displaySubtitle }) => (
+                  <div
+                    key={row.key}
+                    style={{
+                      height:
+                        lanesCount * ROW_HEIGHT + ROW_VERTICAL_PADDING * 2,
+                      borderBottom: '1px solid #f0f0f0',
+                      padding: `${ROW_VERTICAL_PADDING}px 12px`,
+                      boxSizing: 'border-box',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Typography.Text strong>{row.title}</Typography.Text>
+                    {displaySubtitle && (
+                      <div style={{ fontSize: 12, color: '#888' }}>
+                        {displaySubtitle}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -741,8 +729,7 @@ const PlannerPage = () => {
                           24,
                         );
 
-                        const baseStartTime =
-                          dayjs(slot.from).format('HH:mm');
+                        const baseStartTime = dayjs(slot.from).format('HH:mm');
                         const baseEndTime = slot.to
                           ? dayjs(slot.to).format('HH:mm')
                           : '';
@@ -763,9 +750,7 @@ const PlannerPage = () => {
                             dayCursor.year() === currentYear
                           ) {
                             perDayLines.push(
-                              `${dayCursor.format(
-                                'DD.MM',
-                              )}: ${baseStartTime}–${
+                              `${dayCursor.format('DD.MM')}: ${baseStartTime}–${
                                 baseEndTime || '...'
                               }`,
                             );
@@ -787,7 +772,7 @@ const PlannerPage = () => {
                               <strong>
                                 {slot.workplace?.code
                                   ? `${slot.workplace.code} — ${slot.workplace.name}`
-                                  : slot.workplace?.name ?? row.title}
+                                  : (slot.workplace?.name ?? row.title)}
                               </strong>
                             </div>
                             <div>
@@ -826,9 +811,7 @@ const PlannerPage = () => {
                               style={{
                                 position: 'absolute',
                                 top:
-                                  ROW_VERTICAL_PADDING +
-                                  lane * ROW_HEIGHT +
-                                  1,
+                                  ROW_VERTICAL_PADDING + lane * ROW_HEIGHT + 1,
                                 left,
                                 width,
                                 height: ROW_HEIGHT - 6,
@@ -846,7 +829,7 @@ const PlannerPage = () => {
                               <span style={{ fontSize: 12 }}>
                                 {slot.code
                                   ? `${slot.code} — ${slot.name}`
-                                  : slot.name ?? ''}
+                                  : (slot.name ?? '')}
                               </span>
                             </div>
                           </Tooltip>
@@ -865,8 +848,7 @@ const PlannerPage = () => {
               </div>
             </div>
           </div>
-        )
-      )}
+        ))}
     </Card>
   );
 };

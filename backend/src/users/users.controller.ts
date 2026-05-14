@@ -40,9 +40,7 @@ export class UsersController {
    */
   @Get()
   @Roles(UserRole.SUPER_ADMIN)
-  findAll(
-    @Query(new ZodValidationPipe(listUsersSchema)) query: ListUsersDto,
-  ) {
+  findAll(@Query(new ZodValidationPipe(listUsersSchema)) query: ListUsersDto) {
     return this.usersService.findAll(query);
   }
 

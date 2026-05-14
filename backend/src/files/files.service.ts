@@ -68,7 +68,9 @@ export class FilesService {
     });
     if (!record) throw new NotFoundException('File not found');
 
-    await this.prisma.assignmentFile.delete({ where: { id: assignmentFileId } });
+    await this.prisma.assignmentFile.delete({
+      where: { id: assignmentFileId },
+    });
 
     const remainingRefs = await this.prisma.assignmentFile.count({
       where: { fileId: record.fileId },

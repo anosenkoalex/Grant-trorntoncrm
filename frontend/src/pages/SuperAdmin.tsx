@@ -1,7 +1,22 @@
-import { Card, Col, Row, Skeleton, Statistic, Table, Tag, Typography } from 'antd';
+import {
+  Card,
+  Col,
+  Row,
+  Skeleton,
+  Statistic,
+  Table,
+  Tag,
+  Typography,
+} from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import { fetchSuperAdminOrgs, fetchSuperAdminStats, type OrgSummary, type SubscriptionPlan, type SubscriptionStatus } from '../api/client.js';
+import {
+  fetchSuperAdminOrgs,
+  fetchSuperAdminStats,
+  type OrgSummary,
+  type SubscriptionPlan,
+  type SubscriptionStatus,
+} from '../api/client.js';
 import { useAuth } from '../context/AuthContext.js';
 
 const { Title, Text } = Typography;
@@ -40,7 +55,9 @@ export default function SuperAdminPage() {
   if (orgsQuery.isError) {
     return (
       <div style={{ padding: 24 }}>
-        <Text type="danger">Access denied. This page is for platform administrators only.</Text>
+        <Text type="danger">
+          Access denied. This page is for platform administrators only.
+        </Text>
       </div>
     );
   }
@@ -55,7 +72,9 @@ export default function SuperAdminPage() {
         <div>
           <Text strong>{name}</Text>
           <br />
-          <Text type="secondary" style={{ fontSize: 12 }}>{r.slug}</Text>
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            {r.slug}
+          </Text>
         </div>
       ),
     },
@@ -63,7 +82,9 @@ export default function SuperAdminPage() {
       title: 'Plan',
       render: (_: unknown, r: OrgSummary) =>
         r.subscription ? (
-          <Tag color={PLAN_COLORS[r.subscription.plan]}>{r.subscription.plan}</Tag>
+          <Tag color={PLAN_COLORS[r.subscription.plan]}>
+            {r.subscription.plan}
+          </Tag>
         ) : (
           <Tag>No subscription</Tag>
         ),
@@ -73,7 +94,9 @@ export default function SuperAdminPage() {
       title: 'Status',
       render: (_: unknown, r: OrgSummary) =>
         r.subscription ? (
-          <Tag color={STATUS_COLORS[r.subscription.status]}>{r.subscription.status}</Tag>
+          <Tag color={STATUS_COLORS[r.subscription.status]}>
+            {r.subscription.status}
+          </Tag>
         ) : (
           <Text type="secondary">—</Text>
         ),
@@ -88,9 +111,11 @@ export default function SuperAdminPage() {
     {
       title: 'Next Renewal',
       render: (_: unknown, r: OrgSummary) =>
-        r.subscription?.currentPeriodEnd
-          ? dayjs(r.subscription.currentPeriodEnd).format('DD.MM.YYYY')
-          : <Text type="secondary">—</Text>,
+        r.subscription?.currentPeriodEnd ? (
+          dayjs(r.subscription.currentPeriodEnd).format('DD.MM.YYYY')
+        ) : (
+          <Text type="secondary">—</Text>
+        ),
       width: 130,
     },
     {
@@ -124,7 +149,11 @@ export default function SuperAdminPage() {
           </Col>
           <Col xs={24} sm={8}>
             <Card>
-              <Statistic title="Active Subscriptions" value={stats.activeSubscriptions} valueStyle={{ color: '#52c41a' }} />
+              <Statistic
+                title="Active Subscriptions"
+                value={stats.activeSubscriptions}
+                valueStyle={{ color: '#52c41a' }}
+              />
             </Card>
           </Col>
         </Row>

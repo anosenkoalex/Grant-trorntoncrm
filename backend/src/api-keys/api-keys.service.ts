@@ -20,7 +20,14 @@ export class ApiKeysService {
     });
 
     // Plaintext key возвращается только один раз при создании
-    return { id: record.id, name: record.name, orgId: record.orgId, org: record.org, createdAt: record.createdAt, key };
+    return {
+      id: record.id,
+      name: record.name,
+      orgId: record.orgId,
+      org: record.org,
+      createdAt: record.createdAt,
+      key,
+    };
   }
 
   async findAll(orgId?: string | null) {
@@ -45,7 +52,9 @@ export class ApiKeysService {
     return { success: true };
   }
 
-  async validateKey(key: string): Promise<{ id: string; orgId: string | null; name: string } | null> {
+  async validateKey(
+    key: string,
+  ): Promise<{ id: string; orgId: string | null; name: string } | null> {
     const keyHash = this.hash(key);
     const record = await this.prisma.apiKey.findUnique({ where: { keyHash } });
     if (!record) return null;

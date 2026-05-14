@@ -71,9 +71,7 @@ export class StatisticsService {
 
         userId: s.assignment.userId,
         userName:
-          s.assignment.user?.fullName ??
-          s.assignment.user?.email ??
-          null,
+          s.assignment.user?.fullName ?? s.assignment.user?.email ?? null,
 
         workplaceId: s.assignment.workplaceId,
         workplaceName: s.assignment.workplace?.name ?? null,
@@ -104,8 +102,8 @@ export class StatisticsService {
           userId: dto.userId
             ? dto.userId
             : userIdsFromShifts.length
-            ? { in: userIdsFromShifts }
-            : undefined,
+              ? { in: userIdsFromShifts }
+              : undefined,
         },
       });
 
@@ -235,8 +233,8 @@ export class StatisticsService {
         userId: dto.userId
           ? dto.userId
           : uniqueUserIds.size
-          ? { in: Array.from(uniqueUserIds) }
-          : undefined,
+            ? { in: Array.from(uniqueUserIds) }
+            : undefined,
       },
     });
 
@@ -315,7 +313,12 @@ export class StatisticsService {
     // ── Daily dynamics ───────────────────────────────────────────────────────
     const dynMap: Record<
       string,
-      { date: string; plannedHours: number; reportedHours: number; shiftCount: number }
+      {
+        date: string;
+        plannedHours: number;
+        reportedHours: number;
+        shiftCount: number;
+      }
     > = {};
 
     for (const shift of shifts) {
@@ -325,18 +328,29 @@ export class StatisticsService {
         : 0;
 
       if (!dynMap[key]) {
-        dynMap[key] = { date: key, plannedHours: 0, reportedHours: 0, shiftCount: 0 };
+        dynMap[key] = {
+          date: key,
+          plannedHours: 0,
+          reportedHours: 0,
+          shiftCount: 0,
+        };
       }
       dynMap[key].plannedHours += h;
       dynMap[key].shiftCount++;
     }
 
     for (const report of workReports) {
-      const key = report.date instanceof Date
-        ? dayjs(report.date).format('YYYY-MM-DD')
-        : report.date;
+      const key =
+        report.date instanceof Date
+          ? dayjs(report.date).format('YYYY-MM-DD')
+          : report.date;
       if (!dynMap[key]) {
-        dynMap[key] = { date: key, plannedHours: 0, reportedHours: 0, shiftCount: 0 };
+        dynMap[key] = {
+          date: key,
+          plannedHours: 0,
+          reportedHours: 0,
+          shiftCount: 0,
+        };
       }
       dynMap[key].reportedHours += report.hours;
     }

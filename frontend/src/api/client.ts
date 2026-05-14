@@ -106,13 +106,11 @@ export type ScheduleAdjustment = {
   managerComment?: string | null;
   createdAt: string;
   updatedAt: string;
-  assignment?:
-    | {
-        id: string;
-        workplace?: { id: string; code: string; name: string } | null;
-        user?: Pick<User, 'id' | 'email' | 'fullName'> | null;
-      }
-    | null;
+  assignment?: {
+    id: string;
+    workplace?: { id: string; code: string; name: string } | null;
+    user?: Pick<User, 'id' | 'email' | 'fullName'> | null;
+  } | null;
   user?: Pick<User, 'id' | 'email' | 'fullName'> | null;
 };
 
@@ -154,7 +152,10 @@ export type AssignmentRequest = {
 
   decidedBy?: Pick<User, 'id' | 'email' | 'fullName'> | null;
 
-  workplace?: Pick<Workplace, 'id' | 'code' | 'name' | 'location' | 'color'> | null;
+  workplace?: Pick<
+    Workplace,
+    'id' | 'code' | 'name' | 'location' | 'color'
+  > | null;
 };
 
 /** DTO для отправки запроса на назначение с MyPlace */
@@ -180,7 +181,10 @@ export type WorkReport = {
   createdAt: string;
   updatedAt: string;
   user?: Pick<User, 'id' | 'email' | 'fullName' | 'position'> | null;
-  workplace?: Pick<Workplace, 'id' | 'code' | 'name' | 'location' | 'color'> | null;
+  workplace?: Pick<
+    Workplace,
+    'id' | 'code' | 'name' | 'location' | 'color'
+  > | null;
 };
 
 /** DTO для создания отчёта по часам от текущего пользователя */
@@ -293,7 +297,10 @@ export type MeProfile = {
 };
 
 export type CurrentWorkplaceResponse = {
-  workplace: Pick<Workplace, 'id' | 'code' | 'name' | 'location' | 'color'> | null;
+  workplace: Pick<
+    Workplace,
+    'id' | 'code' | 'name' | 'location' | 'color'
+  > | null;
   assignment: Assignment | null;
   history: Assignment[];
 };
@@ -307,15 +314,13 @@ export type PlannerMatrixSlot = {
   status: AssignmentStatus;
   user?: Pick<User, 'id' | 'email' | 'fullName' | 'position'> | null;
   org?: Pick<Org, 'id' | 'name' | 'slug'> | null;
-  workplace?:
-    | {
-        id: string;
-        code: string;
-        name: string;
-        location?: string | null;
-        color?: string | null;
-      }
-    | null;
+  workplace?: {
+    id: string;
+    code: string;
+    name: string;
+    location?: string | null;
+    color?: string | null;
+  } | null;
 };
 
 export type PlannerMatrixRow = {
@@ -378,7 +383,9 @@ export const fetchMeProfile = async () => {
 
 /* ✅ текущая точка /me/current-workplace */
 export const fetchCurrentWorkplace = async () => {
-  const { data } = await api.get<CurrentWorkplaceResponse>('/me/current-workplace');
+  const { data } = await api.get<CurrentWorkplaceResponse>(
+    '/me/current-workplace',
+  );
   return data;
 };
 
@@ -407,24 +414,37 @@ export const fetchNotifications = async (
   return { items, unreadCount: items.filter((n) => !n.readAt).length };
 };
 
-export const markNotificationRead = async (id: string): Promise<Notification> => {
+export const markNotificationRead = async (
+  id: string,
+): Promise<Notification> => {
   const { data } = await api.post<Notification>(`/notifications/${id}/read`);
   return data;
 };
 
-export const markAllNotificationsRead = async (): Promise<{ updated: number }> => {
-  const { data } = await api.post<{ updated: number }>('/notifications/read-all');
+export const markAllNotificationsRead = async (): Promise<{
+  updated: number;
+}> => {
+  const { data } = await api.post<{ updated: number }>(
+    '/notifications/read-all',
+  );
   return data;
 };
 
 /* -------------------- ORGS & WORKPLACES -------------------- */
 
-export const fetchAdminFeed = async (params?: { take?: number; userId?: string; orgId?: string }) => {
+export const fetchAdminFeed = async (params?: {
+  take?: number;
+  userId?: string;
+  orgId?: string;
+}) => {
   const { data } = await api.get<FeedItem[]>(`/feed/admin`, { params });
   return data;
 };
 
-export const fetchRecentFeed = async (params?: { take?: number; orgId?: string }) => {
+export const fetchRecentFeed = async (params?: {
+  take?: number;
+  orgId?: string;
+}) => {
   const { data } = await api.get<FeedItem[]>(`/feed/recent`, { params });
   return data;
 };
@@ -566,8 +586,6 @@ export const fetchAssignmentsFromTrash = async (params: {
   return data;
 };
 
-
-
 export type UserAssignmentsSummary = {
   id: string;
   fullName: string | null;
@@ -579,10 +597,15 @@ export type UserAssignmentsSummary = {
  * 📊 Краткая статистика по сотрудникам:
  * Backend: GET /assignments/users-summary
  */
-export const fetchUsersAssignmentsSummary = async (params?: { orgId?: string }) => {
-  const { data } = await api.get<UserAssignmentsSummary[]>('/assignments/users-summary', {
-    params,
-  });
+export const fetchUsersAssignmentsSummary = async (params?: {
+  orgId?: string;
+}) => {
+  const { data } = await api.get<UserAssignmentsSummary[]>(
+    '/assignments/users-summary',
+    {
+      params,
+    },
+  );
   return data;
 };
 
@@ -601,7 +624,10 @@ export const exportTrashAssignments = async (ids: string[]) => {
 };
 
 export const hardDeleteTrashAssignments = async (ids: string[]) => {
-  const { data } = await api.post<{ deletedCount: number }>('/assignments/trash/delete', { ids });
+  const { data } = await api.post<{ deletedCount: number }>(
+    '/assignments/trash/delete',
+    { ids },
+  );
   return data;
 };
 
@@ -647,7 +673,10 @@ export const createUser = async (payload: {
   role?: UserRole;
   phone?: string;
 }) => {
-  const { data } = await api.post<User & { rawPassword?: string }>('/users', payload);
+  const { data } = await api.post<User & { rawPassword?: string }>(
+    '/users',
+    payload,
+  );
   return data;
 };
 
@@ -685,7 +714,9 @@ export const fetchPlannerMatrix = async (params: {
   orgId?: string;
   status?: AssignmentStatus;
 }) => {
-  const { data } = await api.get<PlannerMatrixResponse>('/planner/matrix', { params });
+  const { data } = await api.get<PlannerMatrixResponse>('/planner/matrix', {
+    params,
+  });
   return data;
 };
 
@@ -696,7 +727,9 @@ export const fetchMyPlannerMatrix = async (params: {
   pageSize?: number;
   status?: AssignmentStatus;
 }) => {
-  const { data } = await api.get<PlannerMatrixResponse>('/planner/my-matrix', { params });
+  const { data } = await api.get<PlannerMatrixResponse>('/planner/my-matrix', {
+    params,
+  });
   return data;
 };
 
@@ -715,8 +748,6 @@ export const downloadPlannerExcel = async (params: {
 
   return response.data;
 };
-
-
 
 export type FetchMyWorkReportsParams = {
   /** Начало периода (включительно) в формате YYYY-MM-DD */
@@ -794,7 +825,9 @@ export const fetchWorkReports = async (params?: FetchWorkReportsParams) => {
 /* -------------------- MY SCHEDULE -------------------- */
 
 export const fetchMySchedule = async () => {
-  const { data } = await api.get<{ assignments: Assignment[]; slots: Slot[] }>('/me/schedule');
+  const { data } = await api.get<{ assignments: Assignment[]; slots: Slot[] }>(
+    '/me/schedule',
+  );
   return data;
 };
 
@@ -803,8 +836,14 @@ export const confirmMySlot = async (slotId: string) => {
   return data;
 };
 
-export const requestSlotAdjustment = async (slotId: string, payload: { comment: string }) => {
-  const { data } = await api.post<Slot>(`/me/slots/${slotId}/request-swap`, payload);
+export const requestSlotAdjustment = async (
+  slotId: string,
+  payload: { comment: string },
+) => {
+  const { data } = await api.post<Slot>(
+    `/me/slots/${slotId}/request-swap`,
+    payload,
+  );
   return data;
 };
 
@@ -844,13 +883,18 @@ export const requestAssignmentScheduleAdjustment = async (
  * Создать запрос назначения (от текущего пользователя).
  * Backend: POST /assignments/requests (или /assignments/request)
  */
-export const requestAssignment = async (payload: CreateAssignmentRequestDto) => {
+export const requestAssignment = async (
+  payload: CreateAssignmentRequestDto,
+) => {
   const normalized = {
     ...payload,
     comment: payload.comment ?? null,
   };
 
-  const { data } = await api.post<AssignmentRequest>('/assignments/requests', normalized);
+  const { data } = await api.post<AssignmentRequest>(
+    '/assignments/requests',
+    normalized,
+  );
   return data;
 };
 
@@ -877,7 +921,9 @@ export const fetchAssignmentRequests = async (params?: {
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const resp = await api.get<any>('/assignments/requests', { params: mappedParams });
+  const resp = await api.get<any>('/assignments/requests', {
+    params: mappedParams,
+  });
 
   const raw = resp.data;
 
@@ -899,7 +945,11 @@ export const fetchAssignmentRequests = async (params?: {
   // fallback
   return {
     data: Array.isArray(raw) ? (raw as AssignmentRequest[]) : [],
-    meta: { total: Array.isArray(raw) ? raw.length : 0, page: 1, pageSize: Array.isArray(raw) ? raw.length : 0 },
+    meta: {
+      total: Array.isArray(raw) ? raw.length : 0,
+      page: 1,
+      pageSize: Array.isArray(raw) ? raw.length : 0,
+    },
   } as PaginatedResponse<AssignmentRequest>;
 };
 
@@ -951,8 +1001,10 @@ export const fetchScheduleAdjustments = async (params: {
   }
 
   const page = raw?.page ?? raw?.meta?.page ?? params.page ?? 1;
-  const pageSize = raw?.pageSize ?? raw?.meta?.pageSize ?? params.pageSize ?? items.length;
-  const total = raw?.total ?? raw?.meta?.total ?? (Array.isArray(items) ? items.length : 0);
+  const pageSize =
+    raw?.pageSize ?? raw?.meta?.pageSize ?? params.pageSize ?? items.length;
+  const total =
+    raw?.total ?? raw?.meta?.total ?? (Array.isArray(items) ? items.length : 0);
 
   return {
     items,
@@ -1074,7 +1126,9 @@ export async function fetchStatistics(params: FetchStatisticsParams) {
     }
   }
 
-  const res = await api.get<StatisticsResponse>(`/statistics?${search.toString()}`);
+  const res = await api.get<StatisticsResponse>(
+    `/statistics?${search.toString()}`,
+  );
   return res.data;
 }
 
@@ -1112,7 +1166,9 @@ export type KpiResponse = {
   dynamics: KpiDynamicsPoint[];
 };
 
-export async function fetchKpi(params: FetchStatisticsParams): Promise<KpiResponse> {
+export async function fetchKpi(
+  params: FetchStatisticsParams,
+): Promise<KpiResponse> {
   const search = new URLSearchParams();
 
   search.set('from', params.from);
@@ -1133,7 +1189,9 @@ export async function fetchKpi(params: FetchStatisticsParams): Promise<KpiRespon
     }
   }
 
-  const res = await api.get<KpiResponse>(`/statistics/kpi?${search.toString()}`);
+  const res = await api.get<KpiResponse>(
+    `/statistics/kpi?${search.toString()}`,
+  );
   return res.data;
 }
 
@@ -1145,7 +1203,10 @@ export const changeMyPassword = async (payload: {
   currentPassword: string;
   newPassword: string;
 }) => {
-  const { data } = await api.patch<{ success: true }>('/me/change-password', payload);
+  const { data } = await api.patch<{ success: true }>(
+    '/me/change-password',
+    payload,
+  );
   return data;
 };
 
@@ -1174,15 +1235,19 @@ export type UpdateAutomationSettingsPayload = Partial<
   >
 >;
 
-export const fetchAutomationSettings = async (): Promise<AutomationSettings> => {
-  const { data } = await api.get<AutomationSettings>('/automation/settings');
-  return data;
-};
+export const fetchAutomationSettings =
+  async (): Promise<AutomationSettings> => {
+    const { data } = await api.get<AutomationSettings>('/automation/settings');
+    return data;
+  };
 
 export const updateAutomationSettings = async (
   payload: UpdateAutomationSettingsPayload,
 ): Promise<AutomationSettings> => {
-  const { data } = await api.put<AutomationSettings>('/automation/settings', payload);
+  const { data } = await api.put<AutomationSettings>(
+    '/automation/settings',
+    payload,
+  );
   return data;
 };
 
@@ -1198,21 +1263,35 @@ export type AttachedFile = {
   createdAt: string;
 };
 
-export const fetchAssignmentFiles = async (assignmentId: string): Promise<AttachedFile[]> => {
-  const { data } = await api.get<AttachedFile[]>(`/assignments/${assignmentId}/files`);
+export const fetchAssignmentFiles = async (
+  assignmentId: string,
+): Promise<AttachedFile[]> => {
+  const { data } = await api.get<AttachedFile[]>(
+    `/assignments/${assignmentId}/files`,
+  );
   return data;
 };
 
-export const uploadAssignmentFile = async (assignmentId: string, file: File): Promise<AttachedFile> => {
+export const uploadAssignmentFile = async (
+  assignmentId: string,
+  file: File,
+): Promise<AttachedFile> => {
   const formData = new FormData();
   formData.append('file', file);
-  const { data } = await api.post<AttachedFile>(`/assignments/${assignmentId}/files`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
+  const { data } = await api.post<AttachedFile>(
+    `/assignments/${assignmentId}/files`,
+    formData,
+    {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    },
+  );
   return data;
 };
 
-export const deleteAssignmentFile = async (assignmentId: string, assignmentFileId: string): Promise<void> => {
+export const deleteAssignmentFile = async (
+  assignmentId: string,
+  assignmentFileId: string,
+): Promise<void> => {
   await api.delete(`/assignments/${assignmentId}/files/${assignmentFileId}`);
 };
 
@@ -1250,7 +1329,9 @@ export type CreateVacationPayload = {
   comment?: string;
 };
 
-export const createVacationRequest = async (payload: CreateVacationPayload): Promise<VacationRequest> => {
+export const createVacationRequest = async (
+  payload: CreateVacationPayload,
+): Promise<VacationRequest> => {
   const { data } = await api.post<VacationRequest>('/hr/vacations', payload);
   return data;
 };
@@ -1271,18 +1352,31 @@ export type FetchVacationsParams = {
 
 export const fetchVacations = async (
   params: FetchVacationsParams = {},
-): Promise<{ items: VacationRequest[]; total: number; page: number; pageSize: number }> => {
+): Promise<{
+  items: VacationRequest[];
+  total: number;
+  page: number;
+  pageSize: number;
+}> => {
   const { data } = await api.get('/hr/vacations', { params });
   return data;
 };
 
 export const approveVacation = async (id: string): Promise<VacationRequest> => {
-  const { data } = await api.patch<VacationRequest>(`/hr/vacations/${id}/approve`);
+  const { data } = await api.patch<VacationRequest>(
+    `/hr/vacations/${id}/approve`,
+  );
   return data;
 };
 
-export const rejectVacation = async (id: string, comment?: string): Promise<VacationRequest> => {
-  const { data } = await api.patch<VacationRequest>(`/hr/vacations/${id}/reject`, { comment });
+export const rejectVacation = async (
+  id: string,
+  comment?: string,
+): Promise<VacationRequest> => {
+  const { data } = await api.patch<VacationRequest>(
+    `/hr/vacations/${id}/reject`,
+    { comment },
+  );
   return data;
 };
 
@@ -1301,7 +1395,12 @@ export type NotificationLogItem = {
 
 export const fetchNotificationLog = async (
   params: { page?: number; pageSize?: number } = {},
-): Promise<{ items: NotificationLogItem[]; total: number; page: number; pageSize: number }> => {
+): Promise<{
+  items: NotificationLogItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+}> => {
   const { data } = await api.get('/automation/notification-log', { params });
   return data;
 };
@@ -1309,7 +1408,12 @@ export const fetchNotificationLog = async (
 /* -------------------- BILLING -------------------- */
 
 export type SubscriptionPlan = 'STARTER' | 'BUSINESS' | 'ENTERPRISE';
-export type SubscriptionStatus = 'ACTIVE' | 'CANCELLED' | 'PAST_DUE' | 'TRIALING' | 'INCOMPLETE';
+export type SubscriptionStatus =
+  | 'ACTIVE'
+  | 'CANCELLED'
+  | 'PAST_DUE'
+  | 'TRIALING'
+  | 'INCOMPLETE';
 
 export type Subscription = {
   id: string;
@@ -1346,8 +1450,13 @@ export type RegisterPayload = {
   plan: SubscriptionPlan;
 };
 
-export const initiateRegistration = async (payload: RegisterPayload): Promise<{ url: string }> => {
-  const { data } = await api.post<{ url: string }>('/billing/register', payload);
+export const initiateRegistration = async (
+  payload: RegisterPayload,
+): Promise<{ url: string }> => {
+  const { data } = await api.post<{ url: string }>(
+    '/billing/register',
+    payload,
+  );
   return data;
 };
 
@@ -1356,8 +1465,12 @@ export const fetchBillingInfo = async (): Promise<BillingInfo> => {
   return data;
 };
 
-export const createPortalSession = async (returnUrl: string): Promise<{ url: string }> => {
-  const { data } = await api.post<{ url: string }>('/billing/portal', { returnUrl });
+export const createPortalSession = async (
+  returnUrl: string,
+): Promise<{ url: string }> => {
+  const { data } = await api.post<{ url: string }>('/billing/portal', {
+    returnUrl,
+  });
   return data;
 };
 

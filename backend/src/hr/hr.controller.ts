@@ -28,7 +28,8 @@ export class HrController {
 
   private orgId(req: any): string {
     const id: string | undefined = req.user?.orgId;
-    if (!id) throw new ForbiddenException('User must belong to an organization');
+    if (!id)
+      throw new ForbiddenException('User must belong to an organization');
     return id;
   }
 

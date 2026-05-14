@@ -14,7 +14,9 @@ export class MatrixController {
   constructor(private readonly plansService: PlansService) {}
 
   @Get()
-  fetch(@Query(new ZodValidationPipe(matrixQuerySchema)) query: MatrixQueryDto) {
+  fetch(
+    @Query(new ZodValidationPipe(matrixQuerySchema)) query: MatrixQueryDto,
+  ) {
     return this.plansService.getMatrix(query);
   }
 }

@@ -115,15 +115,15 @@ export class AssignmentsService {
       rawFrom instanceof Date
         ? rawFrom
         : rawFrom
-        ? new Date(rawFrom)
-        : new Date('1970-01-01T00:00:00.000Z');
+          ? new Date(rawFrom)
+          : new Date('1970-01-01T00:00:00.000Z');
 
     const to =
       rawTo instanceof Date
         ? rawTo
         : rawTo
-        ? new Date(rawTo)
-        : new Date('9999-12-31T23:59:59.999Z');
+          ? new Date(rawTo)
+          : new Date('9999-12-31T23:59:59.999Z');
 
     return { from, to };
   }
@@ -324,11 +324,7 @@ export class AssignmentsService {
     const { shifts, ...rest } = payload as any;
 
     await this.ensureCanAssign(rest.userId, rest.workplaceId);
-    await this.ensureNoOverlap(
-      rest.userId,
-      rest.startsAt,
-      rest.endsAt ?? null,
-    );
+    await this.ensureNoOverlap(rest.userId, rest.startsAt, rest.endsAt ?? null);
 
     const assignment = await this.prisma.$transaction(async (tx) => {
       const created = await tx.assignment.create({
@@ -603,8 +599,7 @@ export class AssignmentsService {
 
     if (rest.startsAt || rest.endsAt !== undefined) {
       const startsAt = rest.startsAt ?? existing.startsAt;
-      const endsAt =
-        rest.endsAt === undefined ? existing.endsAt : rest.endsAt;
+      const endsAt = rest.endsAt === undefined ? existing.endsAt : rest.endsAt;
       await this.ensureNoOverlap(effectiveUserId, startsAt, endsAt, id);
     }
 
@@ -615,8 +610,7 @@ export class AssignmentsService {
           userId: effectiveUserId,
           workplaceId: effectiveWorkplaceId,
           startsAt: rest.startsAt ?? existing.startsAt,
-          endsAt:
-            rest.endsAt === undefined ? existing.endsAt : rest.endsAt,
+          endsAt: rest.endsAt === undefined ? existing.endsAt : rest.endsAt,
           status: rest.status ?? existing.status,
         },
       });
@@ -635,8 +629,7 @@ export class AssignmentsService {
               startsAt: shift.startsAt,
               endsAt: shift.endsAt,
               kind:
-                shift.kind &&
-                ShiftKind[shift.kind as keyof typeof ShiftKind]
+                shift.kind && ShiftKind[shift.kind as keyof typeof ShiftKind]
                   ? shift.kind
                   : ShiftKind.DEFAULT,
             })),
@@ -761,9 +754,7 @@ export class AssignmentsService {
     const now = new Date();
 
     const finalEndsAt =
-      assignment.endsAt && assignment.endsAt <= now
-        ? assignment.endsAt
-        : now;
+      assignment.endsAt && assignment.endsAt <= now ? assignment.endsAt : now;
 
     const updated = await this.prisma.assignment.update({
       where: { id },
@@ -1152,17 +1143,12 @@ export class AssignmentsService {
    * Склеиваем локальную дату (YYYY-MM-DD) и локальное время HH:mm
    * в UTC-время по той же логике, что и фронт (UTC+6).
    */
-  private buildUtcFromLocalDateAndTime(
-    dateIso: string,
-    timeStr: string,
-  ): Date {
+  private buildUtcFromLocalDateAndTime(dateIso: string, timeStr: string): Date {
     const [y, m, d] = dateIso.split('-').map((v) => Number(v));
     const [hh, mm] = timeStr.split(':').map((v) => Number(v));
 
     if (!y || !m || !d || Number.isNaN(hh) || Number.isNaN(mm)) {
-      throw new BadRequestException(
-        'Некорректная дата/время корректировки',
-      );
+      throw new BadRequestException('Некорректная дата/время корректировки');
     }
 
     const offsetMs = this.LOCAL_TZ_OFFSET_MINUTES * 60 * 1000;
@@ -1281,8 +1267,7 @@ export class AssignmentsService {
     const startsAt = payload.startsAt ? new Date(payload.startsAt) : null;
     const endsAt = payload.endsAt ? new Date(payload.endsAt) : null;
 
-    const kind: ShiftKind =
-      (payload.kind as ShiftKind) ?? ShiftKind.DAY_OFF;
+    const kind: ShiftKind = (payload.kind as ShiftKind) ?? ShiftKind.DAY_OFF;
 
     const adjustment = await this.prisma.assignmentAdjustment.create({
       data: {
@@ -1299,14 +1284,10 @@ export class AssignmentsService {
 
     // Уведомляем участника + админов организации,
     // чтобы у менеджера/супера в колокольчике появился запрос.
-    const orgId =
-      assignment.workplace?.orgId ?? assignment.user.orgId ?? null;
+    const orgId = assignment.workplace?.orgId ?? assignment.user.orgId ?? null;
 
     if (orgId) {
-      const recipients = await this.resolveRecipients(
-        assignment.userId,
-        orgId,
-      );
+      const recipients = await this.resolveRecipients(assignment.userId, orgId);
 
       await this.automation.notifyWithCheck(
         orgId,
@@ -1397,125 +1378,120 @@ export class AssignmentsService {
       throw new BadRequestException('Некорректный статус решения');
     }
 
-    const {
-      updatedAdjustment,
-      assignmentForNotify,
-    } = await this.prisma.$transaction(async (tx) => {
-      const adjustment = await tx.assignmentAdjustment.findUnique({
-        where: { id: adjustmentId },
-        include: {
-          assignment: {
-            include: {
-              workplace: {
-                select: { id: true, orgId: true, code: true, name: true },
+    const { updatedAdjustment, assignmentForNotify } =
+      await this.prisma.$transaction(async (tx) => {
+        const adjustment = await tx.assignmentAdjustment.findUnique({
+          where: { id: adjustmentId },
+          include: {
+            assignment: {
+              include: {
+                workplace: {
+                  select: { id: true, orgId: true, code: true, name: true },
+                },
+                user: { select: { id: true, orgId: true } },
               },
-              user: { select: { id: true, orgId: true } },
+            },
+            user: {
+              select: { id: true, email: true, fullName: true },
             },
           },
-          user: {
-            select: { id: true, email: true, fullName: true },
-          },
-        },
-      });
+        });
 
-      if (!adjustment) {
-        throw new NotFoundException('Запрос корректировки не найден');
-      }
-
-      if (adjustment.status !== 'PENDING') {
-        throw new BadRequestException('По этому запросу уже принято решение');
-      }
-
-      // 1) обновляем сам запрос
-      const updated = await tx.assignmentAdjustment.update({
-        where: { id: adjustmentId },
-        data: {
-          status: decision,
-          managerComment: payload.managerComment ?? null,
-        } as any,
-      });
-
-      // 2) если APPROVED — применяем к сменам назначения
-      if (decision === 'APPROVED') {
-        const requestedShifts = this.parseRequestedScheduleFromComment(
-          adjustment.comment,
-        );
-
-        if (requestedShifts.length > 0) {
-          // Новый режим: полностью пересобираем смены для назначения
-          const assignmentId = adjustment.assignmentId;
-
-          // Удаляем все старые смены
-          await tx.assignmentShift.deleteMany({
-            where: { assignmentId },
-          });
-
-          // Создаём новые смены
-          await tx.assignmentShift.createMany({
-            data: requestedShifts.map((s) => ({
-              assignmentId,
-              date: s.date,
-              startsAt: s.startsAt,
-              endsAt: s.endsAt,
-              kind: s.kind,
-            })),
-          });
-
-          // Обновляем глобальный интервал назначения по min/max времени
-          const minStart = requestedShifts.reduce(
-            (min, s) => (s.startsAt < min ? s.startsAt : min),
-            requestedShifts[0].startsAt,
-          );
-          const maxEnd = requestedShifts.reduce(
-            (max, s) => (s.endsAt > max ? s.endsAt : max),
-            requestedShifts[0].endsAt,
-          );
-
-          await tx.assignment.update({
-            where: { id: assignmentId },
-            data: {
-              startsAt: minStart,
-              endsAt: maxEnd,
-            },
-          });
-        } else {
-          // Старый fallback: меняем только вид/время смен на указанную дату
-          const updateData: Prisma.AssignmentShiftUpdateManyMutationInput = {
-            kind: adjustment.kind ?? ShiftKind.DAY_OFF,
-          };
-
-          if (adjustment.startsAt) {
-            updateData.startsAt = adjustment.startsAt;
-          }
-          if (adjustment.endsAt) {
-            updateData.endsAt = adjustment.endsAt;
-          }
-
-          await tx.assignmentShift.updateMany({
-            where: {
-              assignmentId: adjustment.assignmentId,
-              date: adjustment.date,
-            },
-            data: updateData,
-          });
+        if (!adjustment) {
+          throw new NotFoundException('Запрос корректировки не найден');
         }
-      }
 
-      return {
-        updatedAdjustment: updated,
-        assignmentForNotify: adjustment.assignment,
-      };
-    });
+        if (adjustment.status !== 'PENDING') {
+          throw new BadRequestException('По этому запросу уже принято решение');
+        }
+
+        // 1) обновляем сам запрос
+        const updated = await tx.assignmentAdjustment.update({
+          where: { id: adjustmentId },
+          data: {
+            status: decision,
+            managerComment: payload.managerComment ?? null,
+          } as any,
+        });
+
+        // 2) если APPROVED — применяем к сменам назначения
+        if (decision === 'APPROVED') {
+          const requestedShifts = this.parseRequestedScheduleFromComment(
+            adjustment.comment,
+          );
+
+          if (requestedShifts.length > 0) {
+            // Новый режим: полностью пересобираем смены для назначения
+            const assignmentId = adjustment.assignmentId;
+
+            // Удаляем все старые смены
+            await tx.assignmentShift.deleteMany({
+              where: { assignmentId },
+            });
+
+            // Создаём новые смены
+            await tx.assignmentShift.createMany({
+              data: requestedShifts.map((s) => ({
+                assignmentId,
+                date: s.date,
+                startsAt: s.startsAt,
+                endsAt: s.endsAt,
+                kind: s.kind,
+              })),
+            });
+
+            // Обновляем глобальный интервал назначения по min/max времени
+            const minStart = requestedShifts.reduce(
+              (min, s) => (s.startsAt < min ? s.startsAt : min),
+              requestedShifts[0].startsAt,
+            );
+            const maxEnd = requestedShifts.reduce(
+              (max, s) => (s.endsAt > max ? s.endsAt : max),
+              requestedShifts[0].endsAt,
+            );
+
+            await tx.assignment.update({
+              where: { id: assignmentId },
+              data: {
+                startsAt: minStart,
+                endsAt: maxEnd,
+              },
+            });
+          } else {
+            // Старый fallback: меняем только вид/время смен на указанную дату
+            const updateData: Prisma.AssignmentShiftUpdateManyMutationInput = {
+              kind: adjustment.kind ?? ShiftKind.DAY_OFF,
+            };
+
+            if (adjustment.startsAt) {
+              updateData.startsAt = adjustment.startsAt;
+            }
+            if (adjustment.endsAt) {
+              updateData.endsAt = adjustment.endsAt;
+            }
+
+            await tx.assignmentShift.updateMany({
+              where: {
+                assignmentId: adjustment.assignmentId,
+                date: adjustment.date,
+              },
+              data: updateData,
+            });
+          }
+        }
+
+        return {
+          updatedAdjustment: updated,
+          assignmentForNotify: adjustment.assignment,
+        };
+      });
 
     const assignment = assignmentForNotify;
     const orgId =
       assignment?.workplace?.orgId ?? assignment?.user?.orgId ?? null;
 
     if (orgId && assignment) {
-      const recipients = await this.resolveRecipients(
-        assignment.userId,
-        orgId,
-      );
+      const recipients = await this.resolveRecipients(assignment.userId, orgId);
 
       await this.automation.notifyWithCheck(
         orgId,
@@ -1526,10 +1502,7 @@ export class AssignmentsService {
           userId: assignment.userId,
           workplaceId: assignment.workplaceId,
           adjustmentId: updatedAdjustment.id,
-          adjustmentType:
-            decision === 'APPROVED'
-              ? 'APPROVED'
-              : 'REJECTED',
+          adjustmentType: decision === 'APPROVED' ? 'APPROVED' : 'REJECTED',
         },
       );
     }
@@ -1556,14 +1529,12 @@ export class AssignmentsService {
         const dateIso =
           typeof dateRaw === 'string'
             ? dateRaw
-            : dateRaw?.format?.('YYYY-MM-DD') ?? null;
+            : (dateRaw?.format?.('YYYY-MM-DD') ?? null);
 
         // item может быть Dayjs/Date
         const dateIsoFinal =
           dateIso ||
-          (dateRaw instanceof Date
-            ? dateRaw.toISOString().slice(0, 10)
-            : null);
+          (dateRaw instanceof Date ? dateRaw.toISOString().slice(0, 10) : null);
 
         // интервалы внутри item.intervals
         const intervals = Array.isArray(item.intervals) ? item.intervals : null;
@@ -1576,11 +1547,10 @@ export class AssignmentsService {
                 ? iv.from
                 : iv.from?.format?.('HH:mm');
             const toStr =
-              typeof iv.to === 'string'
-                ? iv.to
-                : iv.to?.format?.('HH:mm');
+              typeof iv.to === 'string' ? iv.to : iv.to?.format?.('HH:mm');
 
-            const kindRaw = iv.shiftKind ?? iv.kind ?? item.shiftKind ?? item.kind;
+            const kindRaw =
+              iv.shiftKind ?? iv.kind ?? item.shiftKind ?? item.kind;
             const kind = this.safeShiftKind(kindRaw);
 
             const built = this.buildShift(dateIsoFinal, fromStr, toStr, kind);
@@ -1590,7 +1560,9 @@ export class AssignmentsService {
         }
 
         const fromStr =
-          typeof item.from === 'string' ? item.from : item.from?.format?.('HH:mm');
+          typeof item.from === 'string'
+            ? item.from
+            : item.from?.format?.('HH:mm');
         const toStr =
           typeof item.to === 'string' ? item.to : item.to?.format?.('HH:mm');
         const kindRaw = item.shiftKind ?? item.kind;
@@ -1663,12 +1635,17 @@ export class AssignmentsService {
     payload: CreateAssignmentRequestPayload,
     orgIdFromToken?: string,
   ) {
-    const orgId = orgIdFromToken ?? (await this.resolveOrgIdForUser(requesterId));
+    const orgId =
+      orgIdFromToken ?? (await this.resolveOrgIdForUser(requesterId));
 
     const dateFrom =
-      payload.dateFrom instanceof Date ? payload.dateFrom : new Date(payload.dateFrom);
+      payload.dateFrom instanceof Date
+        ? payload.dateFrom
+        : new Date(payload.dateFrom);
     const dateTo =
-      payload.dateTo instanceof Date ? payload.dateTo : new Date(payload.dateTo);
+      payload.dateTo instanceof Date
+        ? payload.dateTo
+        : new Date(payload.dateTo);
 
     if (Number.isNaN(dateFrom.getTime()) || Number.isNaN(dateTo.getTime())) {
       throw new BadRequestException('Некорректные dateFrom/dateTo');
@@ -1688,7 +1665,9 @@ export class AssignmentsService {
 
       if (!wp) throw new NotFoundException('Workplace not found');
       if (wp.orgId !== orgId) {
-        throw new BadRequestException('Workplace не принадлежит организации пользователя');
+        throw new BadRequestException(
+          'Workplace не принадлежит организации пользователя',
+        );
       }
       if (!wp.isActive) {
         throw new BadRequestException('Workplace не активен');
@@ -1731,7 +1710,9 @@ export class AssignmentsService {
       (currentUserId ? await this.resolveOrgIdForUser(currentUserId) : null);
 
     if (!orgId) {
-      throw new BadRequestException('orgId не найден (нет orgId в токене и нет currentUserId)');
+      throw new BadRequestException(
+        'orgId не найден (нет orgId в токене и нет currentUserId)',
+      );
     }
 
     const page = params.page ?? 1;
@@ -1868,8 +1849,5 @@ export class AssignmentsService {
         assignment: { select: { id: true, startsAt: true, endsAt: true } },
       },
     });
-
-
   }
-
 }

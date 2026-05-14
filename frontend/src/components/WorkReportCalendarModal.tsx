@@ -100,7 +100,7 @@ export const WorkReportCalendarModal = ({
     setSelectedDate(value);
     const key = value.format('YYYY-MM-DD');
     const info = dayMap[key];
-    setSelectedHours(info ? info.hours ?? null : null);
+    setSelectedHours(info ? (info.hours ?? null) : null);
   };
 
   const handlePanelChange = (value: Dayjs) => {

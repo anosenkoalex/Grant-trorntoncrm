@@ -7,7 +7,10 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AutomationService, UpdateAutomationSettingsDto } from './automation.service.js';
+import {
+  AutomationService,
+  UpdateAutomationSettingsDto,
+} from './automation.service.js';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 import { JwtPayload } from '../auth/jwt-payload.interface.js';

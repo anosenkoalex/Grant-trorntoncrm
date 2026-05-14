@@ -25,8 +25,9 @@ export default function RegisterSuccessPage() {
               subTitle={
                 <div>
                   <Text>
-                    Your company account has been created and your subscription is active.
-                    You can now log in with the email and password you provided.
+                    Your company account has been created and your subscription
+                    is active. You can now log in with the email and password
+                    you provided.
                   </Text>
                 </div>
               }

@@ -45,7 +45,14 @@ export class HrService {
       dateTo?: string;
     },
   ) {
-    const { status, userId, page = 1, pageSize = 20, dateFrom, dateTo } = params;
+    const {
+      status,
+      userId,
+      page = 1,
+      pageSize = 20,
+      dateFrom,
+      dateTo,
+    } = params;
     const skip = (page - 1) * pageSize;
 
     const where: any = {
@@ -92,8 +99,15 @@ export class HrService {
 
     const updated = await this.prisma.vacationRequest.update({
       where: { id },
-      data: { status: VacationStatus.APPROVED, decidedById, decidedAt: new Date() },
-      include: { user: { select: userSelect }, decidedBy: { select: userSelect } },
+      data: {
+        status: VacationStatus.APPROVED,
+        decidedById,
+        decidedAt: new Date(),
+      },
+      include: {
+        user: { select: userSelect },
+        decidedBy: { select: userSelect },
+      },
     });
 
     const typeLabel = this.getTypeLabel(req.type);
@@ -118,7 +132,10 @@ export class HrService {
         decidedAt: new Date(),
         ...(comment ? { comment } : {}),
       },
-      include: { user: { select: userSelect }, decidedBy: { select: userSelect } },
+      include: {
+        user: { select: userSelect },
+        decidedBy: { select: userSelect },
+      },
     });
 
     const typeLabel = this.getTypeLabel(req.type);
@@ -141,6 +158,10 @@ export class HrService {
   }
 
   private formatDate(date: Date): string {
-    return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return date.toLocaleDateString('ru-RU', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
   }
 }

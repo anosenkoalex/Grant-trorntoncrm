@@ -24,7 +24,11 @@ import {
 } from 'antd';
 const { useBreakpoint } = Grid;
 import type { ColumnsType } from 'antd/es/table';
-import { PlusOutlined, PaperClipOutlined, CalendarOutlined } from '@ant-design/icons';
+import {
+  PlusOutlined,
+  PaperClipOutlined,
+  CalendarOutlined,
+} from '@ant-design/icons';
 import { FileAttachment } from '../components/FileAttachment.js';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs, { Dayjs } from 'dayjs';
@@ -254,7 +258,10 @@ const downloadCsv = (rows: Assignment[], prefix: string) => {
 
 const toGCalDate = (iso: string): string => {
   const d = new Date(iso);
-  return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  return d
+    .toISOString()
+    .replace(/[-:]/g, '')
+    .replace(/\.\d{3}/, '');
 };
 
 const buildGoogleCalendarUrl = (record: Assignment): string => {
@@ -267,7 +274,9 @@ const buildGoogleCalendarUrl = (record: Assignment): string => {
     : '';
   const employee = record.user?.fullName ?? record.user?.email ?? '';
   const text = encodeURIComponent(`Назначение: ${workplace}`);
-  const details = encodeURIComponent(`Сотрудник: ${employee}\nРабочее место: ${workplace}`);
+  const details = encodeURIComponent(
+    `Сотрудник: ${employee}\nРабочее место: ${workplace}`,
+  );
   const location = encodeURIComponent(record.workplace?.location ?? workplace);
   return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${start}/${end}&details=${details}&location=${location}`;
 };
@@ -290,8 +299,9 @@ const AssignmentsPage = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingAssignment, setEditingAssignment] =
-    useState<Assignment | null>(null);
+  const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(
+    null,
+  );
   const [notifyingId, setNotifyingId] = useState<string | null>(null);
   const [form] = Form.useForm();
 
@@ -400,7 +410,6 @@ const AssignmentsPage = () => {
     staleTime: 30_000,
   });
 
-  
   const assignmentRequestsQuery = useQuery({
     queryKey: ['assignment-requests', 'for-assignments', 'PENDING'],
     queryFn: () =>
@@ -413,7 +422,7 @@ const AssignmentsPage = () => {
     staleTime: 30_000,
   });
 
-const adjustments: ScheduleAdjustment[] = useMemo(() => {
+  const adjustments: ScheduleAdjustment[] = useMemo(() => {
     const raw: any = scheduleAdjustmentsQuery.data;
     if (!raw) return [];
     return (raw.items ?? raw.data ?? []) as ScheduleAdjustment[];
@@ -431,12 +440,14 @@ const adjustments: ScheduleAdjustment[] = useMemo(() => {
     return typeof metaTotal === 'number' ? metaTotal : base;
   }, [scheduleAdjustmentsQuery.data, pendingAdjustments]);
 
-  
-  const [locallyProcessedAssignmentRequestIds, setLocallyProcessedAssignmentRequestIds] =
-    useState<string[]>([]);
+  const [
+    locallyProcessedAssignmentRequestIds,
+    setLocallyProcessedAssignmentRequestIds,
+  ] = useState<string[]>([]);
 
   const rawAssignmentRequests: AssignmentRequest[] =
-    (assignmentRequestsQuery.data?.data as AssignmentRequest[] | undefined) ?? [];
+    (assignmentRequestsQuery.data?.data as AssignmentRequest[] | undefined) ??
+    [];
 
   const pendingAssignmentRequests = useMemo(
     () =>
@@ -448,7 +459,7 @@ const adjustments: ScheduleAdjustment[] = useMemo(() => {
 
   const pendingAssignmentRequestsCount = pendingAssignmentRequests.length;
 
-const assignmentsWithAdjustment = useMemo(() => {
+  const assignmentsWithAdjustment = useMemo(() => {
     const set = new Set<string>();
     pendingAdjustments.forEach((adj) => {
       if (adj.assignmentId) set.add(adj.assignmentId);
@@ -633,7 +644,9 @@ const assignmentsWithAdjustment = useMemo(() => {
       const { id, managerComment, assignmentId, newWorkplaceId } = payload;
 
       if (assignmentId && newWorkplaceId) {
-        await updateAssignment(assignmentId, { workplaceId: newWorkplaceId } as any);
+        await updateAssignment(assignmentId, {
+          workplaceId: newWorkplaceId,
+        } as any);
       }
 
       return approveScheduleAdjustment(id, {
@@ -674,8 +687,6 @@ const assignmentsWithAdjustment = useMemo(() => {
       handleAssignmentError(error);
     },
   });
-
-
 
   const handleAssignmentRequestProcessed = (id: string) => {
     // Локально убираем запрос из списка, чтобы он сразу пропадал из UI
@@ -803,7 +814,8 @@ const assignmentsWithAdjustment = useMemo(() => {
     const marker = 'Интервалы, которые сотрудник предлагает:';
     const markerIdx = comment.indexOf(marker);
 
-    const slice = markerIdx >= 0 ? comment.slice(markerIdx + marker.length) : comment;
+    const slice =
+      markerIdx >= 0 ? comment.slice(markerIdx + marker.length) : comment;
 
     const lines = slice
       .split('\n')
@@ -903,14 +915,13 @@ const assignmentsWithAdjustment = useMemo(() => {
     setIsModalOpen(true);
   };
 
-
   const renderAssignmentRequestsContent = () => {
-    if (assignmentRequestsQuery.isLoading && !pendingAssignmentRequests.length) {
+    if (
+      assignmentRequestsQuery.isLoading &&
+      !pendingAssignmentRequests.length
+    ) {
       return (
-        <Result
-          status="info"
-          title={t('common.loading', 'Загрузка...')}
-        />
+        <Result status="info" title={t('common.loading', 'Загрузка...')} />
       );
     }
 
@@ -928,8 +939,8 @@ const assignmentsWithAdjustment = useMemo(() => {
       currentAssignmentRequestIndex < 0
         ? 0
         : currentAssignmentRequestIndex >= total
-        ? total - 1
-        : currentAssignmentRequestIndex;
+          ? total - 1
+          : currentAssignmentRequestIndex;
 
     const request = pendingAssignmentRequests[safeIndex];
 
@@ -948,7 +959,8 @@ const assignmentsWithAdjustment = useMemo(() => {
         ? userById[userIdFromRequest]
         : undefined;
 
-    const userForDisplay = requesterUser || legacyUserFromRequest || userFromUsers;
+    const userForDisplay =
+      requesterUser || legacyUserFromRequest || userFromUsers;
 
     const userLabel =
       (typeof userForDisplay?.fullName === 'string' &&
@@ -965,8 +977,9 @@ const assignmentsWithAdjustment = useMemo(() => {
     const dateFrom = dayjs(request.dateFrom);
     const dateTo = dayjs(request.dateTo);
 
-    const intervalsByDate =
-      parseAssignmentRequestIntervalsFromComment(request.comment);
+    const intervalsByDate = parseAssignmentRequestIntervalsFromComment(
+      request.comment,
+    );
 
     const dateKeys = Object.keys(intervalsByDate).sort();
 
@@ -1018,10 +1031,14 @@ const assignmentsWithAdjustment = useMemo(() => {
           }}
         >
           <Typography.Text>
-            {t('assignments.requestCounter', 'Запрос {{current}} из {{total}}', {
-              current: safeIndex + 1,
-              total,
-            })}
+            {t(
+              'assignments.requestCounter',
+              'Запрос {{current}} из {{total}}',
+              {
+                current: safeIndex + 1,
+                total,
+              },
+            )}
           </Typography.Text>
         </div>
 
@@ -1058,9 +1075,7 @@ const assignmentsWithAdjustment = useMemo(() => {
                 {t('assignments.intervals', 'Интервалы')}:
               </Typography.Text>
               <br />
-              {dateKeys.length === 0 && (
-                <Typography.Text>—</Typography.Text>
-              )}
+              {dateKeys.length === 0 && <Typography.Text>—</Typography.Text>}
               <Space
                 direction="vertical"
                 size={4}
@@ -1091,7 +1106,6 @@ const assignmentsWithAdjustment = useMemo(() => {
                 })}
               </Space>
             </div>
-
           </Space>
         </Card>
 
@@ -1102,13 +1116,7 @@ const assignmentsWithAdjustment = useMemo(() => {
             marginTop: 16,
           }}
         >
-          <Space>
-            {total > 1 && (
-              <Button onClick={handlePrev}>
-                ◀
-              </Button>
-            )}
-          </Space>
+          <Space>{total > 1 && <Button onClick={handlePrev}>◀</Button>}</Space>
 
           <Space>
             <Button type="primary" onClick={handleApprove}>
@@ -1119,18 +1127,11 @@ const assignmentsWithAdjustment = useMemo(() => {
             </Button>
           </Space>
 
-          <Space>
-            {total > 1 && (
-              <Button onClick={handleNext}>
-                ▶
-              </Button>
-            )}
-          </Space>
+          <Space>{total > 1 && <Button onClick={handleNext}>▶</Button>}</Space>
         </div>
       </div>
     );
   };
-
 
   const assignments = useMemo(() => {
     const raw = assignmentsQuery.data as any;
@@ -1192,23 +1193,17 @@ const assignmentsWithAdjustment = useMemo(() => {
         : [];
 
       if (recordShifts.length > 0) {
-        const rows: ShiftRow[] = recordShifts.map(
-          (s: any, index: number) => ({
-            key: s.id ?? `${record.id}-${index}`,
-            date: dayjs(s.date),
-            startTime: dayjs(s.startsAt),
-            endTime: dayjs(s.endsAt),
-            kind: (s.kind as ShiftKindType | undefined) ?? 'DEFAULT',
-          }),
-        );
+        const rows: ShiftRow[] = recordShifts.map((s: any, index: number) => ({
+          key: s.id ?? `${record.id}-${index}`,
+          date: dayjs(s.date),
+          startTime: dayjs(s.startsAt),
+          endTime: dayjs(s.endsAt),
+          kind: (s.kind as ShiftKindType | undefined) ?? 'DEFAULT',
+        }));
 
         const dates = rows.map((r) => r.date);
-        const minDate = dates.reduce((min, d) =>
-          d.isBefore(min) ? d : min,
-        );
-        const maxDate = dates.reduce((max, d) =>
-          d.isAfter(max) ? d : max,
-        );
+        const minDate = dates.reduce((min, d) => (d.isBefore(min) ? d : min));
+        const maxDate = dates.reduce((max, d) => (d.isAfter(max) ? d : max));
 
         form.setFieldsValue({
           dateRange: [minDate.startOf('day'), maxDate.startOf('day')],
@@ -1240,10 +1235,7 @@ const assignmentsWithAdjustment = useMemo(() => {
         } else {
           const rows: ShiftRow[] = [];
           let current = startDate.clone();
-          while (
-            current.isBefore(endDate) ||
-            current.isSame(endDate, 'day')
-          ) {
+          while (current.isBefore(endDate) || current.isSame(endDate, 'day')) {
             rows.push({
               key: `${record.id}-${current.toISOString()}`,
               date: current,
@@ -1278,7 +1270,9 @@ const assignmentsWithAdjustment = useMemo(() => {
         key: 'user',
         render: (_value: unknown, record: Assignment) => {
           const label =
-            record.user?.fullName ?? record.user?.email ?? t('assignments.user');
+            record.user?.fullName ??
+            record.user?.email ??
+            t('assignments.user');
 
           const isHighlighted =
             !showTrash &&
@@ -1434,9 +1428,7 @@ const assignmentsWithAdjustment = useMemo(() => {
               <Button
                 type="link"
                 disabled={!canNotify}
-                loading={
-                  notifyMutation.isPending && notifyingId === record.id
-                }
+                loading={notifyMutation.isPending && notifyingId === record.id}
                 onClick={() => {
                   if (!canNotify) {
                     return;
@@ -1472,10 +1464,7 @@ const assignmentsWithAdjustment = useMemo(() => {
                   type="link"
                   onClick={() => setAdjustmentsModalAssignment(record)}
                 >
-                  {t(
-                    'assignments.viewAdjustments',
-                    'Запрос корректировки',
-                  )}
+                  {t('assignments.viewAdjustments', 'Запрос корректировки')}
                 </Button>
               )}
 
@@ -1637,8 +1626,7 @@ const assignmentsWithAdjustment = useMemo(() => {
 
       if (shiftRows.length === 0) {
         message.error(
-          t('assignments.validation.shiftsRequired') ??
-            'Укажите график смен.',
+          t('assignments.validation.shiftsRequired') ?? 'Укажите график смен.',
         );
         return;
       }
@@ -1698,7 +1686,7 @@ const assignmentsWithAdjustment = useMemo(() => {
         shifts,
       };
 
-            // ✅ Режим одобрения запроса на назначение:
+      // ✅ Режим одобрения запроса на назначение:
       // 1) создаём Assignment
       // 2) помечаем запрос как APPROVED
       if (approveRequest) {
@@ -1711,7 +1699,7 @@ const assignmentsWithAdjustment = useMemo(() => {
         return;
       }
 
-if (editingAssignment) {
+      if (editingAssignment) {
         await updateMutation.mutateAsync({
           id: editingAssignment.id,
           values: payload,
@@ -1781,9 +1769,7 @@ if (editingAssignment) {
                   marginLeft: 8,
                 }}
               >
-                {count === 0
-                  ? 'нет активных назначений'
-                  : `${count} активн.`}
+                {count === 0 ? 'нет активных назначений' : `${count} активн.`}
               </span>
             </span>
           ),
@@ -2086,28 +2072,20 @@ if (editingAssignment) {
       if (!orig.length && !next.length) return;
 
       const origTimes = new Set(
-        orig.map(
-          (s) =>
-            `${formatTime(s.startsAt)}-${formatTime(s.endsAt)}`,
-        ),
+        orig.map((s) => `${formatTime(s.startsAt)}-${formatTime(s.endsAt)}`),
       );
-      const nextTimes = new Set(
-        next.map((s) => `${s.startsAt}-${s.endsAt}`),
-      );
+      const nextTimes = new Set(next.map((s) => `${s.startsAt}-${s.endsAt}`));
 
       const sameTimes =
         origTimes.size === nextTimes.size &&
         [...origTimes].every((v) => nextTimes.has(v));
 
       const origKinds = new Set(
-        orig.map((s) => (s.kind ?? 'DEFAULT').toString(),
-        ),
+        orig.map((s) => (s.kind ?? 'DEFAULT').toString()),
       );
       const nextKinds = new Set(
         next.length
-          ? next.map((s) =>
-              (s.kindLabel ?? 'DEFAULT').toString().toUpperCase(),
-            )
+          ? next.map((s) => (s.kindLabel ?? 'DEFAULT').toString().toUpperCase())
           : origKinds,
       );
 
@@ -2148,7 +2126,9 @@ if (editingAssignment) {
   const desiredWorkplaceOptionForModal = useMemo(
     () =>
       desiredWorkplaceLabelForModal
-        ? workplaceOptions.find((o) => o.label === desiredWorkplaceLabelForModal) ?? null
+        ? (workplaceOptions.find(
+            (o) => o.label === desiredWorkplaceLabelForModal,
+          ) ?? null)
         : null,
     [desiredWorkplaceLabelForModal, workplaceOptions],
   );
@@ -2158,7 +2138,6 @@ if (editingAssignment) {
     if (!wp || !wp.name) return null;
     return wp.code ? `${wp.code} — ${wp.name}` : wp.name;
   }, [adjustmentsModalAssignment]);
-
 
   const hasChangesSummary = changesSummaryByDate.length > 0;
 
@@ -2254,10 +2233,7 @@ if (editingAssignment) {
                 onClick={handleExportSelected}
                 disabled={!selectedRowKeys.length}
               >
-                {t(
-                  'assignments.trash.exportSelected',
-                  'Скачать выбранные',
-                )}
+                {t('assignments.trash.exportSelected', 'Скачать выбранные')}
               </Button>
               <Button
                 danger
@@ -2267,10 +2243,7 @@ if (editingAssignment) {
                 }
                 loading={hardDeleteTrashMutation.isPending}
               >
-                {t(
-                  'assignments.trash.hardDeleteSelected',
-                  'Удалить выбранные',
-                )}
+                {t('assignments.trash.hardDeleteSelected', 'Удалить выбранные')}
               </Button>
               <Button
                 danger
@@ -2405,7 +2378,7 @@ if (editingAssignment) {
       />
 
       {/* модалка со свободными сотрудниками */}
-      
+
       <Modal
         open={isAssignmentRequestsModalOpen}
         onCancel={() => {
@@ -2419,10 +2392,10 @@ if (editingAssignment) {
           'Запросы на назначение',
         )}
       >
-                {renderAssignmentRequestsContent()}
+        {renderAssignmentRequestsContent()}
       </Modal>
 
-<Modal
+      <Modal
         open={isFreeUsersModalOpen}
         title="Сотрудники без активных назначений"
         onCancel={() => setIsFreeUsersModalOpen(false)}
@@ -2453,7 +2426,10 @@ if (editingAssignment) {
       <Modal
         title={
           approveRequest
-            ? t('assignments.approveRequestTitle', 'Одобрить запрос на назначение')
+            ? t(
+                'assignments.approveRequestTitle',
+                'Одобрить запрос на назначение',
+              )
             : editingAssignment
               ? t('assignments.editTitle')
               : t('assignments.createTitle')
@@ -2471,7 +2447,11 @@ if (editingAssignment) {
         onOk={handleModalOk}
         okText={t('common.save')}
         cancelText={t('common.cancel')}
-        confirmLoading={createMutation.isPending || updateMutation.isPending || approveAssignmentRequestMutation.isPending}
+        confirmLoading={
+          createMutation.isPending ||
+          updateMutation.isPending ||
+          approveAssignmentRequestMutation.isPending
+        }
       >
         <Form form={form} layout="vertical">
           <Form.Item
@@ -2576,10 +2556,7 @@ if (editingAssignment) {
                       }
                     }}
                   >
-                    {t(
-                      'assignments.applyToAllDays',
-                      'Применить ко всем датам',
-                    )}
+                    {t('assignments.applyToAllDays', 'Применить ко всем датам')}
                   </Checkbox>
                 </Space>
 
@@ -2606,9 +2583,7 @@ if (editingAssignment) {
                             marginBottom: 8,
                           }}
                         >
-                          <Typography.Text strong>
-                            {dateLabel}
-                          </Typography.Text>
+                          <Typography.Text strong>{dateLabel}</Typography.Text>
                           <Button
                             size="small"
                             type="link"
@@ -2761,16 +2736,14 @@ if (editingAssignment) {
               </>
             )}
 
-            {(currentWorkplaceLabelForModal || desiredWorkplaceLabelForModal) && (
+            {(currentWorkplaceLabelForModal ||
+              desiredWorkplaceLabelForModal) && (
               <>
                 <Typography.Title
                   level={5}
                   style={{ marginTop: 0, marginBottom: 8 }}
                 >
-                  {t(
-                    'assignments.adjustments.workplaceTitle',
-                    'Рабочее место',
-                  )}
+                  {t('assignments.adjustments.workplaceTitle', 'Рабочее место')}
                 </Typography.Title>
                 <Typography.Paragraph style={{ marginBottom: 8 }}>
                   {currentWorkplaceLabelForModal && (
@@ -2929,7 +2902,8 @@ if (editingAssignment) {
                 type="primary"
                 loading={approveAdjustmentMutation.isPending}
                 onClick={() => {
-                  const newWorkplaceId = desiredWorkplaceOptionForModal?.value ?? null;
+                  const newWorkplaceId =
+                    desiredWorkplaceOptionForModal?.value ?? null;
 
                   const payloads = adjustmentsForModal.map((adj) => ({
                     id: adj.id,

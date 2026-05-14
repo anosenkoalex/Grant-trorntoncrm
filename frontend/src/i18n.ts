@@ -320,19 +320,23 @@ const ru = {
       'Grant Thornton CRM помогает планировать смены, управлять назначениями, отслеживать часы и держать команду в курсе — всё в одном месте.',
     featuresTitle: 'Всё необходимое для управления командой',
     feature1Title: 'Планирование смен',
-    feature1Desc: 'Визуальная матрица планировщика с удобным расписанием для всей команды.',
+    feature1Desc:
+      'Визуальная матрица планировщика с удобным расписанием для всей команды.',
     feature2Title: 'Управление назначениями',
     feature2Desc:
       'Отслеживайте назначения сотрудников, смены и изменения рабочих мест с полной историей.',
     feature3Title: 'HR-модуль',
-    feature3Desc: 'Заявки на отпуск, больничные и отгулы — всё в одном месте с удобным согласованием.',
+    feature3Desc:
+      'Заявки на отпуск, больничные и отгулы — всё в одном месте с удобным согласованием.',
     feature4Title: 'Аналитика и KPI',
-    feature4Desc: 'Дашборды в реальном времени: плановые vs фактические часы и процент выполнения.',
+    feature4Desc:
+      'Дашборды в реальном времени: плановые vs фактические часы и процент выполнения.',
     feature5Title: 'Автоматизация',
     feature5Desc:
       'Автоматические уведомления при изменениях назначений с настраиваемыми SLA-напоминаниями.',
     feature6Title: 'API и интеграции',
-    feature6Desc: 'REST API с ключами доступа для интеграции с корпоративными системами.',
+    feature6Desc:
+      'REST API с ключами доступа для интеграции с корпоративными системами.',
     pricingTitle: 'Прозрачные тарифы',
     pricingSubtitle: 'Без скрытых платежей. Отмена в любой момент.',
     popular: 'ПОПУЛЯРНЫЙ',
@@ -725,17 +729,23 @@ const en = {
       'Grant Thornton CRM helps you schedule shifts, manage assignments, track hours, and keep your team aligned — all in one platform.',
     featuresTitle: 'Everything you need to manage your workforce',
     feature1Title: 'Shift Planning',
-    feature1Desc: 'Visual planner matrix with drag & drop scheduling for your entire team.',
+    feature1Desc:
+      'Visual planner matrix with drag & drop scheduling for your entire team.',
     feature2Title: 'Assignments Management',
-    feature2Desc: 'Track employee assignments, shifts, and workplace changes with full history.',
+    feature2Desc:
+      'Track employee assignments, shifts, and workplace changes with full history.',
     feature3Title: 'HR Module',
-    feature3Desc: 'Handle vacation requests, sick leave, and day-off approvals in one place.',
+    feature3Desc:
+      'Handle vacation requests, sick leave, and day-off approvals in one place.',
     feature4Title: 'Analytics & KPI',
-    feature4Desc: 'Real-time dashboards with planned vs reported hours and completion rates.',
+    feature4Desc:
+      'Real-time dashboards with planned vs reported hours and completion rates.',
     feature5Title: 'Automation',
-    feature5Desc: 'Automatic notifications on assignment changes with customizable SLA reminders.',
+    feature5Desc:
+      'Automatic notifications on assignment changes with customizable SLA reminders.',
     feature6Title: 'API & Integrations',
-    feature6Desc: 'REST API with API keys for seamless integration with your existing tools.',
+    feature6Desc:
+      'REST API with API keys for seamless integration with your existing tools.',
     pricingTitle: 'Simple, transparent pricing',
     pricingSubtitle: 'No hidden fees. Cancel anytime.',
     popular: 'POPULAR',
@@ -1127,19 +1137,23 @@ const tr = {
       'Grant Thornton CRM ile vardiya planlayın, görev atayın, saatleri takip edin ve ekibinizi bir arada tutun — hepsi tek platformda.',
     featuresTitle: 'İş gücünüzü yönetmek için ihtiyacınız olan her şey',
     feature1Title: 'Vardiya Planlaması',
-    feature1Desc: 'Tüm ekibiniz için sürükle-bırak destekli görsel planlama matrisi.',
+    feature1Desc:
+      'Tüm ekibiniz için sürükle-bırak destekli görsel planlama matrisi.',
     feature2Title: 'Görev Yönetimi',
     feature2Desc:
       'Çalışan görevlerini, vardiyalarını ve iş yeri değişikliklerini tam geçmişiyle takip edin.',
     feature3Title: 'İK Modülü',
-    feature3Desc: 'İzin talepleri, hastalık izinleri ve günlük izin onaylarını tek yerden yönetin.',
+    feature3Desc:
+      'İzin talepleri, hastalık izinleri ve günlük izin onaylarını tek yerden yönetin.',
     feature4Title: 'Analitik ve KPI',
-    feature4Desc: 'Planlanan ve gerçekleşen saatlerin karşılaştırmalı gerçek zamanlı panelleri.',
+    feature4Desc:
+      'Planlanan ve gerçekleşen saatlerin karşılaştırmalı gerçek zamanlı panelleri.',
     feature5Title: 'Otomasyon',
     feature5Desc:
       'Görev değişikliklerinde otomatik bildirimler ve özelleştirilebilir SLA hatırlatıcılar.',
     feature6Title: 'API ve Entegrasyonlar',
-    feature6Desc: "Mevcut araçlarınızla sorunsuz entegrasyon için API anahtarlı REST API.",
+    feature6Desc:
+      'Mevcut araçlarınızla sorunsuz entegrasyon için API anahtarlı REST API.',
     pricingTitle: 'Şeffaf fiyatlandırma',
     pricingSubtitle: 'Gizli ücret yok. İstediğiniz zaman iptal edin.',
     popular: 'POPÜLER',

@@ -61,7 +61,8 @@ function NotificationLogTable() {
       title: t('automation.logRecipient', 'Получатель'),
       render: (_: unknown, r: NotificationLogItem) => {
         if (r.channel === 'TELEGRAM') return <Text type="secondary">—</Text>;
-        const label = r.user?.fullName ?? r.user?.email ?? r.userLabel ?? r.userId ?? '—';
+        const label =
+          r.user?.fullName ?? r.user?.email ?? r.userLabel ?? r.userId ?? '—';
         return label;
       },
     },
@@ -100,9 +101,15 @@ function NotificationLogTable() {
           total: data?.total ?? 0,
           onChange: (p) => setPage(p),
           hideOnSinglePage: true,
-          showTotal: (total) => `${t('automation.logTotal', 'Всего')}: ${total}`,
+          showTotal: (total) =>
+            `${t('automation.logTotal', 'Всего')}: ${total}`,
         }}
-        locale={{ emptyText: t('automation.logEmpty', 'Уведомлений ещё не отправлялось') }}
+        locale={{
+          emptyText: t(
+            'automation.logEmpty',
+            'Уведомлений ещё не отправлялось',
+          ),
+        }}
       />
     </Card>
   );
@@ -166,29 +173,56 @@ export default function AutomationSettingsPage() {
             reminderHoursBefore: 24,
           }}
         >
-          <Card title={t('automation.triggerCard')} style={{ marginBottom: 16 }}>
-            <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
+          <Card
+            title={t('automation.triggerCard')}
+            style={{ marginBottom: 16 }}
+          >
+            <Text
+              type="secondary"
+              style={{ display: 'block', marginBottom: 16 }}
+            >
               {t('automation.triggerCardDesc')}
             </Text>
 
             <Space direction="vertical" size={12} style={{ width: '100%' }}>
               <Space>
-                <Form.Item name="triggerOnCreate" valuePropName="checked" noStyle>
-                  <Switch checkedChildren={t('automation.on')} unCheckedChildren={t('automation.off')} />
+                <Form.Item
+                  name="triggerOnCreate"
+                  valuePropName="checked"
+                  noStyle
+                >
+                  <Switch
+                    checkedChildren={t('automation.on')}
+                    unCheckedChildren={t('automation.off')}
+                  />
                 </Form.Item>
                 <Text>{t('automation.onCreate')}</Text>
               </Space>
 
               <Space>
-                <Form.Item name="triggerOnUpdate" valuePropName="checked" noStyle>
-                  <Switch checkedChildren={t('automation.on')} unCheckedChildren={t('automation.off')} />
+                <Form.Item
+                  name="triggerOnUpdate"
+                  valuePropName="checked"
+                  noStyle
+                >
+                  <Switch
+                    checkedChildren={t('automation.on')}
+                    unCheckedChildren={t('automation.off')}
+                  />
                 </Form.Item>
                 <Text>{t('automation.onUpdate')}</Text>
               </Space>
 
               <Space>
-                <Form.Item name="triggerOnCancel" valuePropName="checked" noStyle>
-                  <Switch checkedChildren={t('automation.on')} unCheckedChildren={t('automation.off')} />
+                <Form.Item
+                  name="triggerOnCancel"
+                  valuePropName="checked"
+                  noStyle
+                >
+                  <Switch
+                    checkedChildren={t('automation.on')}
+                    unCheckedChildren={t('automation.off')}
+                  />
                 </Form.Item>
                 <Text>{t('automation.onCancel')}</Text>
               </Space>
@@ -196,13 +230,19 @@ export default function AutomationSettingsPage() {
           </Card>
 
           <Card title={t('automation.slaCard')}>
-            <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
+            <Text
+              type="secondary"
+              style={{ display: 'block', marginBottom: 16 }}
+            >
               {t('automation.slaCardDesc')}
             </Text>
 
             <Space style={{ marginBottom: 16 }}>
               <Form.Item name="reminderEnabled" valuePropName="checked" noStyle>
-                <Switch checkedChildren={t('automation.on')} unCheckedChildren={t('automation.off')} />
+                <Switch
+                  checkedChildren={t('automation.on')}
+                  unCheckedChildren={t('automation.off')}
+                />
               </Form.Item>
               <Text>{t('automation.slaEnabled')}</Text>
             </Space>
@@ -214,7 +254,12 @@ export default function AutomationSettingsPage() {
               name="reminderHoursBefore"
               rules={[
                 { required: true, message: t('automation.slaRequired') },
-                { type: 'number', min: 1, max: 168, message: t('automation.slaRange') },
+                {
+                  type: 'number',
+                  min: 1,
+                  max: 168,
+                  message: t('automation.slaRange'),
+                },
               ]}
             >
               <InputNumber

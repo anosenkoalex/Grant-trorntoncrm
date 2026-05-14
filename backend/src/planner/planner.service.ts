@@ -267,7 +267,7 @@ export class PlannerService {
     for (const assignment of assignments) {
       const employeeName = assignment.user?.fullName?.trim()
         ? assignment.user.fullName
-        : assignment.user?.email ?? '';
+        : (assignment.user?.email ?? '');
 
       const workplaceLabel = assignment.workplace
         ? `${assignment.workplace.code}${
@@ -444,7 +444,7 @@ export class PlannerService {
       const userKey = user?.id ?? assignment.userId;
       const userTitle = user?.fullName?.trim()
         ? user.fullName
-        : user?.email ?? assignment.userId;
+        : (user?.email ?? assignment.userId);
       const userSubtitle = user?.position ?? undefined;
 
       const existing = userGroups.get(userKey);
@@ -503,13 +503,11 @@ export class PlannerService {
         };
       });
 
-      return rows
-        .filter(Boolean)
-        .sort((a, b) =>
-          (a?.title ?? '').localeCompare(b?.title ?? '', 'ru', {
-            numeric: true,
-          }),
-        );
+      return rows.filter(Boolean).sort((a, b) =>
+        (a?.title ?? '').localeCompare(b?.title ?? '', 'ru', {
+          numeric: true,
+        }),
+      );
     }
 
     // ------ РЕЖИМ ПО СОТРУДНИКАМ: ВСЕ СОТРУДНИКИ, ДАЖЕ БЕЗ НАЗНАЧЕНИЙ ------

@@ -51,10 +51,7 @@ export class NotificationsController {
 
   /** PATCH /notifications/:id/read — отметить одно уведомление прочитанным */
   @Patch(':id/read')
-  async markAsRead(
-    @CurrentUser() user: JwtPayload,
-    @Param('id') id: string,
-  ) {
+  async markAsRead(@CurrentUser() user: JwtPayload, @Param('id') id: string) {
     return this.notificationsService.markAsRead(id, user.sub);
   }
 

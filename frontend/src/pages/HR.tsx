@@ -125,7 +125,13 @@ function MyVacationsTab() {
 
   return (
     <>
-      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'flex-end' }}>
+      <div
+        style={{
+          marginBottom: 16,
+          display: 'flex',
+          justifyContent: 'flex-end',
+        }}
+      >
         <Button type="primary" onClick={() => setCreateOpen(true)}>
           {t('hr.newRequest')}
         </Button>
@@ -143,19 +149,33 @@ function MyVacationsTab() {
       <Modal
         title={t('hr.formTitle')}
         open={createOpen}
-        onCancel={() => { setCreateOpen(false); form.resetFields(); }}
+        onCancel={() => {
+          setCreateOpen(false);
+          form.resetFields();
+        }}
         footer={null}
         destroyOnClose
       >
         <Form form={form} layout="vertical" onFinish={handleCreate}>
-          <Form.Item name="type" label={t('hr.typeLabel')} rules={[{ required: true }]}>
+          <Form.Item
+            name="type"
+            label={t('hr.typeLabel')}
+            rules={[{ required: true }]}
+          >
             <Select
-              options={Object.entries(typeLabels).map(([value, label]) => ({ value, label }))}
+              options={Object.entries(typeLabels).map(([value, label]) => ({
+                value,
+                label,
+              }))}
               placeholder={t('hr.typePlaceholder')}
             />
           </Form.Item>
 
-          <Form.Item name="dates" label={t('hr.periodLabel')} rules={[{ required: true }]}>
+          <Form.Item
+            name="dates"
+            label={t('hr.periodLabel')}
+            rules={[{ required: true }]}
+          >
             <RangePicker style={{ width: '100%' }} format="DD.MM.YYYY" />
           </Form.Item>
 
@@ -165,10 +185,19 @@ function MyVacationsTab() {
 
           <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
             <Space>
-              <Button onClick={() => { setCreateOpen(false); form.resetFields(); }}>
+              <Button
+                onClick={() => {
+                  setCreateOpen(false);
+                  form.resetFields();
+                }}
+              >
                 {t('common.cancel')}
               </Button>
-              <Button type="primary" htmlType="submit" loading={createMutation.isPending}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={createMutation.isPending}
+              >
                 {t('hr.submit')}
               </Button>
             </Space>
@@ -185,7 +214,9 @@ function TeamVacationsTab() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState<VacationStatus | undefined>(undefined);
+  const [statusFilter, setStatusFilter] = useState<VacationStatus | undefined>(
+    undefined,
+  );
   const [rejectId, setRejectId] = useState<string | null>(null);
   const [rejectComment, setRejectComment] = useState('');
 
@@ -267,11 +298,20 @@ function TeamVacationsTab() {
               okText={t('common.yes')}
               cancelText={t('common.cancel')}
             >
-              <Button type="link" size="small" loading={approveMutation.isPending}>
+              <Button
+                type="link"
+                size="small"
+                loading={approveMutation.isPending}
+              >
                 {t('hr.approve')}
               </Button>
             </Popconfirm>
-            <Button type="link" size="small" danger onClick={() => setRejectId(r.id)}>
+            <Button
+              type="link"
+              size="small"
+              danger
+              onClick={() => setRejectId(r.id)}
+            >
               {t('hr.reject')}
             </Button>
           </Space>
@@ -287,7 +327,10 @@ function TeamVacationsTab() {
           placeholder={t('hr.filterStatus')}
           style={{ width: 220 }}
           value={statusFilter}
-          onChange={(v) => { setStatusFilter(v); setPage(1); }}
+          onChange={(v) => {
+            setStatusFilter(v);
+            setPage(1);
+          }}
           options={[
             { value: 'PENDING', label: t('hr.statusPending') },
             { value: 'APPROVED', label: t('hr.statusApproved') },
@@ -314,9 +357,16 @@ function TeamVacationsTab() {
       <Modal
         title={t('hr.rejectTitle')}
         open={!!rejectId}
-        onCancel={() => { setRejectId(null); setRejectComment(''); }}
+        onCancel={() => {
+          setRejectId(null);
+          setRejectComment('');
+        }}
         onOk={() => {
-          if (rejectId) rejectMutation.mutate({ id: rejectId, comment: rejectComment || undefined });
+          if (rejectId)
+            rejectMutation.mutate({
+              id: rejectId,
+              comment: rejectComment || undefined,
+            });
         }}
         okText={t('hr.reject')}
         okButtonProps={{ danger: true, loading: rejectMutation.isPending }}
@@ -336,9 +386,15 @@ function TeamVacationsTab() {
 
 /* ── Таб «Календарь» ───────────────────────────────────────────── */
 
-function VacationCalendarTab({ isManagerOrAdmin }: { isManagerOrAdmin: boolean }) {
+function VacationCalendarTab({
+  isManagerOrAdmin,
+}: {
+  isManagerOrAdmin: boolean;
+}) {
   const { t } = useTranslation();
-  const [currentMonth, setCurrentMonth] = useState(() => dayjs().startOf('month'));
+  const [currentMonth, setCurrentMonth] = useState(() =>
+    dayjs().startOf('month'),
+  );
 
   const dateFrom = currentMonth.toISOString();
   const dateTo = currentMonth.endOf('month').toISOString();
@@ -362,21 +418,31 @@ function VacationCalendarTab({ isManagerOrAdmin }: { isManagerOrAdmin: boolean }
     enabled: !isManagerOrAdmin,
   });
 
-  const isLoading = isManagerOrAdmin ? managerQuery.isLoading : myQuery.isLoading;
+  const isLoading = isManagerOrAdmin
+    ? managerQuery.isLoading
+    : myQuery.isLoading;
 
   const rawVacations: VacationRequest[] = isManagerOrAdmin
     ? (managerQuery.data?.items ?? [])
     : (myQuery.data ?? []).filter((v) => {
         const from = dayjs(v.dateFrom);
         const to = dayjs(v.dateTo);
-        return from.isBefore(currentMonth.endOf('month')) && to.isAfter(currentMonth.startOf('month').subtract(1, 'day'));
+        return (
+          from.isBefore(currentMonth.endOf('month')) &&
+          to.isAfter(currentMonth.startOf('month').subtract(1, 'day'))
+        );
       });
 
   const daysInMonth = currentMonth.daysInMonth();
-  const days = Array.from({ length: daysInMonth }, (_, i) => currentMonth.add(i, 'day'));
+  const days = Array.from({ length: daysInMonth }, (_, i) =>
+    currentMonth.add(i, 'day'),
+  );
 
   // Group vacations by employee
-  const employeeMap = new Map<string, { name: string; vacations: VacationRequest[] }>();
+  const employeeMap = new Map<
+    string,
+    { name: string; vacations: VacationRequest[] }
+  >();
   rawVacations.forEach((v) => {
     if (!employeeMap.has(v.userId)) {
       employeeMap.set(v.userId, {
@@ -405,7 +471,14 @@ function VacationCalendarTab({ isManagerOrAdmin }: { isManagerOrAdmin: boolean }
   return (
     <div>
       {/* Month navigation */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 16,
+          marginBottom: 16,
+        }}
+      >
         <Button
           icon={<LeftOutlined />}
           size="small"
@@ -481,13 +554,21 @@ function VacationCalendarTab({ isManagerOrAdmin }: { isManagerOrAdmin: boolean }
                         padding: '2px 1px',
                         border: '1px solid #f0f0f0',
                         textAlign: 'center',
-                        background: isToday ? '#e6f7ff' : isWeekend ? '#fafafa' : undefined,
+                        background: isToday
+                          ? '#e6f7ff'
+                          : isWeekend
+                            ? '#fafafa'
+                            : undefined,
                         fontSize: 10,
                         lineHeight: '14px',
                       }}
                     >
-                      <div style={{ fontWeight: isToday ? 700 : 400 }}>{day.format('D')}</div>
-                      <div style={{ color: '#999', fontSize: 9 }}>{day.format('dd')}</div>
+                      <div style={{ fontWeight: isToday ? 700 : 400 }}>
+                        {day.format('D')}
+                      </div>
+                      <div style={{ color: '#999', fontSize: 9 }}>
+                        {day.format('dd')}
+                      </div>
                     </th>
                   );
                 })}
@@ -516,7 +597,11 @@ function VacationCalendarTab({ isManagerOrAdmin }: { isManagerOrAdmin: boolean }
                     return (
                       <td
                         key={day.format('YYYY-MM-DD')}
-                        title={vac ? `${typeLabels[vac.type]}: ${dayjs(vac.dateFrom).format('DD.MM')} – ${dayjs(vac.dateTo).format('DD.MM')}` : undefined}
+                        title={
+                          vac
+                            ? `${typeLabels[vac.type]}: ${dayjs(vac.dateFrom).format('DD.MM')} – ${dayjs(vac.dateTo).format('DD.MM')}`
+                            : undefined
+                        }
                         style={{
                           padding: 0,
                           border: '1px solid #f0f0f0',
@@ -552,7 +637,8 @@ function VacationCalendarTab({ isManagerOrAdmin }: { isManagerOrAdmin: boolean }
 const HRPage = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const isManagerOrAdmin = user?.role === 'MANAGER' || user?.role === 'SUPER_ADMIN';
+  const isManagerOrAdmin =
+    user?.role === 'MANAGER' || user?.role === 'SUPER_ADMIN';
 
   const tabItems = [
     {
@@ -561,7 +647,13 @@ const HRPage = () => {
       children: <MyVacationsTab />,
     },
     ...(isManagerOrAdmin
-      ? [{ key: 'team', label: t('hr.teamTab'), children: <TeamVacationsTab /> }]
+      ? [
+          {
+            key: 'team',
+            label: t('hr.teamTab'),
+            children: <TeamVacationsTab />,
+          },
+        ]
       : []),
     {
       key: 'calendar',
@@ -571,7 +663,13 @@ const HRPage = () => {
   ];
 
   return (
-    <Card title={<Typography.Title level={4} style={{ margin: 0 }}>{t('hr.title')}</Typography.Title>}>
+    <Card
+      title={
+        <Typography.Title level={4} style={{ margin: 0 }}>
+          {t('hr.title')}
+        </Typography.Title>
+      }
+    >
       <Tabs items={tabItems} />
     </Card>
   );

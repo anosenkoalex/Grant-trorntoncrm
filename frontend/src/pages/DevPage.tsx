@@ -94,14 +94,25 @@ const DevPage = () => {
   const [backupLoading, setBackupLoading] = useState(false);
 
   // ─── Telegram ───
-  type TelegramForm = { enabled: boolean; token?: string | null; chatId?: string | null };
+  type TelegramForm = {
+    enabled: boolean;
+    token?: string | null;
+    chatId?: string | null;
+  };
   const [telegramForm] = Form.useForm<TelegramForm>();
   const [loadingTelegram, setLoadingTelegram] = useState(false);
   const [savingTelegram, setSavingTelegram] = useState(false);
   const [testingTelegram, setTestingTelegram] = useState(false);
 
   // ─── API Keys ───
-  type ApiKeyRecord = { id: string; name: string; orgId: string | null; lastUsedAt: string | null; createdAt: string; org: { id: string; name: string } | null };
+  type ApiKeyRecord = {
+    id: string;
+    name: string;
+    orgId: string | null;
+    lastUsedAt: string | null;
+    createdAt: string;
+    org: { id: string; name: string } | null;
+  };
   type CreatedKey = { id: string; name: string; key: string };
   const [apiKeys, setApiKeys] = useState<ApiKeyRecord[]>([]);
   const [apiKeysLoading, setApiKeysLoading] = useState(false);
@@ -109,7 +120,9 @@ const DevPage = () => {
   const [creatingKey, setCreatingKey] = useState(false);
   const [justCreatedKey, setJustCreatedKey] = useState<CreatedKey | null>(null);
 
-  const isAllowed = !!user && (user.email === 'dev@armico.local' || user.role === 'SUPER_ADMIN');
+  const isAllowed =
+    !!user &&
+    (user.email === 'dev@armico.local' || user.role === 'SUPER_ADMIN');
 
   const authHeaders: Record<string, string> = token
     ? { Authorization: `Bearer ${token}` }
@@ -206,10 +219,17 @@ const DevPage = () => {
         headers: { 'Content-Type': 'application/json', ...authHeaders },
       });
       if (!res.ok) throw new Error('Failed to load Telegram settings');
-      const data = await res.json() as TelegramForm;
-      telegramForm.setFieldsValue({ enabled: Boolean(data.enabled), token: data.token ?? '', chatId: data.chatId ?? '' });
-    } catch { message.error(t('dev.telegram.loadError')); }
-    finally { setLoadingTelegram(false); }
+      const data = (await res.json()) as TelegramForm;
+      telegramForm.setFieldsValue({
+        enabled: Boolean(data.enabled),
+        token: data.token ?? '',
+        chatId: data.chatId ?? '',
+      });
+    } catch {
+      message.error(t('dev.telegram.loadError'));
+    } finally {
+      setLoadingTelegram(false);
+    }
   };
 
   const handleTelegramSave = async (values: TelegramForm) => {
@@ -222,8 +242,11 @@ const DevPage = () => {
       });
       if (!res.ok) throw new Error();
       message.success(t('dev.telegram.savedSuccess'));
-    } catch { message.error(t('dev.telegram.saveError')); }
-    finally { setSavingTelegram(false); }
+    } catch {
+      message.error(t('dev.telegram.saveError'));
+    } finally {
+      setSavingTelegram(false);
+    }
   };
 
   const handleTelegramTest = async () => {
@@ -234,13 +257,18 @@ const DevPage = () => {
         headers: { 'Content-Type': 'application/json', ...authHeaders },
       });
       if (!res.ok) {
-        const data = await res.json().catch(() => ({})) as { message?: string };
+        const data = (await res.json().catch(() => ({}))) as {
+          message?: string;
+        };
         message.error(data.message ?? t('dev.telegram.testError'));
         return;
       }
       message.success(t('dev.telegram.testSuccess'));
-    } catch { message.error(t('dev.telegram.testError')); }
-    finally { setTestingTelegram(false); }
+    } catch {
+      message.error(t('dev.telegram.testError'));
+    } finally {
+      setTestingTelegram(false);
+    }
   };
 
   // ----- API Keys -----
@@ -252,15 +280,21 @@ const DevPage = () => {
         headers: { 'Content-Type': 'application/json', ...authHeaders },
       });
       if (!res.ok) throw new Error();
-      const data = await res.json() as ApiKeyRecord[];
+      const data = (await res.json()) as ApiKeyRecord[];
       setApiKeys(Array.isArray(data) ? data : []);
-    } catch { message.error(t('dev.apiKeys.loadError')); }
-    finally { setApiKeysLoading(false); }
+    } catch {
+      message.error(t('dev.apiKeys.loadError'));
+    } finally {
+      setApiKeysLoading(false);
+    }
   };
 
   const handleCreateKey = async () => {
     const name = newKeyName.trim();
-    if (!name) { message.warning(t('dev.apiKeys.nameRequired')); return; }
+    if (!name) {
+      message.warning(t('dev.apiKeys.nameRequired'));
+      return;
+    }
     try {
       setCreatingKey(true);
       const res = await fetch(`${API_URL}/api-keys`, {
@@ -269,12 +303,15 @@ const DevPage = () => {
         body: JSON.stringify({ name }),
       });
       if (!res.ok) throw new Error();
-      const data = await res.json() as CreatedKey;
+      const data = (await res.json()) as CreatedKey;
       setJustCreatedKey(data);
       setNewKeyName('');
       void loadApiKeys();
-    } catch { message.error(t('dev.apiKeys.createError')); }
-    finally { setCreatingKey(false); }
+    } catch {
+      message.error(t('dev.apiKeys.createError'));
+    } finally {
+      setCreatingKey(false);
+    }
   };
 
   const handleDeleteKey = async (id: string) => {
@@ -285,7 +322,9 @@ const DevPage = () => {
       });
       setApiKeys((prev) => prev.filter((k) => k.id !== id));
       message.success(t('dev.apiKeys.deleteSuccess'));
-    } catch { message.error(t('dev.apiKeys.deleteError')); }
+    } catch {
+      message.error(t('dev.apiKeys.deleteError'));
+    }
   };
 
   useEffect(() => {
@@ -690,9 +729,7 @@ const DevPage = () => {
                         <Typography.Text type="secondary">
                           {new Date(item.startsAt).toLocaleString()} —
                           {item.endsAt
-                            ? ` ${new Date(
-                                item.endsAt,
-                              ).toLocaleString()}`
+                            ? ` ${new Date(item.endsAt).toLocaleString()}`
                             : ' бессрочно'}
                         </Typography.Text>
                         <Typography.Text type="secondary">
@@ -722,8 +759,7 @@ const DevPage = () => {
                           Тип: {item.type}
                         </Typography.Text>
                         <Typography.Text type="secondary">
-                          Время:{' '}
-                          {new Date(item.createdAt).toLocaleString()}
+                          Время: {new Date(item.createdAt).toLocaleString()}
                         </Typography.Text>
                       </Space>
                     </List.Item>
@@ -746,13 +782,25 @@ const DevPage = () => {
             initialValues={{ enabled: false }}
             onFinish={handleTelegramSave}
           >
-            <Form.Item name="enabled" label={t('dev.telegram.enabledLabel')} valuePropName="checked">
+            <Form.Item
+              name="enabled"
+              label={t('dev.telegram.enabledLabel')}
+              valuePropName="checked"
+            >
               <Switch />
             </Form.Item>
-            <Form.Item name="token" label={t('dev.telegram.tokenLabel')} extra={t('dev.telegram.tokenHelp')}>
+            <Form.Item
+              name="token"
+              label={t('dev.telegram.tokenLabel')}
+              extra={t('dev.telegram.tokenHelp')}
+            >
               <Input.Password placeholder="123456789:AABBcc..." />
             </Form.Item>
-            <Form.Item name="chatId" label={t('dev.telegram.chatIdLabel')} extra={t('dev.telegram.chatIdHelp')}>
+            <Form.Item
+              name="chatId"
+              label={t('dev.telegram.chatIdLabel')}
+              extra={t('dev.telegram.chatIdHelp')}
+            >
               <Input placeholder="-1001234567890" />
             </Form.Item>
             <Space>
@@ -764,7 +812,10 @@ const DevPage = () => {
               </Button>
             </Space>
           </Form>
-          <Typography.Paragraph type="secondary" style={{ marginTop: 16, marginBottom: 0 }}>
+          <Typography.Paragraph
+            type="secondary"
+            style={{ marginTop: 16, marginBottom: 0 }}
+          >
             {t('dev.telegram.desc')}
           </Typography.Paragraph>
         </Card>
@@ -781,7 +832,9 @@ const DevPage = () => {
             <Typography.Text code>GET /public/assignments</Typography.Text>{' '}
             <Typography.Text code>GET /public/users</Typography.Text>
             <br />
-            <Typography.Text code>Authorization: Bearer &lt;key&gt;</Typography.Text>
+            <Typography.Text code>
+              Authorization: Bearer &lt;key&gt;
+            </Typography.Text>
           </Typography.Paragraph>
 
           {justCreatedKey && (
@@ -791,7 +844,11 @@ const DevPage = () => {
               style={{ marginBottom: 16 }}
               message={t('dev.apiKeys.createdAlert')}
               description={
-                <Typography.Text copyable code style={{ wordBreak: 'break-all' }}>
+                <Typography.Text
+                  copyable
+                  code
+                  style={{ wordBreak: 'break-all' }}
+                >
                   {justCreatedKey.key}
                 </Typography.Text>
               }
@@ -800,20 +857,28 @@ const DevPage = () => {
             />
           )}
 
-          <Space.Compact style={{ marginBottom: 16, width: '100%', maxWidth: 480 }}>
+          <Space.Compact
+            style={{ marginBottom: 16, width: '100%', maxWidth: 480 }}
+          >
             <Input
               placeholder={t('dev.apiKeys.namePlaceholder')}
               value={newKeyName}
               onChange={(e) => setNewKeyName(e.target.value)}
               onPressEnter={handleCreateKey}
             />
-            <Button type="primary" onClick={handleCreateKey} loading={creatingKey}>
+            <Button
+              type="primary"
+              onClick={handleCreateKey}
+              loading={creatingKey}
+            >
               {t('dev.apiKeys.createBtn')}
             </Button>
           </Space.Compact>
 
           {apiKeys.length === 0 ? (
-            <Typography.Text type="secondary">{t('dev.apiKeys.noKeys')}</Typography.Text>
+            <Typography.Text type="secondary">
+              {t('dev.apiKeys.noKeys')}
+            </Typography.Text>
           ) : (
             <List
               size="small"
@@ -839,12 +904,20 @@ const DevPage = () => {
                     description={
                       <Space size={4}>
                         {item.org && <Tag>{item.org.name}</Tag>}
-                        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                          {t('dev.apiKeys.createdLabel')}: {new Date(item.createdAt).toLocaleDateString()}
+                        <Typography.Text
+                          type="secondary"
+                          style={{ fontSize: 12 }}
+                        >
+                          {t('dev.apiKeys.createdLabel')}:{' '}
+                          {new Date(item.createdAt).toLocaleDateString()}
                         </Typography.Text>
                         {item.lastUsedAt && (
-                          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                            · {t('dev.apiKeys.lastUsedLabel')}: {new Date(item.lastUsedAt).toLocaleDateString()}
+                          <Typography.Text
+                            type="secondary"
+                            style={{ fontSize: 12 }}
+                          >
+                            · {t('dev.apiKeys.lastUsedLabel')}:{' '}
+                            {new Date(item.lastUsedAt).toLocaleDateString()}
                           </Typography.Text>
                         )}
                       </Space>
@@ -864,8 +937,7 @@ const DevPage = () => {
         <Card>
           <Typography.Paragraph>
             Здесь можно выгрузить JSON-backup основных таблиц (организация,
-            пользователи, рабочие места, назначения, планы, слоты,
-            ограничения).
+            пользователи, рабочие места, назначения, планы, слоты, ограничения).
           </Typography.Paragraph>
           <Button
             type="primary"

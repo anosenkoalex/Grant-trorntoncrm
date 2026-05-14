@@ -22,7 +22,12 @@ export const bulkMoveSchema = z
   )
   .refine(
     (value) =>
-      Boolean(value.newDateStart || value.newDateEnd || value.newOrgId || value.newUserId),
+      Boolean(
+        value.newDateStart ||
+          value.newDateEnd ||
+          value.newOrgId ||
+          value.newUserId,
+      ),
     {
       message: 'At least one update field is required',
       path: ['slotIds'],

@@ -59,7 +59,9 @@ export const FileAttachment = ({ assignmentId, canManage }: Props) => {
     mutationFn: (assignmentFileId: string) =>
       deleteAssignmentFile(assignmentId, assignmentFileId),
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['assignment-files', assignmentId] });
+      void qc.invalidateQueries({
+        queryKey: ['assignment-files', assignmentId],
+      });
       void message.success('Файл удалён');
     },
     onError: () => void message.error('Не удалось удалить файл'),
@@ -69,7 +71,9 @@ export const FileAttachment = ({ assignmentId, canManage }: Props) => {
     setUploading(true);
     try {
       await uploadAssignmentFile(assignmentId, file);
-      void qc.invalidateQueries({ queryKey: ['assignment-files', assignmentId] });
+      void qc.invalidateQueries({
+        queryKey: ['assignment-files', assignmentId],
+      });
       void message.success('Файл загружен');
     } catch {
       void message.error('Не удалось загрузить файл');
@@ -110,7 +114,9 @@ export const FileAttachment = ({ assignmentId, canManage }: Props) => {
           <p className="ant-upload-drag-icon">
             <InboxOutlined />
           </p>
-          <p className="ant-upload-text">Перетащите файл или нажмите для загрузки</p>
+          <p className="ant-upload-text">
+            Перетащите файл или нажмите для загрузки
+          </p>
           <p className="ant-upload-hint">Максимум 20 МБ</p>
         </Upload.Dragger>
       )}
