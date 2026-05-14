@@ -1,6 +1,7 @@
-import { Button, Card, Col, Layout, Row, Space, Typography } from 'antd';
+import { Button, Card, Col, Layout, Row, Select, Space, Typography } from 'antd';
 import { CheckOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const { Header, Content, Footer } = Layout;
 const { Title, Text, Paragraph } = Typography;
@@ -58,16 +59,46 @@ const PLANS = [
 ];
 
 const FEATURES = [
-  { title: 'Shift Planning', desc: 'Visual planner matrix with drag & drop scheduling for your entire team.' },
-  { title: 'Assignments Management', desc: 'Track employee assignments, shifts, and workplace changes with full history.' },
-  { title: 'HR Module', desc: 'Handle vacation requests, sick leave, and day-off approvals in one place.' },
-  { title: 'Analytics & KPI', desc: 'Real-time dashboards with planned vs reported hours and completion rates.' },
-  { title: 'Automation', desc: 'Automatic notifications on assignment changes with customizable SLA reminders.' },
-  { title: 'API & Integrations', desc: 'REST API with API keys for seamless integration with your existing tools.' },
+  {
+    title: 'Shift Planning',
+    desc: 'Visual planner matrix with drag & drop scheduling for your entire team.',
+  },
+  {
+    title: 'Assignments Management',
+    desc: 'Track employee assignments, shifts, and workplace changes with full history.',
+  },
+  {
+    title: 'HR Module',
+    desc: 'Handle vacation requests, sick leave, and day-off approvals in one place.',
+  },
+  {
+    title: 'Analytics & KPI',
+    desc: 'Real-time dashboards with planned vs reported hours and completion rates.',
+  },
+  {
+    title: 'Automation',
+    desc: 'Automatic notifications on assignment changes with customizable SLA reminders.',
+  },
+  {
+    title: 'API & Integrations',
+    desc: 'REST API with API keys for seamless integration with your existing tools.',
+  },
+];
+
+const LANG_OPTIONS = [
+  { value: 'ru', label: 'RU' },
+  { value: 'en', label: 'EN' },
+  { value: 'tr', label: 'TR' },
 ];
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
+
+  const handleLangChange = (lang: string) => {
+    void i18n.changeLanguage(lang);
+    localStorage.setItem('lang', lang);
+  };
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -86,11 +117,19 @@ export default function LandingPage() {
         }}
       >
         <Title level={4} style={{ margin: 0, color: '#1677ff' }}>
-          Armico CRM
+          Grant Thornton CRM
         </Title>
-        <Space>
+        <Space size={8}>
+          <Select
+            size="small"
+            value={i18n.language.slice(0, 2)}
+            onChange={handleLangChange}
+            options={LANG_OPTIONS}
+            style={{ width: 68 }}
+            variant="borderless"
+          />
           <Button type="link" onClick={() => navigate('/login')}>
-            Login
+            Sign In
           </Button>
           <Button type="primary" onClick={() => navigate('/register')}>
             Get Started
@@ -108,13 +147,26 @@ export default function LandingPage() {
             color: '#fff',
           }}
         >
-          <Title level={1} style={{ color: '#fff', marginBottom: 16, fontSize: 'clamp(28px, 5vw, 48px)' }}>
+          <Title
+            level={1}
+            style={{
+              color: '#fff',
+              marginBottom: 16,
+              fontSize: 'clamp(28px, 5vw, 48px)',
+            }}
+          >
             Workforce Management Made Simple
           </Title>
           <Paragraph
-            style={{ color: 'rgba(255,255,255,0.85)', fontSize: 18, maxWidth: 600, margin: '0 auto 32px' }}
+            style={{
+              color: 'rgba(255,255,255,0.85)',
+              fontSize: 18,
+              maxWidth: 600,
+              margin: '0 auto 32px',
+            }}
           >
-            Armico CRM helps you schedule shifts, manage assignments, track hours, and keep your team aligned — all in one platform.
+            Grant Thornton CRM helps you schedule shifts, manage assignments,
+            track hours, and keep your team aligned — all in one platform.
           </Paragraph>
           <Space size={16} wrap style={{ justifyContent: 'center' }}>
             <Button
@@ -125,26 +177,34 @@ export default function LandingPage() {
             >
               Start Free Trial
             </Button>
-            <Button
-              size="large"
-              ghost
-              onClick={() => navigate('/login')}
-            >
+            <Button size="large" ghost onClick={() => navigate('/login')}>
               Sign In
             </Button>
           </Space>
         </div>
 
         {/* Features */}
-        <div style={{ padding: '64px 40px', background: '#f9fafb', maxWidth: 1100, margin: '0 auto' }}>
+        <div
+          style={{
+            padding: '64px 40px',
+            background: '#f9fafb',
+            maxWidth: 1100,
+            margin: '0 auto',
+          }}
+        >
           <Title level={2} style={{ textAlign: 'center', marginBottom: 40 }}>
             Everything you need to manage your workforce
           </Title>
           <Row gutter={[24, 24]}>
             {FEATURES.map((f) => (
               <Col key={f.title} xs={24} sm={12} md={8}>
-                <Card bordered={false} style={{ height: '100%', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-                  <Title level={5} style={{ marginBottom: 8 }}>{f.title}</Title>
+                <Card
+                  bordered={false}
+                  style={{ height: '100%', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
+                >
+                  <Title level={5} style={{ marginBottom: 8 }}>
+                    {f.title}
+                  </Title>
                   <Text type="secondary">{f.desc}</Text>
                 </Card>
               </Col>
@@ -153,7 +213,10 @@ export default function LandingPage() {
         </div>
 
         {/* Pricing */}
-        <div style={{ padding: '64px 40px', maxWidth: 1100, margin: '0 auto' }} id="pricing">
+        <div
+          style={{ padding: '64px 40px', maxWidth: 1100, margin: '0 auto' }}
+          id="pricing"
+        >
           <Title level={2} style={{ textAlign: 'center', marginBottom: 8 }}>
             Simple, transparent pricing
           </Title>
@@ -192,17 +255,27 @@ export default function LandingPage() {
                       POPULAR
                     </div>
                   )}
-                  <Title level={4} style={{ marginBottom: 4 }}>{plan.name}</Title>
+                  <Title level={4} style={{ marginBottom: 4 }}>
+                    {plan.name}
+                  </Title>
                   <div style={{ marginBottom: 4 }}>
-                    <span style={{ fontSize: 36, fontWeight: 700, color: '#1677ff' }}>{plan.price}</span>
+                    <span style={{ fontSize: 36, fontWeight: 700, color: '#1677ff' }}>
+                      {plan.price}
+                    </span>
                     <span style={{ color: '#888', marginLeft: 4 }}>{plan.period}</span>
                   </div>
-                  <Text type="secondary" style={{ display: 'block', marginBottom: 20, fontSize: 13 }}>
+                  <Text
+                    type="secondary"
+                    style={{ display: 'block', marginBottom: 20, fontSize: 13 }}
+                  >
                     {plan.limit}
                   </Text>
                   <ul style={{ padding: 0, listStyle: 'none', margin: '0 0 24px' }}>
                     {plan.features.map((f) => (
-                      <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                      <li
+                        key={f}
+                        style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}
+                      >
                         <CheckOutlined style={{ color: '#52c41a', fontSize: 14 }} />
                         <Text style={{ fontSize: 14 }}>{f}</Text>
                       </li>
@@ -224,7 +297,7 @@ export default function LandingPage() {
       </Content>
 
       <Footer style={{ textAlign: 'center', background: '#f0f2f5', color: '#888' }}>
-        © {new Date().getFullYear()} Armico CRM. All rights reserved.
+        © {new Date().getFullYear()} Grant Thornton CRM. All rights reserved.
       </Footer>
     </Layout>
   );

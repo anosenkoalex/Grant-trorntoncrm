@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-05-14 — Доработки лендинга
+
+- **Landing.tsx**: заменено «Armico CRM» → «Grant Thornton CRM» во всех местах (шапка, hero-текст, футер); добавлен переключатель языков RU/EN/TR в шапку (Select из antd + useTranslation/i18next, сохранение в localStorage)
+- **routes/index.tsx**: `/` теперь показывает лендинг для незалогиненных и редиректит на `/dashboard` или `/my-place` для залогиненных; все защищённые маршруты вынесены в pathless layout route с `ProtectedRoute`; `/landing` остаётся как алиас; `ProtectedRoute` при отсутствии токена редиректит на `/` вместо `/login`
+
+**Изменённые файлы:**
+
+- `frontend/src/pages/Landing.tsx` — Grant Thornton CRM, language switcher
+- `frontend/src/routes/index.tsx` — / как лендинг, pathless protected layout
+
+---
+
 ## 2026-05-14 — Фаза 9: SaaS-монетизация (Stripe + Лендинг + Биллинг)
 
 Реализована полная SaaS-инфраструктура: публичный лендинг, регистрация через Stripe Checkout, управление подписками, биллинг-страница и панель платформенного администратора.

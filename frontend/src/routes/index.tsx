@@ -25,7 +25,7 @@ const ProtectedRoute = () => {
   const { token } = useAuth();
 
   if (!token) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <AppLayout />;
@@ -34,14 +34,19 @@ const ProtectedRoute = () => {
 const AppRoutes = () => {
   const { token, user } = useAuth();
 
-  // Куда по умолчанию редиректим залогиненного пользователя
   const defaultPath = user?.role === 'USER' ? '/my-place' : '/dashboard';
 
   const element = useRoutes([
-    // Публичная лендинг-страница
+    // Корень — лендинг для гостей, редирект для залогиненных
+    {
+      path: '/',
+      element: token ? <Navigate to={defaultPath} replace /> : <LandingPage />,
+    },
+
+    // /landing — алиас
     {
       path: '/landing',
-      element: <LandingPage />,
+      element: token ? <Navigate to={defaultPath} replace /> : <LandingPage />,
     },
 
     // Регистрация
@@ -54,59 +59,44 @@ const AppRoutes = () => {
       element: <RegisterSuccessPage />,
     },
 
-    // 🔹 Страница инструкции — ОТДЕЛЬНО, без AppLayout и без проверки токена
+    // Страница инструкций — без авторизации
     {
       path: '/instructions',
       element: <InstructionsPage />,
     },
 
+    // Логин
     {
       path: '/login',
-      // если уже залогинен — отправляем по роли
       element: token ? <Navigate to={defaultPath} replace /> : <Login />,
     },
+
+    // Защищённый layout (без явного path — wraps все protected routes)
     {
-      path: '/',
       element: <ProtectedRoute />,
       children: [
-        // корневой маршрут → редирект по роли
-        { index: true, element: <Navigate to={defaultPath} replace /> },
-
-        // общий дашборд
-        { path: 'dashboard', element: <Dashboard /> },
-
-        // страница сотрудника
-        { path: 'my-place', element: <MyPlace /> },
-
-        // админские/менеджерские страницы
-        { path: 'workplaces', element: <WorkplacesPage /> },
-        { path: 'assignments', element: <AssignmentsPage /> },
-        { path: 'planner', element: <PlannerPage /> },
-        { path: 'users', element: <UsersPage /> },
-        { path: 'users/create', element: <UsersCreatePage /> },
-        { path: 'statistics', element: <StatisticsPage /> },
-
-        // страница запросов корректировок
-        { path: 'schedule-adjustments', element: <AssignmentAdjustmentsPage /> },
-
-        // настройки автоматизации (только для админа/менеджера)
-        { path: 'automation-settings', element: <AutomationSettingsPage /> },
-
-        // hr
-        { path: 'hr', element: <HRPage /> },
-
-        // биллинг
-        { path: 'billing', element: <BillingPage /> },
-
-        // super-admin панель
-        { path: 'super-admin', element: <SuperAdminPage /> },
-
-        // dev-панель
-        { path: 'dev', element: <DevPage /> },
+        { path: '/dashboard', element: <Dashboard /> },
+        { path: '/my-place', element: <MyPlace /> },
+        { path: '/workplaces', element: <WorkplacesPage /> },
+        { path: '/assignments', element: <AssignmentsPage /> },
+        { path: '/planner', element: <PlannerPage /> },
+        { path: '/users', element: <UsersPage /> },
+        { path: '/users/create', element: <UsersCreatePage /> },
+        { path: '/statistics', element: <StatisticsPage /> },
+        { path: '/schedule-adjustments', element: <AssignmentAdjustmentsPage /> },
+        { path: '/automation-settings', element: <AutomationSettingsPage /> },
+        { path: '/hr', element: <HRPage /> },
+        { path: '/billing', element: <BillingPage /> },
+        { path: '/super-admin', element: <SuperAdminPage /> },
+        { path: '/dev', element: <DevPage /> },
       ],
     },
-    // любой левый URL → тоже по роли
-    { path: '*', element: <Navigate to={defaultPath} replace /> },
+
+    // Все остальные URL
+    {
+      path: '*',
+      element: token ? <Navigate to={defaultPath} replace /> : <Navigate to="/" replace />,
+    },
   ]);
 
   return element;
