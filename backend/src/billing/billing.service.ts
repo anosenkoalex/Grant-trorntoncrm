@@ -165,8 +165,11 @@ export class BillingService {
       const stripe = this.getStripe();
       const sub = await stripe.subscriptions.retrieve(subId);
       stripePriceId = sub.items.data[0]?.price.id ?? null;
-      const subRaw = sub as unknown as { current_period_end: number };
-      currentPeriodEnd = new Date(subRaw.current_period_end * 1000);
+      const periodEnd =
+        (sub.items.data[0] as unknown as { current_period_end?: number })
+          ?.current_period_end ??
+        (sub as unknown as { current_period_end?: number }).current_period_end;
+      currentPeriodEnd = periodEnd ? new Date(periodEnd * 1000) : null;
     }
 
     await this.prisma.$transaction(async (tx) => {
@@ -220,8 +223,11 @@ export class BillingService {
     if (!existing) return;
 
     const status = this.mapStripeStatus(sub.status);
-    const subRaw = sub as unknown as { current_period_end: number };
-    const currentPeriodEnd = new Date(subRaw.current_period_end * 1000);
+    const periodEnd =
+      (sub.items.data[0] as unknown as { current_period_end?: number })
+        ?.current_period_end ??
+      (sub as unknown as { current_period_end?: number }).current_period_end;
+    const currentPeriodEnd = periodEnd ? new Date(periodEnd * 1000) : null;
     const priceId = sub.items.data[0]?.price.id;
     const plan = await this.planFromPriceId(priceId);
 
