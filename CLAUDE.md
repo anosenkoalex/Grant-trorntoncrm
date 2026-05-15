@@ -4,6 +4,35 @@
 
 ---
 
+## 2026-05-15 — Фаза 17: Страницы для SaaS
+
+Добавлены три публичные страницы: Terms of Service, Privacy Policy и Status Page.
+
+### Frontend
+
+**TermsOfService.tsx** (новый) — 13 разделов: принятие условий, тарифы, бесплатный период, учётные записи, ограничение ответственности, расторжение и т.д. Доступна по `/terms`.
+
+**PrivacyPolicy.tsx** (новый) — 11 разделов: собираемые данные, GDPR-права, хранение, cookie, контакты DPO. Доступна по `/privacy`.
+
+**StatusPage.tsx** (новый) — живые health-checks двух эндпоинтов (`/auth/profile`, `/billing/info`); показывает статус 4 компонентов (API, DB, Billing, Notifications) с цветным индикатором, latency в мс и общим баннером (зелёный/красный/синий); секция истории инцидентов. Доступна по `/status`.
+
+**Landing.tsx** — в футере добавлены ссылки `/terms`, `/privacy`, `/status`.
+
+**routes/index.tsx** — добавлены три публичных маршрута без авторизации.
+
+**i18n.ts** — добавлены разделы `terms.*`, `privacy.*`, `status.*` и `landing.footerTerms/footerPrivacy/footerStatus` для RU/EN/TR.
+
+### Изменённые файлы
+
+- `frontend/src/pages/TermsOfService.tsx` (новый)
+- `frontend/src/pages/PrivacyPolicy.tsx` (новый)
+- `frontend/src/pages/StatusPage.tsx` (новый)
+- `frontend/src/pages/Landing.tsx`
+- `frontend/src/routes/index.tsx`
+- `frontend/src/i18n.ts`
+
+---
+
 ## 2026-05-15 — Фаза 16: Audit Log
 
 Добавлено логирование всех ключевых действий в системе с просмотром через отдельную страницу.
