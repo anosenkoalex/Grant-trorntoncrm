@@ -158,7 +158,18 @@ export class UsersService implements OnModuleInit {
     }
 
     if (created.orgId) {
-      void this.audit.log(created.orgId, created.id, 'CREATE', 'User', created.id, { email: created.email, role: created.role });
+      void this.audit.log(
+        created.orgId,
+        created.id,
+        'CREATE',
+        'User',
+        created.id,
+        {
+          email: created.email,
+          fullName: created.fullName ?? '',
+          role: created.role,
+        },
+      );
     }
 
     return this.presentUser(created);
@@ -330,7 +341,10 @@ export class UsersService implements OnModuleInit {
     });
 
     if (updated.orgId) {
-      void this.audit.log(updated.orgId, id, 'UPDATE', 'User', id);
+      void this.audit.log(updated.orgId, id, 'UPDATE', 'User', id, {
+        email: updated.email,
+        fullName: updated.fullName ?? '',
+      });
     }
 
     return this.presentUser(updated);

@@ -50,10 +50,9 @@ export default function AuditLog() {
     },
     {
       title: t('auditLog.entity', 'Сущность'),
+      dataIndex: 'entity',
       key: 'entity',
-      width: 160,
-      render: (_: unknown, row: AuditLogItem) =>
-        row.entityId ? `${row.entity} #${row.entityId.slice(0, 8)}` : row.entity,
+      width: 140,
     },
     {
       title: t('auditLog.details', 'Детали'),

@@ -118,7 +118,20 @@ export class HrService {
       `Заявка одобрена`,
       `Ваша заявка (${typeLabel}) с ${this.formatDate(req.dateFrom)} по ${this.formatDate(req.dateTo)} одобрена.`,
     );
-    void this.audit.log(req.orgId, decidedById, 'APPROVE', 'VacationRequest', id, { type: req.type });
+    void this.audit.log(
+      req.orgId,
+      decidedById,
+      'APPROVE',
+      'VacationRequest',
+      id,
+      {
+        type: typeLabel,
+        employee:
+          updated.user?.fullName?.trim() || updated.user?.email || '',
+        from: this.formatDate(req.dateFrom),
+        to: this.formatDate(req.dateTo),
+      },
+    );
 
     return updated;
   }
@@ -147,7 +160,21 @@ export class HrService {
       `Заявка отклонена`,
       `Ваша заявка (${typeLabel}) с ${this.formatDate(req.dateFrom)} по ${this.formatDate(req.dateTo)} отклонена${comment ? `: ${comment}` : '.'}`,
     );
-    void this.audit.log(req.orgId, decidedById, 'REJECT', 'VacationRequest', id, { type: req.type });
+    void this.audit.log(
+      req.orgId,
+      decidedById,
+      'REJECT',
+      'VacationRequest',
+      id,
+      {
+        type: typeLabel,
+        employee:
+          updated.user?.fullName?.trim() || updated.user?.email || '',
+        from: this.formatDate(req.dateFrom),
+        to: this.formatDate(req.dateTo),
+        ...(comment ? { comment } : {}),
+      },
+    );
 
     return updated;
   }

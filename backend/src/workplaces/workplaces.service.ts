@@ -68,7 +68,14 @@ export class WorkplacesService {
         include: { org: { select: { id: true, name: true, slug: true } } },
       });
       if (actorId) {
-        void this.audit.log(data.orgId, actorId, 'CREATE', 'Workplace', workplace.id, { name: workplace.name, code: workplace.code });
+        void this.audit.log(
+          data.orgId,
+          actorId,
+          'CREATE',
+          'Workplace',
+          workplace.id,
+          { name: workplace.name, code: workplace.code },
+        );
       }
       return workplace;
     } catch (error) {
@@ -126,7 +133,10 @@ export class WorkplacesService {
         include: { org: { select: { id: true, name: true, slug: true } } },
       });
       if (actorId && existing.orgId) {
-        void this.audit.log(existing.orgId, actorId, 'UPDATE', 'Workplace', id);
+        void this.audit.log(existing.orgId, actorId, 'UPDATE', 'Workplace', id, {
+          name: updated.name,
+          code: updated.code,
+        });
       }
       return updated;
     } catch (error) {
@@ -208,7 +218,10 @@ export class WorkplacesService {
     });
 
     if (actorId && workplace.orgId) {
-      void this.audit.log(workplace.orgId, actorId, 'DELETE', 'Workplace', id, { name: workplace.name, code: workplace.code });
+      void this.audit.log(workplace.orgId, actorId, 'DELETE', 'Workplace', id, {
+        name: workplace.name,
+        code: workplace.code,
+      });
     }
 
     return { success: true };

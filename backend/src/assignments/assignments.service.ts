@@ -424,7 +424,13 @@ export class AssignmentsService {
       'CREATE',
       'Assignment',
       assignment!.id,
-      { workplaceId: assignment!.workplaceId },
+      {
+        employee:
+          assignment!.user?.fullName?.trim() || assignment!.user?.email || '',
+        workplace: [assignment!.workplace.code, assignment!.workplace.name]
+          .filter(Boolean)
+          .join(' — '),
+      },
     );
 
     return assignment;
@@ -709,7 +715,16 @@ export class AssignmentsService {
         'UPDATE',
         'Assignment',
         id,
-        { workplaceId: assignment!.workplaceId },
+        {
+          employee:
+            assignment!.user?.fullName?.trim() || assignment!.user?.email || '',
+          workplace: [
+            assignment!.workplace?.code,
+            assignment!.workplace?.name,
+          ]
+            .filter(Boolean)
+            .join(' — '),
+        },
       );
     }
 
@@ -845,7 +860,12 @@ export class AssignmentsService {
 
     const workplace = await this.prisma.workplace.findUnique({
       where: { id: updated.workplaceId },
-      select: { orgId: true },
+      select: { orgId: true, code: true, name: true },
+    });
+
+    const deletedUser = await this.prisma.user.findUnique({
+      where: { id: updated.userId },
+      select: { fullName: true, email: true },
     });
 
     if (workplace?.orgId) {
@@ -871,7 +891,13 @@ export class AssignmentsService {
         'DELETE',
         'Assignment',
         id,
-        { workplaceId: updated.workplaceId },
+        {
+          employee:
+            deletedUser?.fullName?.trim() || deletedUser?.email || '',
+          workplace: [workplace.code, workplace.name]
+            .filter(Boolean)
+            .join(' — '),
+        },
       );
     }
 
