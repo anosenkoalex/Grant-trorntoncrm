@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { AssignmentStatus, Prisma, UserRole } from '@prisma/client';
 import ExcelJS from 'exceljs';
@@ -164,7 +165,7 @@ export class PlannerService {
     };
 
     if (effectiveOrgId) {
-      where.workplace = { is: { orgId: effectiveOrgId } };
+      where.user = { orgId: effectiveOrgId };
     }
 
     const orderBy: Prisma.AssignmentOrderByWithRelationInput[] =
@@ -353,7 +354,7 @@ export class PlannerService {
     };
 
     if (effectiveOrgId) {
-      where.workplace = { is: { orgId: effectiveOrgId } };
+      where.user = { orgId: effectiveOrgId };
     }
 
     const orderBy: Prisma.AssignmentOrderByWithRelationInput[] =
