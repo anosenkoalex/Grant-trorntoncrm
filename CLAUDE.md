@@ -4,6 +4,84 @@
 
 ---
 
+## 2026-05-16 — Ребрендинг Armico → Grant Thornton + страница презентации
+
+### 1. Замена Armico на Grant Thornton брендинг
+
+Глобальный поиск и замена всех упоминаний `armico`, `armico.local`, `Armico` по всему проекту.
+
+- **backend/prisma/seed.ts**: `admin@armico.local` → `admin@grantthornton.local`; `dev@armico.local` → `dev@grantthornton.local`; org name `Armico` → `Grant Thornton Demo`; slug `armico` → `grant-thornton-demo`; sender `ARMICO` → `GRANTHORN`
+- **backend/src/users/users.service.ts**: DEFAULT_ADMIN_EMAIL, DEFAULT_ORG_SLUG, org name
+- **backend/src/dev/dev.controller.ts**: email-проверка, SMS sender, тестовые тексты; удалён неиспользуемый `DevEmailSettingsBody`
+- **backend/src/notifications/email.service.ts**: from-адрес, темы писем
+- **backend/src/sms/sms.service.ts**: sender `ARMICO` → `GRANTHORN` (4 вхождения)
+- **frontend/src/api/client.ts**: localStorage key `armico_token` → `gt_crm_token`; event `armico:unauthorized` → `gt_crm:unauthorized`
+- **frontend/src/context/AuthContext.tsx**: те же ключи (3+2 вхождения)
+- **frontend/src/components/Layout.tsx**: email-проверка dev-пользователя
+- **frontend/src/pages/DevPage.tsx**: email-проверка, имя бэкап-файла (`grantthornton-backup-*.json`), placeholder SMS sender, placeholder email
+- **frontend/src/pages/Login.tsx**: prefill email в форме
+- **frontend/src/pages/Landing.tsx**: demo login email
+- **README.md**: credentials в описании
+- **frontend/src/i18n.ts**: `dev@armico.local` → `dev@grantthornton.local` в трёх языках
+
+**Примечание**: переименование localStorage ключа `armico_token` → `gt_crm_token` разлогинит существующих пользователей при деплое.
+
+**Коммит:** `7c1f5ac`
+
+### 2. Страница презентации /presentation
+
+Добавлена публичная маркетинговая страница с максимально подробным описанием продукта.
+
+**Presentation.tsx** (новый) — 19 секций с плавным скроллом:
+
+1. **Hero** — тёмный градиент, заголовок, subtitle, кнопки CTA, 4 стат-блока (статы продукта)
+2. **Problem** — 6 карточек болей клиента + баннер «GT CRM решает всё это»
+3. **Assignments** — описание назначений с фейковой таблицей-превью
+4. **Planner** — матрица планировщика (визуализация) + список фич
+5. **HR** — 3 карточки (календарь, согласование, отчёты) + список фич
+6. **Analytics** — KPI карточки + список фич
+7. **Automation** — 3 IconCard (триггеры, SLA, уведомления)
+8. **Notifications** — 3 IconCard (система, Telegram, email)
+9. **Documents** — drag & drop, список форматов файлов
+10. **Integrations** — 4 карточки (REST API, Google Calendar, SMS, Stripe)
+11. **My Profile** — таблица полей профиля
+12. **Multilingual** — 3 карточки RU/EN/TR
+13. **Audit Log** — таблица записей лога + список фич
+14. **Org Settings** — 3 IconCard (брендинг, команды, белый лейбл)
+15. **SaaS** — 3 тарифных плана (Starter $29 / Business $99 / Enterprise $299)
+16. **Security** — 4 IconCard (JWT, RBAC, HTTPS, GDPR)
+17. **Technologies** — 6 стек-карточек (React, NestJS, PostgreSQL, Prisma, Ant Design, TypeScript)
+18. **Roadmap** — 3 фазы (Q2/Q3/Q4 2026) с бейджем «Выполнено»
+19. **CTA** — красный градиент, кнопки «Try Demo» и «Register»
+
+**Дизайн**: GT Red `#E8231A`, GT Black `#1A1A1A`, белый фон. Sticky header 64px с логотипом, 10 nav-кнопками, переключателем RU/EN/TR, кнопкой «Try Demo». Shadow на хедере при скролле.
+
+**i18n.ts** — добавлен раздел `presentation.*` (~90 ключей) для RU, EN, TR.
+
+**routes/index.tsx** — добавлен публичный маршрут `/presentation` (lazy).
+
+**Коммит:** `d5a94db`
+
+### Изменённые файлы
+
+- `backend/prisma/seed.ts`
+- `backend/src/users/users.service.ts`
+- `backend/src/dev/dev.controller.ts`
+- `backend/src/notifications/email.service.ts`
+- `backend/src/sms/sms.service.ts`
+- `frontend/src/api/client.ts`
+- `frontend/src/context/AuthContext.tsx`
+- `frontend/src/components/Layout.tsx`
+- `frontend/src/pages/DevPage.tsx`
+- `frontend/src/pages/Login.tsx`
+- `frontend/src/pages/Landing.tsx`
+- `frontend/src/i18n.ts`
+- `README.md`
+- `frontend/src/pages/Presentation.tsx` (новый)
+- `frontend/src/routes/index.tsx`
+
+---
+
 ## 2026-05-15 — Хотфиксы: TDZ, изоляция планировщика, читаемый Audit Log
 
 ### 1. Фикс TDZ (белый экран в production)
