@@ -22,7 +22,14 @@ import {
 } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import { type ReactNode, lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import {
+  type ReactNode,
+  lazy,
+  Suspense,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -355,6 +362,11 @@ const AppLayout = () => {
   const { t, i18n } = useTranslation();
   const { logout, user, profile, isFetchingProfile } = useAuth();
 
+  const isAdmin = user?.role === 'SUPER_ADMIN';
+  const isManager = user?.role === 'MANAGER';
+  const isWorker = user?.role === 'USER';
+  const isDevUser = user?.email === 'dev@armico.local';
+
   const handleLangChange = (lang: string) => {
     void i18n.changeLanguage(lang);
     localStorage.setItem('lang', lang);
@@ -391,11 +403,6 @@ const AppLayout = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  const isAdmin = user?.role === 'SUPER_ADMIN';
-  const isManager = user?.role === 'MANAGER';
-  const isWorker = user?.role === 'USER';
-  const isDevUser = user?.email === 'dev@armico.local';
 
   const displayName = useMemo(() => {
     const fullName = (profile?.fullName ?? '').trim();
