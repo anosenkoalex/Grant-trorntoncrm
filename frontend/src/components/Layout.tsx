@@ -22,7 +22,7 @@ import {
 } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import { type ReactNode, useEffect, useMemo, useState } from 'react';
+import { type ReactNode, lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -34,7 +34,7 @@ import {
   type NotificationType,
 } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.js';
-import OnboardingWizard from './OnboardingWizard.js';
+const OnboardingWizard = lazy(() => import('./OnboardingWizard.js'));
 
 const { Header, Sider, Content } = Layout;
 
@@ -720,12 +720,14 @@ const AppLayout = () => {
         </Layout>
 
         {showOnboarding && (
-          <OnboardingWizard
-            onDone={() => {
-              setOnboardingDone(true);
-              void orgQuery.refetch();
-            }}
-          />
+          <Suspense fallback={null}>
+            <OnboardingWizard
+              onDone={() => {
+                setOnboardingDone(true);
+                void orgQuery.refetch();
+              }}
+            />
+          </Suspense>
         )}
       </Layout>
     </ConfigProvider>
