@@ -301,6 +301,8 @@ const ru = {
     fIntegrations: 'Кастомные интеграции',
     fSla: 'SLA-гарантия',
     footerRights: 'Все права защищены.',
+    tryDemo: 'Попробовать демо',
+    tryDemoLoading: 'Загрузка...',
   },
   register: {
     createAccount: 'Создать аккаунт компании',
@@ -1209,6 +1211,8 @@ const en = {
     fIntegrations: 'Custom integrations',
     fSla: 'SLA guarantee',
     footerRights: 'All rights reserved.',
+    tryDemo: 'Try Demo',
+    tryDemoLoading: 'Loading...',
   },
   dev: {
     title: 'Developer console',
@@ -1933,6 +1937,8 @@ const tr = {
     fIntegrations: 'Özel entegrasyonlar',
     fSla: 'SLA garantisi',
     footerRights: 'Tüm hakları saklıdır.',
+    tryDemo: "Demo'yu Dene",
+    tryDemoLoading: 'Yükleniyor...',
   },
   dev: {
     title: 'Developer console',

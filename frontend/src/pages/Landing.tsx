@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Button,
   Card,
@@ -7,10 +8,12 @@ import {
   Select,
   Space,
   Typography,
+  message,
 } from 'antd';
 import { CheckOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../context/AuthContext.js';
 
 const { Header, Content, Footer } = Layout;
 const { Title, Text, Paragraph } = Typography;
@@ -24,6 +27,20 @@ const LANG_OPTIONS = [
 export default function LandingPage() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const { login } = useAuth();
+  const [demoLoading, setDemoLoading] = useState(false);
+
+  const handleDemoLogin = async () => {
+    setDemoLoading(true);
+    try {
+      await login({ email: 'admin@armico.local', password: 'admin123' });
+      navigate('/dashboard');
+    } catch {
+      void message.error('Demo login failed');
+    } finally {
+      setDemoLoading(false);
+    }
+  };
 
   const handleLangChange = (lang: string) => {
     void i18n.changeLanguage(lang);
@@ -170,6 +187,22 @@ export default function LandingPage() {
               onClick={() => navigate('/register')}
             >
               {t('landing.startTrial')}
+            </Button>
+            <Button
+              size="large"
+              type="default"
+              loading={demoLoading}
+              onClick={handleDemoLogin}
+              style={{
+                background: 'rgba(255,255,255,0.15)',
+                borderColor: 'rgba(255,255,255,0.7)',
+                color: '#fff',
+                fontWeight: 600,
+              }}
+            >
+              {demoLoading
+                ? t('landing.tryDemoLoading')
+                : t('landing.tryDemo')}
             </Button>
             <Button size="large" ghost onClick={() => navigate('/login')}>
               {t('landing.signIn')}

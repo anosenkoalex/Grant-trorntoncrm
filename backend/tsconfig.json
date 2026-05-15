@@ -11,6 +11,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
+    "ignoreDeprecations": "5.0",
     "outDir": "dist",
     "baseUrl": "./",
     "sourceMap": true
