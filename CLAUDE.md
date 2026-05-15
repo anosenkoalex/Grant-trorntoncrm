@@ -4,6 +4,58 @@
 
 ---
 
+## 2026-05-15 — Хотфиксы: TDZ, изоляция планировщика, читаемый Audit Log
+
+### 1. Фикс TDZ (белый экран в production)
+
+Три последовательных фикса «Cannot access 'x' before initialization» — ошибки Temporal Dead Zone в минифицированном бандле.
+
+**Фикс 1 — ColorPicker** (`OrgSettings.tsx`): удалён `import { ColorPicker } from 'antd'` (тянул `@rc-component/color-picker` в main bundle и вызывал TDZ); заменён на нативный `<input type="color">`. Чанк OrgSettings: 71 kB → 2 kB.
+
+**Фикс 2 — OnboardingWizard** (`Layout.tsx`): компонент тянул `Steps` + `Result` из antd в main bundle. Заменён eager-import на `const OnboardingWizard = lazy(() => import('./OnboardingWizard.js'))`. Main bundle: 1111 kB → 937 kB; OnboardingWizard получил собственный чанк 26 kB.
+
+**Фикс 3 — isAdmin TDZ (корневая причина)** (`Layout.tsx`): `isAdmin`, `isManager`, `isWorker`, `isDevUser` объявлялись через `const` в строке 402 внутри `AppLayout()`, но использовались в строках 383/388 (до объявления). Terser минифицировал имена → «Cannot access 'g' before initialization». Переменные перемещены сразу после `useAuth()`.
+
+**Коммиты:** `0473c2b` (lazy routes), `375d0c3` (ColorPicker), `2c7898a` (OnboardingWizard lazy), `cbb796c` (isAdmin fix)
+
+### 2. Фикс изоляции Planner по orgId (попытка 3)
+
+**planner.service.ts** — предыдущий паттерн `isSuperAdmin ? params.orgId : auth.orgId` позволял SUPER_ADMIN видеть все организации, если `params.orgId` не передан. Заменено на:
+
+```
+effectiveOrgId = params.orgId ?? auth.orgId
+```
+
+Фильтр `where.user = { orgId: effectiveOrgId }` теперь применяется **безусловно**; если `effectiveOrgId` не определён — выбрасывается `BadRequestException`. Применено в `collectRows()` и `exportMatrixToExcel()`.
+
+**Коммит:** `717ae7c`
+
+### 3. Читаемые записи Audit Log
+
+Все вызовы `audit.log()` обновлены — теперь `details` содержит человекочитаемые имена вместо сырых ID.
+
+- **assignments.service.ts**: CREATE/UPDATE — `{ employee: fullName||email, workplace: 'code — name' }`; DELETE — дополнительные запросы к `workplace` и `user` за именами
+- **workplaces.service.ts**: UPDATE — добавлено `{ name, code }` (было пусто)
+- **users.service.ts**: CREATE — добавлен `fullName`; UPDATE — добавлено `{ email, fullName }` (было пусто)
+- **hr.service.ts**: APPROVE/REJECT — `{ type: typeLabel, employee: fullName||email, from, to[, comment] }`
+- **AuditLog.tsx**: колонка «Сущность» упрощена — убран суффикс `#shortId`
+
+**Коммит:** `6d92fca`
+
+### Изменённые файлы
+
+- `frontend/src/routes/index.tsx` — все страницы через `React.lazy()`
+- `frontend/src/pages/OrgSettings.tsx` — нативный `<input type="color">`
+- `frontend/src/components/Layout.tsx` — lazy OnboardingWizard, перемещены isAdmin/isManager/isWorker/isDevUser
+- `backend/src/planner/planner.service.ts` — безусловный orgId-фильтр
+- `backend/src/assignments/assignments.service.ts` — читаемые audit details
+- `backend/src/workplaces/workplaces.service.ts` — читаемые audit details
+- `backend/src/users/users.service.ts` — читаемые audit details
+- `backend/src/hr/hr.service.ts` — читаемые audit details
+- `frontend/src/pages/AuditLog.tsx` — убран #shortId из колонки «Сущность»
+
+---
+
 ## 2026-05-15 — Фаза 17: Страницы для SaaS
 
 Добавлены три публичные страницы: Terms of Service, Privacy Policy и Status Page.
