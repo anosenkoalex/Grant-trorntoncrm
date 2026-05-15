@@ -9,6 +9,7 @@ import {
 import {
   Badge,
   Button,
+  ConfigProvider,
   Dropdown,
   Layout,
   Menu,
@@ -377,9 +378,7 @@ const AppLayout = () => {
   });
 
   const showOnboarding =
-    isAdmin &&
-    !onboardingDone &&
-    orgQuery.data?.onboardingCompleted === false;
+    isAdmin && !onboardingDone && orgQuery.data?.onboardingCompleted === false;
 
   useEffect(() => {
     const handleResize = () => {
@@ -446,11 +445,18 @@ const AppLayout = () => {
     }
 
     if (isAdmin) {
-      items.push({
-        key: 'billing',
-        path: '/billing',
-        label: t('layout.billing', 'Биллинг'),
-      });
+      items.push(
+        {
+          key: 'billing',
+          path: '/billing',
+          label: t('layout.billing', 'Биллинг'),
+        },
+        {
+          key: 'org-settings',
+          path: '/org-settings',
+          label: t('layout.orgSettings', 'Настройки организации'),
+        },
+      );
     }
 
     if (isAdmin || isDevUser) {
@@ -548,7 +554,16 @@ const AppLayout = () => {
   }
 
   /* ── Admin / Manager layout ── */
+  const primaryColor = orgQuery.data?.primaryColor?.trim() || undefined;
+
   return (
+    <ConfigProvider
+      theme={
+        primaryColor
+          ? { token: { colorPrimary: primaryColor } }
+          : undefined
+      }
+    >
     <Layout style={{ minHeight: '100vh' }}>
       {/* Backdrop */}
       {isMobile && !isSiderCollapsed && (
@@ -596,7 +611,7 @@ const AppLayout = () => {
             marginBottom: 4,
           }}
         >
-          Grant Thornton
+          {orgQuery.data?.companyDisplayName?.trim() || 'Grant Thornton'}
         </div>
         <Menu
           theme="dark"
@@ -705,6 +720,7 @@ const AppLayout = () => {
         />
       )}
     </Layout>
+    </ConfigProvider>
   );
 };
 

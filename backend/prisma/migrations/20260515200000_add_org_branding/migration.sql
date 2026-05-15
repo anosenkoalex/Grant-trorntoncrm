@@ -1,0 +1,3 @@
+ALTER TABLE "Org" ADD COLUMN "logoUrl" TEXT;
+ALTER TABLE "Org" ADD COLUMN "primaryColor" TEXT;
+ALTER TABLE "Org" ADD COLUMN "companyDisplayName" TEXT;

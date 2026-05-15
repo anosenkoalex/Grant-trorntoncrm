@@ -32,6 +32,21 @@ export class OrgsController {
     return this.orgsService.getMyOrg(user.orgId);
   }
 
+  @Patch('branding')
+  @Roles(UserRole.SUPER_ADMIN)
+  updateBranding(
+    @CurrentUser() user: JwtPayload,
+    @Body()
+    body: {
+      logoUrl?: string | null;
+      primaryColor?: string | null;
+      companyDisplayName?: string | null;
+    },
+  ) {
+    if (!user.orgId) throw new ForbiddenException('No org');
+    return this.orgsService.updateBranding(user.orgId, body);
+  }
+
   @Patch('onboarding-complete')
   @Roles(UserRole.SUPER_ADMIN)
   completeOnboarding(@CurrentUser() user: JwtPayload) {

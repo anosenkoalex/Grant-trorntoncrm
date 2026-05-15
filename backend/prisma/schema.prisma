@@ -92,6 +92,10 @@ model Org {
   slug        String        @unique
   onboardingCompleted Boolean @default(false)
 
+  logoUrl            String?
+  primaryColor       String?
+  companyDisplayName String?
+
   users       User[]
   workplaces  Workplace[]
   slots       Slot[]

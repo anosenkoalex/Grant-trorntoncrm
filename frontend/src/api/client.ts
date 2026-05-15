@@ -1544,6 +1544,9 @@ export type MyOrgResponse = {
   name: string;
   slug: string;
   onboardingCompleted: boolean;
+  logoUrl?: string | null;
+  primaryColor?: string | null;
+  companyDisplayName?: string | null;
 };
 
 export const fetchMyOrg = async (): Promise<MyOrgResponse> => {
@@ -1553,4 +1556,13 @@ export const fetchMyOrg = async (): Promise<MyOrgResponse> => {
 
 export const completeOnboarding = async (): Promise<void> => {
   await api.patch('/orgs/onboarding-complete');
+};
+
+export const updateOrgBranding = async (payload: {
+  logoUrl?: string | null;
+  primaryColor?: string | null;
+  companyDisplayName?: string | null;
+}): Promise<MyOrgResponse> => {
+  const { data } = await api.patch<MyOrgResponse>('/orgs/branding', payload);
+  return data;
 };

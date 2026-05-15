@@ -44,10 +44,38 @@ export class OrgsService {
   async getMyOrg(orgId: string) {
     const org = await this.prisma.org.findUnique({
       where: { id: orgId },
-      select: { id: true, name: true, slug: true, onboardingCompleted: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        onboardingCompleted: true,
+        logoUrl: true,
+        primaryColor: true,
+        companyDisplayName: true,
+      },
     });
     if (!org) throw new NotFoundException('Организация не найдена');
     return org;
+  }
+
+  async updateBranding(
+    orgId: string,
+    data: {
+      logoUrl?: string | null;
+      primaryColor?: string | null;
+      companyDisplayName?: string | null;
+    },
+  ) {
+    return this.prisma.org.update({
+      where: { id: orgId },
+      data,
+      select: {
+        id: true,
+        logoUrl: true,
+        primaryColor: true,
+        companyDisplayName: true,
+      },
+    });
   }
 
   async completeOnboarding(orgId: string) {
