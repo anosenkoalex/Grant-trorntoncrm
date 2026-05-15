@@ -2338,7 +2338,7 @@ const AssignmentsPage = () => {
               marginBottom: isMobile ? 0 : 4,
             }}
           >
-            Свободных сотрудников:{' '}
+            {t('assignments.freeUsers', 'Свободных сотрудников')}:{' '}
             {usersQuery.isLoading || assignmentsAllActiveQuery.isLoading
               ? '…'
               : usersWithoutActiveAssignments.length}
@@ -2351,7 +2351,7 @@ const AssignmentsPage = () => {
                   onClick={() => setIsFreeUsersModalOpen(true)}
                   style={{ paddingLeft: 8 }}
                 >
-                  Показать
+                  {t('common.show', 'Показать')}
                 </Button>
               )}
           </Typography.Text>
@@ -2397,19 +2397,19 @@ const AssignmentsPage = () => {
 
       <Modal
         open={isFreeUsersModalOpen}
-        title="Сотрудники без активных назначений"
+        title={t('assignments.freeUsersModal.title', 'Сотрудники без активных назначений')}
         onCancel={() => setIsFreeUsersModalOpen(false)}
         footer={
           <Button type="primary" onClick={() => setIsFreeUsersModalOpen(false)}>
-            Закрыть
+            {t('common.close', 'Закрыть')}
           </Button>
         }
       >
         {usersQuery.isLoading || assignmentsAllActiveQuery.isLoading ? (
-          <Typography.Paragraph>Загрузка...</Typography.Paragraph>
+          <Typography.Paragraph>{t('common.loading')}</Typography.Paragraph>
         ) : usersWithoutActiveAssignments.length === 0 ? (
           <Typography.Paragraph>
-            Все сотрудники имеют хотя бы одно активное назначение.
+            {t('assignments.freeUsersModal.allAssigned', 'Все сотрудники имеют хотя бы одно активное назначение.')}
           </Typography.Paragraph>
         ) : (
           <ul style={{ paddingLeft: 20, marginBottom: 0 }}>

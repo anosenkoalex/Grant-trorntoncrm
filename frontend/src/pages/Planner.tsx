@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // frontend/src/pages/Planner.tsx
 import {
   Button,
@@ -319,8 +320,8 @@ const PlannerPage = () => {
 
         if (names.length > 0) {
           const shown = names.slice(0, 3).join(', ');
-          const rest = names.length > 3 ? ` + ещё ${names.length - 3}` : '';
-          employeesSummary = `Сотрудники: ${shown}${rest}`;
+          const rest = names.length > 3 ? ` ${t('planner.andMore', { count: names.length - 3 })}` : '';
+          employeesSummary = `${t('planner.employees', 'Сотрудники')}: ${shown}${rest}`;
         }
       }
 

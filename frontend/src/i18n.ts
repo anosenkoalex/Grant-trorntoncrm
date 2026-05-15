@@ -83,6 +83,17 @@ const ru = {
       'Назначение будет переведено в статус «Архив», дата окончания будет установлена на текущий момент (если не заполнена). Продолжить?',
     twoActiveTag: '2 активных сейчас',
     addToGoogleCalendar: 'Google Calendar',
+    viewActive: 'Назначения',
+    viewTrash: 'Корзина',
+    assignmentRequests: 'Запросы на назначение',
+    scheduleAdjustmentsButton: 'Запросы на корректировку',
+    assignmentRequestsTitle: 'Запросы на назначение',
+    freeUsers: 'Свободных сотрудников',
+    show: 'Показать',
+    freeUsersModal: {
+      title: 'Сотрудники без активных назначений',
+      allAssigned: 'Все сотрудники имеют хотя бы одно активное назначение.',
+    },
   },
   users: {
     title: 'Сотрудники',
@@ -140,6 +151,16 @@ const ru = {
     openEnded: 'Бессрочно',
     download: 'Скачать Excel',
     downloadError: 'Не удалось скачать файл',
+    title: 'Планировщик',
+    byUsers: 'По сотрудникам',
+    byWorkplaces: 'По рабочим местам',
+    downloadExcel: 'Скачать Excel',
+    totalEmployees: 'Сотрудников в выборке',
+    totalWorkplaces: 'Рабочих мест в выборке',
+    periodSummary: 'Период',
+    exportError: 'Не удалось скачать файл планировщика',
+    employees: 'Сотрудники',
+    andMore: '+ ещё {{count}}',
   },
   notifications: {
     title: 'Уведомления',
@@ -307,21 +328,24 @@ const ru = {
   },
   registerSuccess: {
     title: 'Регистрация завершена!',
-    subtitle: 'Аккаунт вашей компании создан и подписка активирована. Вы можете войти с указанными email и паролем.',
+    subtitle:
+      'Аккаунт вашей компании создан и подписка активирована. Вы можете войти с указанными email и паролем.',
     goToLogin: 'Перейти ко входу',
   },
   billing: {
     title: 'Биллинг и подписка',
     accessDenied: 'Доступ запрещён',
     noSubscription: 'Нет активной подписки',
-    noSubscriptionDesc: 'У вашей организации пока нет подписки. Обратитесь в поддержку или зарегистрируйте новый аккаунт.',
+    noSubscriptionDesc:
+      'У вашей организации пока нет подписки. Обратитесь в поддержку или зарегистрируйте новый аккаунт.',
     currentPlan: 'Текущий тариф',
     plan: 'Тариф',
     status: 'Статус',
     nextPayment: 'Следующий платёж',
     cancelsAtPeriodEnd: 'Отменяется в конце периода',
     manageSubscription: 'Управление подпиской',
-    manageDesc: 'Повышайте, понижайте тариф, меняйте способ оплаты или отменяйте подписку через портал Stripe.',
+    manageDesc:
+      'Повышайте, понижайте тариф, меняйте способ оплаты или отменяйте подписку через портал Stripe.',
     openPortal: 'Открыть портал биллинга',
     paymentHistory: 'История платежей',
     noPaymentHistory: 'История платежей пуста',
@@ -342,7 +366,8 @@ const ru = {
   },
   superAdmin: {
     title: 'Администрирование платформы',
-    accessDenied: 'Доступ запрещён. Эта страница только для администраторов платформы.',
+    accessDenied:
+      'Доступ запрещён. Эта страница только для администраторов платформы.',
     totalOrgs: 'Всего организаций',
     totalUsers: 'Всего пользователей',
     activeSubscriptions: 'Активных подписок',
@@ -460,7 +485,8 @@ const ru = {
       modalTitle: 'Отчётные часы: {{name}}',
       modalTitleFallback: 'Отчётные часы',
       noDataForDate: 'На выбранную дату нет данных по сменам или отчётам.',
-      selectDate: 'Выберите дату в календаре, чтобы увидеть детали по рабочим местам.',
+      selectDate:
+        'Выберите дату в календаре, чтобы увидеть детали по рабочим местам.',
       colWorkplace: 'Рабочее место',
       colPlanned: 'Назначено часов',
       colReported: 'Отработано по отчёту',
@@ -498,7 +524,8 @@ const ru = {
     approveError: 'Не удалось одобрить запрос корректировки',
     rejectError: 'Не удалось отклонить запрос корректировки',
     approveConfirmTitle: 'Одобрить запрос корректировки?',
-    approveConfirmContent: 'Будет применена корректировка графика для этого назначения.',
+    approveConfirmContent:
+      'Будет применена корректировка графика для этого назначения.',
     rejectConfirmTitle: 'Отклонить запрос корректировки?',
     rejectConfirmContent: 'Сотрудник увидит, что запрос отклонён.',
     filterByStatus: 'Фильтр по статусу',
@@ -562,12 +589,14 @@ const ru = {
       replaced: 'Запрошена замена',
       cancelled: 'Отменено',
     },
-    workReportLoadError: 'Не удалось загрузить отчёты по часам. Попробуйте ещё раз.',
+    workReportLoadError:
+      'Не удалось загрузить отчёты по часам. Попробуйте ещё раз.',
     shiftKindOffice: 'Офис',
     shiftKindRemote: 'Удалёнка',
     shiftKindDayOff: 'Выходной',
     shiftKindDefault: 'Обычная смена',
-    noCorrectionIntervals: 'Добавьте хотя бы один день/интервал для корректировки',
+    noCorrectionIntervals:
+      'Добавьте хотя бы один день/интервал для корректировки',
     invalidInterval: 'Время окончания должно быть позже времени начала',
   },
   fileAttachment: {
@@ -586,7 +615,8 @@ const ru = {
   workReportModal: {
     title: 'Отчёт по отработанным часам',
     save: 'Сохранить',
-    description: 'Выберите дату в календаре и укажите количество фактически отработанных часов. Дни с назначениями подсвечены меткой',
+    description:
+      'Выберите дату в календаре и укажите количество фактически отработанных часов. Дни с назначениями подсвечены меткой',
     assignmentTag: 'Назначение',
     dateLabel: 'Дата:',
     hoursLabel: 'Отработано часов:',
@@ -612,6 +642,8 @@ const ru = {
     reject: 'Отказать',
     days: 'дн.',
     notSet: '—',
+    show: 'Показать',
+    close: 'Закрыть',
   },
   dev: {
     title: 'Developer console',
@@ -770,6 +802,17 @@ const en = {
       'The assignment will be moved to Archived; the end date will be set to now if not specified. Continue?',
     twoActiveTag: '2 active now',
     addToGoogleCalendar: 'Google Calendar',
+    viewActive: 'Assignments',
+    viewTrash: 'Trash',
+    assignmentRequests: 'Assignment Requests',
+    scheduleAdjustmentsButton: 'Adjustment Requests',
+    assignmentRequestsTitle: 'Assignment Requests',
+    freeUsers: 'Free employees',
+    show: 'Show',
+    freeUsersModal: {
+      title: 'Employees without active assignments',
+      allAssigned: 'All employees have at least one active assignment.',
+    },
     deleted: 'Assignment moved to trash',
     restoredFromTrash: 'Assignment restored',
     trash: { hardDeleteSuccess: 'Selected assignments permanently deleted' },
@@ -778,7 +821,8 @@ const en = {
     requestApproved: 'Assignment request approved',
     requestRejected: 'Assignment request rejected',
     requestRejectConfirmTitle: 'Reject assignment request?',
-    requestRejectConfirmContent: 'The request will be rejected without creating an assignment.',
+    requestRejectConfirmContent:
+      'The request will be rejected without creating an assignment.',
     requestCounter: 'Request {{current}} of {{total}}',
     intervals: 'Intervals',
     period: 'Period',
@@ -861,6 +905,16 @@ const en = {
     openEnded: 'Open-ended',
     download: 'Download Excel',
     downloadError: 'Failed to download file',
+    title: 'Planner',
+    byUsers: 'By employees',
+    byWorkplaces: 'By workplaces',
+    downloadExcel: 'Download Excel',
+    totalEmployees: 'Employees in selection',
+    totalWorkplaces: 'Workplaces in selection',
+    periodSummary: 'Period',
+    exportError: 'Failed to download planner file',
+    employees: 'Employees',
+    andMore: '+ {{count}} more',
   },
   myPlace: {
     title: 'My Schedule',
@@ -899,7 +953,8 @@ const en = {
     shiftKindRemote: 'Remote',
     shiftKindDayOff: 'Day off',
     shiftKindDefault: 'Default shift',
-    noCorrectionIntervals: 'Please add at least one day/interval for the correction',
+    noCorrectionIntervals:
+      'Please add at least one day/interval for the correction',
     invalidInterval: 'End time must be after start time',
   },
   statistics: {
@@ -1030,6 +1085,8 @@ const en = {
     reject: 'Reject',
     days: 'days',
     notSet: '—',
+    show: 'Show',
+    close: 'Close',
   },
   automation: {
     title: 'Automation',
@@ -1222,21 +1279,24 @@ const en = {
   },
   registerSuccess: {
     title: 'Registration Complete!',
-    subtitle: 'Your company account has been created and the subscription activated. You can sign in with the email and password you provided.',
+    subtitle:
+      'Your company account has been created and the subscription activated. You can sign in with the email and password you provided.',
     goToLogin: 'Go to Login',
   },
   billing: {
     title: 'Billing & Subscription',
     accessDenied: 'Access denied',
     noSubscription: 'No active subscription',
-    noSubscriptionDesc: "Your organisation doesn't have a subscription yet. Contact support or register a new account.",
+    noSubscriptionDesc:
+      "Your organisation doesn't have a subscription yet. Contact support or register a new account.",
     currentPlan: 'Current Plan',
     plan: 'Plan',
     status: 'Status',
     nextPayment: 'Next payment',
     cancelsAtPeriodEnd: 'Cancels at end of period',
     manageSubscription: 'Manage Subscription',
-    manageDesc: 'Upgrade, downgrade, change payment method, or cancel your subscription via the Stripe portal.',
+    manageDesc:
+      'Upgrade, downgrade, change payment method, or cancel your subscription via the Stripe portal.',
     openPortal: 'Open Billing Portal',
     paymentHistory: 'Payment History',
     noPaymentHistory: 'No payment history yet',
@@ -1257,7 +1317,8 @@ const en = {
   },
   superAdmin: {
     title: 'Platform Administration',
-    accessDenied: 'Access denied. This page is for platform administrators only.',
+    accessDenied:
+      'Access denied. This page is for platform administrators only.',
     totalOrgs: 'Total Organizations',
     totalUsers: 'Total Users',
     activeSubscriptions: 'Active Subscriptions',
@@ -1293,9 +1354,11 @@ const en = {
     approveError: 'Failed to approve the schedule adjustment request',
     rejectError: 'Failed to reject the schedule adjustment request',
     approveConfirmTitle: 'Approve adjustment request?',
-    approveConfirmContent: 'The schedule adjustment will be applied to this assignment.',
+    approveConfirmContent:
+      'The schedule adjustment will be applied to this assignment.',
     rejectConfirmTitle: 'Reject adjustment request?',
-    rejectConfirmContent: 'The employee will see that the request was rejected.',
+    rejectConfirmContent:
+      'The employee will see that the request was rejected.',
     filterByStatus: 'Filter by status',
   },
   assignmentAdjustments: {
@@ -1341,7 +1404,8 @@ const en = {
   workReportModal: {
     title: 'Work Hours Report',
     save: 'Save',
-    description: 'Select a date in the calendar and enter the number of hours actually worked. Days with assignments are highlighted with the label',
+    description:
+      'Select a date in the calendar and enter the number of hours actually worked. Days with assignments are highlighted with the label',
     assignmentTag: 'Assignment',
     dateLabel: 'Date:',
     hoursLabel: 'Hours worked:',
@@ -1454,7 +1518,8 @@ const tr = {
       startRequired: 'Lütfen başlangıç tarihi belirtin',
       endRequired: 'Lütfen bitiş tarihi belirtin',
       shiftsRequired: 'Lütfen vardiya programını belirtin.',
-      shiftsTimeRequired: 'Lütfen en az bir gün için çalışma saatlerini belirtin.',
+      shiftsTimeRequired:
+        'Lütfen en az bir gün için çalışma saatlerini belirtin.',
     },
     complete: 'Tamamla',
     completeConfirmTitle: 'Görev tamamlansın mı?',
@@ -1462,6 +1527,17 @@ const tr = {
       'Görev Arşiv durumuna alınacak; bitiş tarihi belirtilmemişse şimdiye ayarlanacak. Devam edilsin mi?',
     twoActiveTag: 'Şu an 2 aktif',
     addToGoogleCalendar: 'Google Calendar',
+    viewActive: 'Görevler',
+    viewTrash: 'Çöp Kutusu',
+    assignmentRequests: 'Görev Talepleri',
+    scheduleAdjustmentsButton: 'Düzeltme Talepleri',
+    assignmentRequestsTitle: 'Görev Talepleri',
+    freeUsers: 'Boş çalışanlar',
+    show: 'Göster',
+    freeUsersModal: {
+      title: 'Aktif görevi olmayan çalışanlar',
+      allAssigned: 'Tüm çalışanların en az bir aktif görevi var.',
+    },
     deleted: 'Görev çöp kutusuna taşındı',
     restoredFromTrash: 'Görev geri yüklendi',
     trash: { hardDeleteSuccess: 'Seçili görevler kalıcı olarak silindi' },
@@ -1553,6 +1629,16 @@ const tr = {
     openEnded: 'Süresiz',
     download: 'Excel İndir',
     downloadError: 'Dosya indirilemedi',
+    title: 'Planlayıcı',
+    byUsers: 'Çalışanlara göre',
+    byWorkplaces: 'İş yerlerine göre',
+    downloadExcel: 'Excel İndir',
+    totalEmployees: 'Seçimdeki çalışanlar',
+    totalWorkplaces: 'Seçimdeki iş yerleri',
+    periodSummary: 'Dönem',
+    exportError: 'Planlayıcı dosyası indirilemedi',
+    employees: 'Çalışanlar',
+    andMore: '+ {{count}} daha',
   },
   myPlace: {
     title: 'Programım',
@@ -1586,7 +1672,8 @@ const tr = {
       replaced: 'Değişim istendi',
       cancelled: 'İptal edildi',
     },
-    workReportLoadError: 'Çalışma raporları yüklenemedi. Lütfen tekrar deneyin.',
+    workReportLoadError:
+      'Çalışma raporları yüklenemedi. Lütfen tekrar deneyin.',
     shiftKindOffice: 'Ofis',
     shiftKindRemote: 'Uzaktan',
     shiftKindDayOff: 'İzin günü',
@@ -1722,6 +1809,8 @@ const tr = {
     reject: 'Reddet',
     days: 'gün',
     notSet: '—',
+    show: 'Göster',
+    close: 'Kapat',
   },
   automation: {
     title: 'Otomasyon',
@@ -1907,7 +1996,7 @@ const tr = {
     plan: 'Plan',
     planRequired: 'Lütfen bir plan seçin',
     continueToPayment: 'Ödemeye Devam Et',
-    stripeRedirect: 'Ödemeyi tamamlamak için Stripe\'a yönlendirileceksiniz.',
+    stripeRedirect: "Ödemeyi tamamlamak için Stripe'a yönlendirileceksiniz.",
     alreadyHaveAccount: 'Zaten hesabınız var mı?',
     signIn: 'Giriş Yap',
     emailTaken: 'Bu e-posta zaten kayıtlı. Lütfen giriş yapın.',
@@ -1915,21 +2004,24 @@ const tr = {
   },
   registerSuccess: {
     title: 'Kayıt Tamamlandı!',
-    subtitle: 'Şirket hesabınız oluşturuldu ve abonelik etkinleştirildi. Sağladığınız e-posta ve şifre ile giriş yapabilirsiniz.',
+    subtitle:
+      'Şirket hesabınız oluşturuldu ve abonelik etkinleştirildi. Sağladığınız e-posta ve şifre ile giriş yapabilirsiniz.',
     goToLogin: 'Girişe Git',
   },
   billing: {
     title: 'Faturalama ve Abonelik',
     accessDenied: 'Erişim reddedildi',
     noSubscription: 'Aktif abonelik yok',
-    noSubscriptionDesc: 'Kuruluşunuzun henüz bir aboneliği yok. Destek ile iletişime geçin veya yeni bir hesap kaydedin.',
+    noSubscriptionDesc:
+      'Kuruluşunuzun henüz bir aboneliği yok. Destek ile iletişime geçin veya yeni bir hesap kaydedin.',
     currentPlan: 'Mevcut Plan',
     plan: 'Plan',
     status: 'Durum',
     nextPayment: 'Sonraki ödeme',
     cancelsAtPeriodEnd: 'Dönem sonunda iptal edilir',
     manageSubscription: 'Aboneliği Yönet',
-    manageDesc: 'Stripe portalı aracılığıyla planı yükseltin, düşürün, ödeme yöntemini değiştirin veya aboneliği iptal edin.',
+    manageDesc:
+      'Stripe portalı aracılığıyla planı yükseltin, düşürün, ödeme yöntemini değiştirin veya aboneliği iptal edin.',
     openPortal: 'Faturalama Portalını Aç',
     paymentHistory: 'Ödeme Geçmişi',
     noPaymentHistory: 'Henüz ödeme geçmişi yok',
@@ -1950,7 +2042,8 @@ const tr = {
   },
   superAdmin: {
     title: 'Platform Yönetimi',
-    accessDenied: 'Erişim reddedildi. Bu sayfa yalnızca platform yöneticileri içindir.',
+    accessDenied:
+      'Erişim reddedildi. Bu sayfa yalnızca platform yöneticileri içindir.',
     totalOrgs: 'Toplam Kuruluş',
     totalUsers: 'Toplam Kullanıcı',
     activeSubscriptions: 'Aktif Abonelikler',
@@ -2034,7 +2127,8 @@ const tr = {
   workReportModal: {
     title: 'Çalışma Saati Raporu',
     save: 'Kaydet',
-    description: 'Takvimden bir tarih seçin ve fiilen çalışılan saat sayısını girin. Görevli günler etiketle vurgulanmıştır',
+    description:
+      'Takvimden bir tarih seçin ve fiilen çalışılan saat sayısını girin. Görevli günler etiketle vurgulanmıştır',
     assignmentTag: 'Görev',
     dateLabel: 'Tarih:',
     hoursLabel: 'Çalışılan saatler:',
