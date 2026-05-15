@@ -32,7 +32,7 @@ export class EmailService {
     this.user = this.configService.get<string>('SMTP_USER') ?? undefined;
     this.pass = this.configService.get<string>('SMTP_PASS') ?? undefined;
     this.from =
-      this.configService.get<string>('MAIL_FROM') ?? 'no-reply@armico.local';
+      this.configService.get<string>('MAIL_FROM') ?? 'no-reply@grantthornton.local';
     this.appUrl = this.configService.get<string>('APP_URL') ?? '';
 
     if (!this.host || !this.port || !this.user || !this.pass) {
@@ -204,7 +204,7 @@ export class EmailService {
     lines.push('', 'Это письмо отправлено автоматически.');
 
     const textBody = lines.join('\n');
-    const encodedSubject = this.encodeSubject('Новое назначение в Armico');
+    const encodedSubject = this.encodeSubject('Новое назначение в Grant Thornton');
 
     const headers = [
       `From: ${this.from}`,
@@ -385,7 +385,7 @@ export class EmailService {
   async sendTestEmail(email: string, text?: string) {
     const message = this.buildPlainTextMessage(
       email,
-      'Тестовое письмо из Armico',
+      'Тестовое письмо из Grant Thornton',
       text || 'SMTP работает',
     );
     await this.sendRawMail(email, message);

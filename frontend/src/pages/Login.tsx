@@ -41,7 +41,7 @@ const Login = () => {
         <Form
           layout="vertical"
           onFinish={onFinish}
-          initialValues={{ email: 'admin@armico.local' }}
+          initialValues={{ email: 'admin@grantthornton.local' }}
         >
           <Form.Item
             label={t('login.email')}

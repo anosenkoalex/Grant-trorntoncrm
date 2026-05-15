@@ -33,7 +33,7 @@ export default function LandingPage() {
   const handleDemoLogin = async () => {
     setDemoLoading(true);
     try {
-      await login({ email: 'admin@armico.local', password: 'admin123' });
+      await login({ email: 'admin@grantthornton.local', password: 'admin123' });
       navigate('/dashboard');
     } catch {
       void message.error('Demo login failed');
@@ -348,13 +348,27 @@ export default function LandingPage() {
       </Content>
 
       <Footer
-        style={{ textAlign: 'center', background: '#f0f2f5', color: '#888', padding: '16px 24px' }}
+        style={{
+          textAlign: 'center',
+          background: '#f0f2f5',
+          color: '#888',
+          padding: '16px 24px',
+        }}
       >
-        <div>© {new Date().getFullYear()} Grant Thornton CRM. {t('landing.footerRights')}</div>
+        <div>
+          © {new Date().getFullYear()} Grant Thornton CRM.{' '}
+          {t('landing.footerRights')}
+        </div>
         <div style={{ marginTop: 8 }}>
-          <Link to="/terms" style={{ color: '#888', marginInline: 8 }}>{t('landing.footerTerms', 'Terms of Service')}</Link>
-          <Link to="/privacy" style={{ color: '#888', marginInline: 8 }}>{t('landing.footerPrivacy', 'Privacy Policy')}</Link>
-          <Link to="/status" style={{ color: '#888', marginInline: 8 }}>{t('landing.footerStatus', 'Status')}</Link>
+          <Link to="/terms" style={{ color: '#888', marginInline: 8 }}>
+            {t('landing.footerTerms', 'Terms of Service')}
+          </Link>
+          <Link to="/privacy" style={{ color: '#888', marginInline: 8 }}>
+            {t('landing.footerPrivacy', 'Privacy Policy')}
+          </Link>
+          <Link to="/status" style={{ color: '#888', marginInline: 8 }}>
+            {t('landing.footerStatus', 'Status')}
+          </Link>
         </div>
       </Footer>
     </Layout>

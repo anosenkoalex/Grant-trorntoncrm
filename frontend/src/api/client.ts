@@ -352,7 +352,7 @@ api.interceptors.request.use((config) => {
   if (typeof window === 'undefined') {
     return config;
   }
-  const token = window.localStorage.getItem('armico_token');
+  const token = window.localStorage.getItem('gt_crm_token');
   if (token) {
     config.headers = config.headers ?? {};
     config.headers.Authorization = `Bearer ${token}`;
@@ -364,8 +364,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 && typeof window !== 'undefined') {
-      window.localStorage.removeItem('armico_token');
-      window.dispatchEvent(new Event('armico:unauthorized'));
+      window.localStorage.removeItem('gt_crm_token');
+      window.dispatchEvent(new Event('gt_crm:unauthorized'));
     }
     return Promise.reject(error);
   },
@@ -1583,7 +1583,12 @@ export type AuditLogItem = {
 
 export const fetchAuditLog = async (
   params: { page?: number; pageSize?: number } = {},
-): Promise<{ items: AuditLogItem[]; total: number; page: number; pageSize: number }> => {
+): Promise<{
+  items: AuditLogItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+}> => {
   const { data } = await api.get('/audit', { params });
   return data;
 };

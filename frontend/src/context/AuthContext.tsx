@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       return null;
     }
 
-    return window.localStorage.getItem('armico_token');
+    return window.localStorage.getItem('gt_crm_token');
   });
   const [profile, setProfile] = useState<MeProfile | null>(null);
   const [isFetchingProfile, setIsFetchingProfile] = useState(false);
@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     setProfile(null);
 
     if (typeof window !== 'undefined') {
-      window.localStorage.removeItem('armico_token');
+      window.localStorage.removeItem('gt_crm_token');
     }
   }, []);
 
@@ -84,7 +84,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         const accessToken = await apiLogin(payload);
 
         if (typeof window !== 'undefined') {
-          window.localStorage.setItem('armico_token', accessToken);
+          window.localStorage.setItem('gt_crm_token', accessToken);
         }
 
         setToken(accessToken);
@@ -108,9 +108,9 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
     const handler = () => logout();
 
-    window.addEventListener('armico:unauthorized', handler);
+    window.addEventListener('gt_crm:unauthorized', handler);
     return () => {
-      window.removeEventListener('armico:unauthorized', handler);
+      window.removeEventListener('gt_crm:unauthorized', handler);
     };
   }, [logout]);
 

@@ -33,9 +33,9 @@ type SendPasswordResult = {
   message: string;
 };
 
-const DEFAULT_ADMIN_EMAIL = 'admin@armico.local';
+const DEFAULT_ADMIN_EMAIL = 'admin@grantthornton.local';
 const DEFAULT_ADMIN_PASSWORD = 'admin123';
-const DEFAULT_ORG_SLUG = 'armico';
+const DEFAULT_ORG_SLUG = 'grant-thornton-demo';
 
 @Injectable()
 export class UsersService implements OnModuleInit {
@@ -56,7 +56,7 @@ export class UsersService implements OnModuleInit {
 
     if (!org) {
       org = await this.prisma.org.create({
-        data: { name: 'Armico', slug: DEFAULT_ORG_SLUG },
+        data: { name: 'Grant Thornton Demo', slug: DEFAULT_ORG_SLUG },
       });
     }
 

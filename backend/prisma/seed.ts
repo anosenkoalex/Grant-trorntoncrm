@@ -23,15 +23,15 @@ async function main() {
 
   const org = await prisma.org.create({
     data: {
-      name: 'Armico',
-      slug: 'armico',
+      name: 'Grant Thornton Demo',
+      slug: 'grant-thornton-demo',
     },
   });
 
   // админ
   const admin = await prisma.user.create({
     data: {
-      email: 'admin@armico.local',
+      email: 'admin@grantthornton.local',
       password: passwordHash,
       role: UserRole.SUPER_ADMIN,
       fullName: 'System Administrator',
@@ -44,7 +44,7 @@ async function main() {
   // dev-аккаунт — создаём, но результат нам не нужен, поэтому без const dev
   await prisma.user.create({
     data: {
-      email: 'dev@armico.local',
+      email: 'dev@grantthornton.local',
       password: passwordHash,
       role: UserRole.SUPER_ADMIN,
       fullName: 'Developer Account',
@@ -97,14 +97,14 @@ async function main() {
       enabled: false,
       apiUrl: 'https://api.example.com/sms/send',
       apiKey: 'DEMO_KEY',
-      sender: 'ARMICO',
+      sender: 'GRANTHORN',
     },
   });
 
   console.log('✅ Database has been seeded successfully!');
   console.log('➡️ Accounts:');
-  console.log('   admin@armico.local / admin123');
-  console.log('   dev@armico.local / admin123');
+  console.log('   admin@grantthornton.local / admin123');
+  console.log('   dev@grantthornton.local / admin123');
 }
 
 main()

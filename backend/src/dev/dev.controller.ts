@@ -35,17 +35,6 @@ type DevTestSmsBody = {
   text?: string;
 };
 
-// Email — пока заглушки, без сохранения в БД
-type DevEmailSettingsBody = {
-  enabled?: boolean;
-  host?: string | null;
-  port?: number | null;
-  secure?: boolean;
-  user?: string | null;
-  password?: string | null;
-  from?: string | null;
-};
-
 type DevTestEmailBody = {
   email: string;
 };
@@ -61,7 +50,7 @@ export class DevController {
 
   /**
    * Допуск только:
-   *  - dev@armico.local
+   *  - dev@grantthornton.local
    *  - SUPER_ADMIN
    */
   private ensureDev(user: DevCurrentUser | null | undefined): void {
@@ -70,7 +59,7 @@ export class DevController {
     }
 
     if (
-      user.email !== 'dev@armico.local' &&
+      user.email !== 'dev@grantthornton.local' &&
       user.role !== UserRole.SUPER_ADMIN
     ) {
       throw new ForbiddenException('Access denied');
@@ -106,7 +95,7 @@ export class DevController {
       enabled: Boolean(body.enabled),
       apiUrl: body.apiUrl?.trim() ?? '',
       apiKey: body.apiKey?.trim() ?? '',
-      sender: body.sender?.trim() || 'ARMICO',
+      sender: body.sender?.trim() || 'GRANTHORN',
     });
 
     return { success: true };
@@ -124,7 +113,7 @@ export class DevController {
       throw new BadRequestException('phone is required');
     }
 
-    const text = body.text?.trim() || 'Тестовое SMS из Armico CRM';
+    const text = body.text?.trim() || 'Тестовое SMS из Grant Thornton CRM';
     await this.smsService.sendSms(phone, text);
 
     return { success: true };
@@ -148,10 +137,7 @@ export class DevController {
   }
 
   @Put('email-settings')
-  async updateEmailSettings(
-    @CurrentUser() user: DevCurrentUser,
-    @Body() _body: DevEmailSettingsBody,
-  ) {
+  async updateEmailSettings(@CurrentUser() user: DevCurrentUser) {
     this.ensureDev(user);
 
     // Здесь в будущем можно будет сохранять настройки в БД/конфиг.
@@ -210,7 +196,7 @@ export class DevController {
   async testTelegram(@CurrentUser() user: DevCurrentUser) {
     this.ensureDev(user);
     await this.telegramService.sendMessage(
-      '✅ <b>Тестовое сообщение из Armico CRM</b>\nTelegram интеграция работает корректно.',
+      '✅ <b>Тестовое сообщение из Grant Thornton CRM</b>\nTelegram интеграция работает корректно.',
     );
     return { success: true };
   }

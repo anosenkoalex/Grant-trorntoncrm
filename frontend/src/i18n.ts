@@ -315,31 +315,41 @@ const ru = {
     privacyLink: 'Политика конфиденциальности',
     statusLink: 'Статус',
     s1Title: '1. Принятие условий',
-    s1Text: 'Используя Grant Thornton CRM, вы соглашаетесь с настоящими Условиями использования.',
+    s1Text:
+      'Используя Grant Thornton CRM, вы соглашаетесь с настоящими Условиями использования.',
     s2Title: '2. Описание сервиса',
-    s2Text: 'Grant Thornton CRM — платформа управления персоналом, предоставляемая по подписке (SaaS).',
+    s2Text:
+      'Grant Thornton CRM — платформа управления персоналом, предоставляемая по подписке (SaaS).',
     s3Title: '3. Тарифы и оплата',
-    s3Text: 'Сервис доступен в трёх тарифах: Starter ($29/мес., до 25 пользователей), Business ($99/мес., до 100 пользователей), Enterprise ($299/мес., неограниченно). Подписки возобновляются автоматически. Возврат средств за неполный месяц не производится.',
+    s3Text:
+      'Сервис доступен в трёх тарифах: Starter ($29/мес., до 25 пользователей), Business ($99/мес., до 100 пользователей), Enterprise ($299/мес., неограниченно). Подписки возобновляются автоматически. Возврат средств за неполный месяц не производится.',
     s4Title: '4. Бесплатный пробный период',
-    s4Text: 'Новые организации могут воспользоваться 14-дневным пробным периодом без привязки карты.',
+    s4Text:
+      'Новые организации могут воспользоваться 14-дневным пробным периодом без привязки карты.',
     s5Title: '5. Учётные записи',
-    s5Text: 'Вы несёте ответственность за сохранность учётных данных и за все действия, совершённые под вашей учётной записью.',
+    s5Text:
+      'Вы несёте ответственность за сохранность учётных данных и за все действия, совершённые под вашей учётной записью.',
     s6Title: '6. Допустимое использование',
-    s6Text: 'Запрещается использовать сервис в незаконных целях, распространять вредоносный код или пытаться получить несанкционированный доступ к системе.',
+    s6Text:
+      'Запрещается использовать сервис в незаконных целях, распространять вредоносный код или пытаться получить несанкционированный доступ к системе.',
     s7Title: '7. Право собственности на данные',
-    s7Text: 'Вы сохраняете право собственности на все данные, введённые в систему. После прекращения подписки данные хранятся 30 дней, затем безвозвратно удаляются.',
+    s7Text:
+      'Вы сохраняете право собственности на все данные, введённые в систему. После прекращения подписки данные хранятся 30 дней, затем безвозвратно удаляются.',
     s8Title: '8. Доступность сервиса',
     s8Text: 'Мы стремимся поддерживать доступность сервиса на уровне 99,9%.',
     s9Title: '9. Ограничение ответственности',
-    s9Text: 'Наша ответственность ограничена суммой, уплаченной вами за три месяца, предшествующих претензии.',
+    s9Text:
+      'Наша ответственность ограничена суммой, уплаченной вами за три месяца, предшествующих претензии.',
     s10Title: '10. Прекращение использования',
     s10Text: 'Любая из сторон может расторгнуть соглашение в любое время.',
     s11Title: '11. Изменения условий',
-    s11Text: 'Мы уведомляем об изменениях по электронной почте не менее чем за 14 дней до их вступления в силу.',
+    s11Text:
+      'Мы уведомляем об изменениях по электронной почте не менее чем за 14 дней до их вступления в силу.',
     s12Title: '12. Применимое право',
     s12Text: 'Настоящие Условия регулируются действующим законодательством.',
     s13Title: '13. Контакты',
-    s13Text: 'По вопросам, связанным с настоящими Условиями, обращайтесь по адресу support@grant-thornton.online.',
+    s13Text:
+      'По вопросам, связанным с настоящими Условиями, обращайтесь по адресу support@grant-thornton.online.',
   },
   privacy: {
     title: 'Политика конфиденциальности',
@@ -349,19 +359,26 @@ const ru = {
     s1Title: '1. Введение',
     s1Text: 'Grant Thornton CRM обязуется защищать ваши персональные данные.',
     s2Title: '2. Собираемые данные',
-    s2Text: 'Мы собираем: данные учётных записей (email, хэши паролей), данные сотрудников (имена, телефоны, должности), данные об использовании сервиса, платёжные данные (обрабатываются через Stripe).',
+    s2Text:
+      'Мы собираем: данные учётных записей (email, хэши паролей), данные сотрудников (имена, телефоны, должности), данные об использовании сервиса, платёжные данные (обрабатываются через Stripe).',
     s3Title: '3. Использование данных',
-    s3Text: 'Данные используются для предоставления сервиса, обработки платежей, отправки транзакционных писем и обеспечения безопасности.',
+    s3Text:
+      'Данные используются для предоставления сервиса, обработки платежей, отправки транзакционных писем и обеспечения безопасности.',
     s4Title: '4. Хранение и безопасность',
-    s4Text: 'Данные хранятся на защищённых серверах с шифрованием TLS при передаче и AES-256 при хранении.',
+    s4Text:
+      'Данные хранятся на защищённых серверах с шифрованием TLS при передаче и AES-256 при хранении.',
     s5Title: '5. Передача данных третьим лицам',
-    s5Text: 'Мы не продаём ваши данные. Данные передаются только Stripe (платежи), провайдерам рассылок и хостинг-провайдерам.',
+    s5Text:
+      'Мы не продаём ваши данные. Данные передаются только Stripe (платежи), провайдерам рассылок и хостинг-провайдерам.',
     s6Title: '6. Права по GDPR',
-    s6Text: 'Если вы находитесь в ЕЭЗ, вы имеете право на доступ, исправление, удаление, ограничение обработки и переносимость данных. Запросы направляйте на privacy@grant-thornton.online.',
+    s6Text:
+      'Если вы находитесь в ЕЭЗ, вы имеете право на доступ, исправление, удаление, ограничение обработки и переносимость данных. Запросы направляйте на privacy@grant-thornton.online.',
     s7Title: '7. Хранение данных',
-    s7Text: 'Данные хранятся в течение срока подписки + 30 дней после её прекращения, после чего безвозвратно удаляются.',
+    s7Text:
+      'Данные хранятся в течение срока подписки + 30 дней после её прекращения, после чего безвозвратно удаляются.',
     s8Title: '8. Cookie',
-    s8Text: 'Мы используем только необходимые cookie для аутентификации. Рекламные и трекинговые cookie не используются.',
+    s8Text:
+      'Мы используем только необходимые cookie для аутентификации. Рекламные и трекинговые cookie не используются.',
     s9Title: '9. Дети',
     s9Text: 'Сервис не предназначен для лиц младше 16 лет.',
     s10Title: '10. Изменения политики',
@@ -733,7 +750,7 @@ const ru = {
     title: 'Developer console',
     accessDenied: 'Доступ запрещён',
     accessDesc:
-      'Эта страница доступна только для developer-аккаунта (dev@armico.local).',
+      'Эта страница доступна только для developer-аккаунта (dev@grantthornton.local).',
     tabSms: 'SMS настройки',
     tabEmail: 'Email настройки',
     tabLogs: 'Логи',
@@ -1374,15 +1391,20 @@ const en = {
     s2Title: '2. Description of Service',
     s2Text: 'Grant Thornton CRM is a workforce management SaaS platform.',
     s3Title: '3. Subscription Plans and Billing',
-    s3Text: 'Plans: Starter ($29/mo, 25 users), Business ($99/mo, 100 users), Enterprise ($299/mo, unlimited). Subscriptions auto-renew monthly. No refunds for partial months.',
+    s3Text:
+      'Plans: Starter ($29/mo, 25 users), Business ($99/mo, 100 users), Enterprise ($299/mo, unlimited). Subscriptions auto-renew monthly. No refunds for partial months.',
     s4Title: '4. Free Trial',
-    s4Text: 'New organizations may receive a 14-day free trial with no credit card required.',
+    s4Text:
+      'New organizations may receive a 14-day free trial with no credit card required.',
     s5Title: '5. User Accounts',
-    s5Text: 'You are responsible for maintaining the confidentiality of your account credentials.',
+    s5Text:
+      'You are responsible for maintaining the confidentiality of your account credentials.',
     s6Title: '6. Acceptable Use',
-    s6Text: 'You agree not to use the Service for unlawful purposes or to distribute malicious code.',
+    s6Text:
+      'You agree not to use the Service for unlawful purposes or to distribute malicious code.',
     s7Title: '7. Data Ownership',
-    s7Text: 'You retain ownership of all data you input. Data is retained for 30 days after subscription termination.',
+    s7Text:
+      'You retain ownership of all data you input. Data is retained for 30 days after subscription termination.',
     s8Title: '8. Service Availability',
     s8Text: 'We strive to maintain 99.9% uptime.',
     s9Title: '9. Limitation of Liability',
@@ -1390,7 +1412,8 @@ const en = {
     s10Title: '10. Termination',
     s10Text: 'Either party may terminate the subscription at any time.',
     s11Title: '11. Changes to Terms',
-    s11Text: 'We will notify you of material changes at least 14 days in advance.',
+    s11Text:
+      'We will notify you of material changes at least 14 days in advance.',
     s12Title: '12. Governing Law',
     s12Text: 'These Terms are governed by applicable law.',
     s13Title: '13. Contact',
@@ -1402,21 +1425,29 @@ const en = {
     termsLink: 'Terms of Service',
     statusLink: 'Status',
     s1Title: '1. Introduction',
-    s1Text: 'Grant Thornton CRM is committed to protecting your personal information.',
+    s1Text:
+      'Grant Thornton CRM is committed to protecting your personal information.',
     s2Title: '2. Data We Collect',
-    s2Text: 'We collect account information (email, hashed passwords), employee data (names, phones, positions), usage data, and payment data processed via Stripe.',
+    s2Text:
+      'We collect account information (email, hashed passwords), employee data (names, phones, positions), usage data, and payment data processed via Stripe.',
     s3Title: '3. How We Use Your Data',
-    s3Text: 'Data is used to provide the Service, process payments, send transactional emails, and ensure security.',
+    s3Text:
+      'Data is used to provide the Service, process payments, send transactional emails, and ensure security.',
     s4Title: '4. Data Storage and Security',
-    s4Text: 'Data is stored with TLS encryption in transit and AES-256 at rest.',
+    s4Text:
+      'Data is stored with TLS encryption in transit and AES-256 at rest.',
     s5Title: '5. Data Sharing',
-    s5Text: 'We do not sell your data. We share only with Stripe, email providers, and hosting infrastructure partners.',
+    s5Text:
+      'We do not sell your data. We share only with Stripe, email providers, and hosting infrastructure partners.',
     s6Title: '6. GDPR and Your Rights',
-    s6Text: 'EEA users have the right to access, rectify, erase, restrict, and port their data. Contact privacy@grant-thornton.online.',
+    s6Text:
+      'EEA users have the right to access, rectify, erase, restrict, and port their data. Contact privacy@grant-thornton.online.',
     s7Title: '7. Data Retention',
-    s7Text: 'Data is retained for the duration of your subscription plus 30 days, then permanently deleted.',
+    s7Text:
+      'Data is retained for the duration of your subscription plus 30 days, then permanently deleted.',
     s8Title: '8. Cookies',
-    s8Text: 'We use only essential authentication cookies. No advertising or tracking cookies are used.',
+    s8Text:
+      'We use only essential authentication cookies. No advertising or tracking cookies are used.',
     s9Title: "9. Children's Privacy",
     s9Text: 'The Service is not intended for users under 16.',
     s10Title: '10. Changes to This Policy',
@@ -1445,7 +1476,7 @@ const en = {
     title: 'Developer console',
     accessDenied: 'Access denied',
     accessDesc:
-      'This page is only accessible to the developer account (dev@armico.local).',
+      'This page is only accessible to the developer account (dev@grantthornton.local).',
     tabSms: 'SMS settings',
     tabEmail: 'Email settings',
     tabLogs: 'Logs',
@@ -2241,31 +2272,40 @@ const tr = {
     privacyLink: 'Gizlilik Politikası',
     statusLink: 'Durum',
     s1Title: '1. Koşulların Kabulü',
-    s1Text: 'Grant Thornton CRM kullanarak bu Kullanım Koşullarını kabul etmiş sayılırsınız.',
+    s1Text:
+      'Grant Thornton CRM kullanarak bu Kullanım Koşullarını kabul etmiş sayılırsınız.',
     s2Title: '2. Hizmet Açıklaması',
-    s2Text: 'Grant Thornton CRM, abonelik tabanlı (SaaS) bir işgücü yönetim platformudur.',
+    s2Text:
+      'Grant Thornton CRM, abonelik tabanlı (SaaS) bir işgücü yönetim platformudur.',
     s3Title: '3. Abonelik Planları ve Faturalandırma',
-    s3Text: 'Planlar: Starter ($29/ay, 25 kullanıcı), Business ($99/ay, 100 kullanıcı), Enterprise ($299/ay, sınırsız). Abonelikler otomatik yenilenir. Kısmi aylar için geri ödeme yapılmaz.',
+    s3Text:
+      'Planlar: Starter ($29/ay, 25 kullanıcı), Business ($99/ay, 100 kullanıcı), Enterprise ($299/ay, sınırsız). Abonelikler otomatik yenilenir. Kısmi aylar için geri ödeme yapılmaz.',
     s4Title: '4. Ücretsiz Deneme',
-    s4Text: 'Yeni organizasyonlar kredi kartı gerektirmeden 14 günlük ücretsiz deneme kullanabilir.',
+    s4Text:
+      'Yeni organizasyonlar kredi kartı gerektirmeden 14 günlük ücretsiz deneme kullanabilir.',
     s5Title: '5. Kullanıcı Hesapları',
     s5Text: 'Hesap kimlik bilgilerinizin gizliliğinden siz sorumlusunuz.',
     s6Title: '6. Kabul Edilebilir Kullanım',
-    s6Text: 'Hizmeti yasadışı amaçlarla veya zararlı kod yaymak için kullanamazsınız.',
+    s6Text:
+      'Hizmeti yasadışı amaçlarla veya zararlı kod yaymak için kullanamazsınız.',
     s7Title: '7. Veri Sahipliği',
-    s7Text: 'Girdiğiniz tüm veriler size aittir. Abonelik sona erdikten 30 gün sonra veriler kalıcı olarak silinir.',
+    s7Text:
+      'Girdiğiniz tüm veriler size aittir. Abonelik sona erdikten 30 gün sonra veriler kalıcı olarak silinir.',
     s8Title: '8. Hizmet Kullanılabilirliği',
     s8Text: '%99,9 çalışma süresi hedeflenmektedir.',
     s9Title: '9. Sorumluluk Sınırlaması',
-    s9Text: 'Toplam sorumluluğumuz, talep tarihinden önceki üç aylık ödeme tutarıyla sınırlıdır.',
+    s9Text:
+      'Toplam sorumluluğumuz, talep tarihinden önceki üç aylık ödeme tutarıyla sınırlıdır.',
     s10Title: '10. Fesih',
     s10Text: 'Her iki taraf da aboneliği istediği zaman sonlandırabilir.',
     s11Title: '11. Koşullarda Değişiklik',
-    s11Text: 'Önemli değişikliklerden en az 14 gün önce e-posta ile bildirim yapılır.',
+    s11Text:
+      'Önemli değişikliklerden en az 14 gün önce e-posta ile bildirim yapılır.',
     s12Title: '12. Geçerli Hukuk',
     s12Text: 'Bu Koşullar yürürlükteki mevzuata tabidir.',
     s13Title: '13. İletişim',
-    s13Text: 'Bu Koşullarla ilgili sorularınız için: support@grant-thornton.online.',
+    s13Text:
+      'Bu Koşullarla ilgili sorularınız için: support@grant-thornton.online.',
   },
   privacy: {
     title: 'Gizlilik Politikası',
@@ -2275,19 +2315,26 @@ const tr = {
     s1Title: '1. Giriş',
     s1Text: 'Grant Thornton CRM, kişisel bilgilerinizi korumayı taahhüt eder.',
     s2Title: '2. Topladığımız Veriler',
-    s2Text: 'Hesap bilgileri (e-posta, şifreli parolalar), çalışan verileri (isimler, telefonlar, pozisyonlar), kullanım verileri ve Stripe aracılığıyla işlenen ödeme verileri toplanır.',
+    s2Text:
+      'Hesap bilgileri (e-posta, şifreli parolalar), çalışan verileri (isimler, telefonlar, pozisyonlar), kullanım verileri ve Stripe aracılığıyla işlenen ödeme verileri toplanır.',
     s3Title: '3. Verilerinizi Nasıl Kullanıyoruz',
-    s3Text: 'Veriler, hizmet sunmak, ödemeleri işlemek, işlemsel e-postalar göndermek ve güvenliği sağlamak amacıyla kullanılır.',
+    s3Text:
+      'Veriler, hizmet sunmak, ödemeleri işlemek, işlemsel e-postalar göndermek ve güvenliği sağlamak amacıyla kullanılır.',
     s4Title: '4. Veri Depolama ve Güvenlik',
-    s4Text: 'Veriler, aktarımda TLS ve depolamada AES-256 şifrelemesiyle korunur.',
+    s4Text:
+      'Veriler, aktarımda TLS ve depolamada AES-256 şifrelemesiyle korunur.',
     s5Title: '5. Veri Paylaşımı',
-    s5Text: 'Verilerinizi satmıyoruz. Yalnızca Stripe, e-posta sağlayıcıları ve barındırma altyapısıyla paylaşılır.',
+    s5Text:
+      'Verilerinizi satmıyoruz. Yalnızca Stripe, e-posta sağlayıcıları ve barındırma altyapısıyla paylaşılır.',
     s6Title: '6. GDPR ve Haklarınız',
-    s6Text: 'AEA kullanıcıları erişim, düzeltme, silme, kısıtlama ve taşınabilirlik haklarına sahiptir. İletişim: privacy@grant-thornton.online.',
+    s6Text:
+      'AEA kullanıcıları erişim, düzeltme, silme, kısıtlama ve taşınabilirlik haklarına sahiptir. İletişim: privacy@grant-thornton.online.',
     s7Title: '7. Veri Saklama',
-    s7Text: 'Veriler abonelik süresi boyunca + 30 gün daha saklanır, ardından kalıcı olarak silinir.',
+    s7Text:
+      'Veriler abonelik süresi boyunca + 30 gün daha saklanır, ardından kalıcı olarak silinir.',
     s8Title: '8. Çerezler',
-    s8Text: 'Yalnızca kimlik doğrulama için gerekli çerezler kullanılır. Reklam veya izleme çerezleri kullanılmaz.',
+    s8Text:
+      'Yalnızca kimlik doğrulama için gerekli çerezler kullanılır. Reklam veya izleme çerezleri kullanılmaz.',
     s9Title: '9. Çocukların Gizliliği',
     s9Text: 'Hizmet 16 yaş altı kişiler için tasarlanmamıştır.',
     s10Title: '10. Bu Politikadaki Değişiklikler',
@@ -2316,7 +2363,7 @@ const tr = {
     title: 'Developer console',
     accessDenied: 'Erişim reddedildi',
     accessDesc:
-      'Bu sayfa yalnızca geliştirici hesabına (dev@armico.local) erişilebilir.',
+      'Bu sayfa yalnızca geliştirici hesabına (dev@grantthornton.local) erişilebilir.',
     tabSms: 'SMS ayarları',
     tabEmail: 'E-posta ayarları',
     tabLogs: 'Günlükler',

@@ -365,7 +365,7 @@ const AppLayout = () => {
   const isAdmin = user?.role === 'SUPER_ADMIN';
   const isManager = user?.role === 'MANAGER';
   const isWorker = user?.role === 'USER';
-  const isDevUser = user?.email === 'dev@armico.local';
+  const isDevUser = user?.email === 'dev@grantthornton.local';
 
   const handleLangChange = (lang: string) => {
     void i18n.changeLanguage(lang);

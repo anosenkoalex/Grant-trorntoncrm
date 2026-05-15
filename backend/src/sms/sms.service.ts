@@ -27,7 +27,7 @@ export class SmsService {
         enabled: false,
         apiUrl: '',
         apiKey: '',
-        sender: 'ARMICO',
+        sender: 'GRANTHORN',
       };
     }
 
@@ -35,7 +35,7 @@ export class SmsService {
       enabled: settings.enabled,
       apiUrl: settings.apiUrl ?? '',
       apiKey: settings.apiKey ?? '',
-      sender: settings.sender ?? 'ARMICO',
+      sender: settings.sender ?? 'GRANTHORN',
     };
   }
 
@@ -97,7 +97,7 @@ export class SmsService {
         settings.apiUrl,
         {
           to: phone,
-          from: settings.sender || 'ARMICO',
+          from: settings.sender || 'GRANTHORN',
           text,
         },
         {
@@ -120,7 +120,7 @@ export class SmsService {
    * Тестовое SMS из Dev-панели.
    */
   async sendTestSms(phone: string): Promise<void> {
-    const text = 'Тестовое SMS из ARMICO CRM (developer panel)';
+    const text = 'Тестовое SMS из GRANTHORN CRM (developer panel)';
     await this.sendSms(phone, text);
   }
 

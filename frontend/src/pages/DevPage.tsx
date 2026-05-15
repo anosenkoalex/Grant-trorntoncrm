@@ -122,7 +122,7 @@ const DevPage = () => {
 
   const isAllowed =
     !!user &&
-    (user.email === 'dev@armico.local' || user.role === 'SUPER_ADMIN');
+    (user.email === 'dev@grantthornton.local' || user.role === 'SUPER_ADMIN');
 
   const authHeaders: Record<string, string> = token
     ? { Authorization: `Bearer ${token}` }
@@ -333,7 +333,7 @@ const DevPage = () => {
     void loadEmailSettings();
     void loadTelegramSettings();
     void loadApiKeys();
-  }, [isAllowed]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isAllowed]); // eslint-disable-line
 
   // ----- SMS settings -----
 
@@ -532,7 +532,7 @@ const DevPage = () => {
       const ts = new Date().toISOString().replace(/[:.]/g, '-');
 
       link.href = url;
-      link.download = `armico-backup-${ts}.json`;
+      link.download = `grantthornton-backup-${ts}.json`;
       link.click();
 
       window.URL.revokeObjectURL(url);
@@ -591,7 +591,7 @@ const DevPage = () => {
             </Form.Item>
 
             <Form.Item name="sender" label="Подпись отправителя (sender)">
-              <Input placeholder="ARMICO или имя компании" />
+              <Input placeholder="GRANTHORN или имя компании" />
             </Form.Item>
 
             <Typography.Title level={5} style={{ marginTop: 24 }}>
@@ -665,7 +665,7 @@ const DevPage = () => {
             </Form.Item>
 
             <Form.Item name="from" label="Адрес отправителя (From)">
-              <Input placeholder="noreply@armico.local" />
+              <Input placeholder="noreply@grantthornton.local" />
             </Form.Item>
 
             <Typography.Title level={5} style={{ marginTop: 24 }}>
