@@ -1,30 +1,50 @@
+import { lazy, Suspense } from 'react';
 import { Navigate, useRoutes } from 'react-router-dom';
-import Dashboard from '../pages/Dashboard.js';
-import Login from '../pages/Login.js';
-import MyPlace from '../pages/MyPlace.js';
-import WorkplacesPage from '../pages/Workplaces.js';
-import AssignmentsPage from '../pages/Assignments.js';
-import PlannerPage from '../pages/Planner.js';
-import UsersPage from '../pages/Users.js';
-import UsersCreatePage from '../pages/UsersCreate.js';
-import DevPage from '../pages/DevPage.js';
-import StatisticsPage from '../pages/Statistics.js';
-import AssignmentAdjustmentsPage from '../pages/AssignmentAdjustments.js';
+import { Spin } from 'antd';
 import AppLayout from '../components/Layout.js';
 import { useAuth } from '../context/AuthContext.js';
-import InstructionsPage from '../pages/Instructions.js';
-import AutomationSettingsPage from '../pages/AutomationSettings.js';
-import HRPage from '../pages/HR.js';
-import LandingPage from '../pages/Landing.js';
-import RegisterPage from '../pages/Register.js';
-import RegisterSuccessPage from '../pages/RegisterSuccess.js';
-import BillingPage from '../pages/Billing.js';
-import SuperAdminPage from '../pages/SuperAdmin.js';
-import OrgSettingsPage from '../pages/OrgSettings.js';
-import AuditLogPage from '../pages/AuditLog.js';
-import TermsOfServicePage from '../pages/TermsOfService.js';
-import PrivacyPolicyPage from '../pages/PrivacyPolicy.js';
-import StatusPageComponent from '../pages/StatusPage.js';
+
+const Dashboard = lazy(() => import('../pages/Dashboard.js'));
+const Login = lazy(() => import('../pages/Login.js'));
+const MyPlace = lazy(() => import('../pages/MyPlace.js'));
+const WorkplacesPage = lazy(() => import('../pages/Workplaces.js'));
+const AssignmentsPage = lazy(() => import('../pages/Assignments.js'));
+const PlannerPage = lazy(() => import('../pages/Planner.js'));
+const UsersPage = lazy(() => import('../pages/Users.js'));
+const UsersCreatePage = lazy(() => import('../pages/UsersCreate.js'));
+const DevPage = lazy(() => import('../pages/DevPage.js'));
+const StatisticsPage = lazy(() => import('../pages/Statistics.js'));
+const AssignmentAdjustmentsPage = lazy(
+  () => import('../pages/AssignmentAdjustments.js'),
+);
+const InstructionsPage = lazy(() => import('../pages/Instructions.js'));
+const AutomationSettingsPage = lazy(
+  () => import('../pages/AutomationSettings.js'),
+);
+const HRPage = lazy(() => import('../pages/HR.js'));
+const LandingPage = lazy(() => import('../pages/Landing.js'));
+const RegisterPage = lazy(() => import('../pages/Register.js'));
+const RegisterSuccessPage = lazy(() => import('../pages/RegisterSuccess.js'));
+const BillingPage = lazy(() => import('../pages/Billing.js'));
+const SuperAdminPage = lazy(() => import('../pages/SuperAdmin.js'));
+const OrgSettingsPage = lazy(() => import('../pages/OrgSettings.js'));
+const AuditLogPage = lazy(() => import('../pages/AuditLog.js'));
+const TermsOfServicePage = lazy(() => import('../pages/TermsOfService.js'));
+const PrivacyPolicyPage = lazy(() => import('../pages/PrivacyPolicy.js'));
+const StatusPageComponent = lazy(() => import('../pages/StatusPage.js'));
+
+const PageLoader = (
+  <div
+    style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+    }}
+  >
+    <Spin size="large" />
+  </div>
+);
 
 const ProtectedRoute = () => {
   const { token } = useAuth();
@@ -45,65 +65,227 @@ const AppRoutes = () => {
     // Корень — лендинг для гостей, редирект для залогиненных
     {
       path: '/',
-      element: token ? <Navigate to={defaultPath} replace /> : <LandingPage />,
+      element: token ? (
+        <Navigate to={defaultPath} replace />
+      ) : (
+        <Suspense fallback={PageLoader}>
+          <LandingPage />
+        </Suspense>
+      ),
     },
 
     // /landing — алиас
     {
       path: '/landing',
-      element: token ? <Navigate to={defaultPath} replace /> : <LandingPage />,
+      element: token ? (
+        <Navigate to={defaultPath} replace />
+      ) : (
+        <Suspense fallback={PageLoader}>
+          <LandingPage />
+        </Suspense>
+      ),
     },
 
     // Регистрация
     {
       path: '/register',
-      element: token ? <Navigate to={defaultPath} replace /> : <RegisterPage />,
+      element: token ? (
+        <Navigate to={defaultPath} replace />
+      ) : (
+        <Suspense fallback={PageLoader}>
+          <RegisterPage />
+        </Suspense>
+      ),
     },
     {
       path: '/register/success',
-      element: <RegisterSuccessPage />,
+      element: (
+        <Suspense fallback={PageLoader}>
+          <RegisterSuccessPage />
+        </Suspense>
+      ),
     },
 
     // Страница инструкций — без авторизации
     {
       path: '/instructions',
-      element: <InstructionsPage />,
+      element: (
+        <Suspense fallback={PageLoader}>
+          <InstructionsPage />
+        </Suspense>
+      ),
     },
 
     // Публичные страницы
-    { path: '/terms', element: <TermsOfServicePage /> },
-    { path: '/privacy', element: <PrivacyPolicyPage /> },
-    { path: '/status', element: <StatusPageComponent /> },
+    {
+      path: '/terms',
+      element: (
+        <Suspense fallback={PageLoader}>
+          <TermsOfServicePage />
+        </Suspense>
+      ),
+    },
+    {
+      path: '/privacy',
+      element: (
+        <Suspense fallback={PageLoader}>
+          <PrivacyPolicyPage />
+        </Suspense>
+      ),
+    },
+    {
+      path: '/status',
+      element: (
+        <Suspense fallback={PageLoader}>
+          <StatusPageComponent />
+        </Suspense>
+      ),
+    },
 
     // Логин
     {
       path: '/login',
-      element: token ? <Navigate to={defaultPath} replace /> : <Login />,
+      element: token ? (
+        <Navigate to={defaultPath} replace />
+      ) : (
+        <Suspense fallback={PageLoader}>
+          <Login />
+        </Suspense>
+      ),
     },
 
-    // Защищённый layout (без явного path — wraps все protected routes)
+    // Защищённый layout
     {
       element: <ProtectedRoute />,
       children: [
-        { path: '/dashboard', element: <Dashboard /> },
-        { path: '/my-place', element: <MyPlace /> },
-        { path: '/workplaces', element: <WorkplacesPage /> },
-        { path: '/assignments', element: <AssignmentsPage /> },
-        { path: '/planner', element: <PlannerPage /> },
-        { path: '/users', element: <UsersPage /> },
-        { path: '/users/create', element: <UsersCreatePage /> },
-        { path: '/statistics', element: <StatisticsPage /> },
+        {
+          path: '/dashboard',
+          element: (
+            <Suspense fallback={PageLoader}>
+              <Dashboard />
+            </Suspense>
+          ),
+        },
+        {
+          path: '/my-place',
+          element: (
+            <Suspense fallback={PageLoader}>
+              <MyPlace />
+            </Suspense>
+          ),
+        },
+        {
+          path: '/workplaces',
+          element: (
+            <Suspense fallback={PageLoader}>
+              <WorkplacesPage />
+            </Suspense>
+          ),
+        },
+        {
+          path: '/assignments',
+          element: (
+            <Suspense fallback={PageLoader}>
+              <AssignmentsPage />
+            </Suspense>
+          ),
+        },
+        {
+          path: '/planner',
+          element: (
+            <Suspense fallback={PageLoader}>
+              <PlannerPage />
+            </Suspense>
+          ),
+        },
+        {
+          path: '/users',
+          element: (
+            <Suspense fallback={PageLoader}>
+              <UsersPage />
+            </Suspense>
+          ),
+        },
+        {
+          path: '/users/create',
+          element: (
+            <Suspense fallback={PageLoader}>
+              <UsersCreatePage />
+            </Suspense>
+          ),
+        },
+        {
+          path: '/statistics',
+          element: (
+            <Suspense fallback={PageLoader}>
+              <StatisticsPage />
+            </Suspense>
+          ),
+        },
         {
           path: '/schedule-adjustments',
-          element: <AssignmentAdjustmentsPage />,
+          element: (
+            <Suspense fallback={PageLoader}>
+              <AssignmentAdjustmentsPage />
+            </Suspense>
+          ),
         },
-        { path: '/automation-settings', element: <AutomationSettingsPage /> },
-        { path: '/hr', element: <HRPage /> },
-        { path: '/billing', element: <BillingPage /> },
-        { path: '/org-settings', element: <OrgSettingsPage /> },
-        { path: '/audit-log', element: <AuditLogPage /> },
-        { path: '/super-admin', element: <SuperAdminPage /> },
-        { path: '/dev', element: <DevPage /> },
+        {
+          path: '/automation-settings',
+          element: (
+            <Suspense fallback={PageLoader}>
+              <AutomationSettingsPage />
+            </Suspense>
+          ),
+        },
+        {
+          path: '/hr',
+          element: (
+            <Suspense fallback={PageLoader}>
+              <HRPage />
+            </Suspense>
+          ),
+        },
+        {
+          path: '/billing',
+          element: (
+            <Suspense fallback={PageLoader}>
+              <BillingPage />
+            </Suspense>
+          ),
+        },
+        {
+          path: '/org-settings',
+          element: (
+            <Suspense fallback={PageLoader}>
+              <OrgSettingsPage />
+            </Suspense>
+          ),
+        },
+        {
+          path: '/audit-log',
+          element: (
+            <Suspense fallback={PageLoader}>
+              <AuditLogPage />
+            </Suspense>
+          ),
+        },
+        {
+          path: '/super-admin',
+          element: (
+            <Suspense fallback={PageLoader}>
+              <SuperAdminPage />
+            </Suspense>
+          ),
+        },
+        {
+          path: '/dev',
+          element: (
+            <Suspense fallback={PageLoader}>
+              <DevPage />
+            </Suspense>
+          ),
+        },
       ],
     },
 
