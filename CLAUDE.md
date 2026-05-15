@@ -4,6 +4,70 @@
 
 ---
 
+## 2026-05-15 — Фаза 16: Audit Log
+
+Добавлено логирование всех ключевых действий в системе с просмотром через отдельную страницу.
+
+### Backend
+
+**Prisma schema** — новая модель `AuditLog` (id, orgId, userId, action, entity, entityId?, details JSONB?, createdAt); индекс по (orgId, createdAt); отношения добавлены в `Org` и `User`.
+
+**Миграция** — `20260515300000_add_audit_log/migration.sql`
+
+**audit.service.ts** (новый) — метод `log()`: fire-and-forget (void), внутри try/catch с logger.warn — не ломает основной флоу; метод `findAll()`: пагинированный список записей с include user.
+
+**audit.module.ts** (новый) — экспортирует `AuditService`.
+
+**audit.controller.ts** (новый) — `GET /audit` (SUPER_ADMIN): пагинация через query page/pageSize.
+
+**app.module.ts** — добавлен импорт `AuditModule`.
+
+**Вызовы audit.log() добавлены в:**
+
+- `assignments.service.ts` — CREATE / UPDATE / DELETE
+- `workplaces.service.ts` — CREATE / UPDATE / DELETE (controller передаёт `user.sub`)
+- `users.service.ts` — CREATE / UPDATE
+- `hr.service.ts` — APPROVE / REJECT VacationRequest
+
+**Обновлены модули:** `assignments.module.ts`, `workplaces.module.ts`, `users.module.ts`, `hr.module.ts` — добавлен импорт `AuditModule`.
+
+### Frontend
+
+**api/client.ts** — добавлены тип `AuditLogItem` и функция `fetchAuditLog()`.
+
+**AuditLog.tsx** (новый) — таблица с колонками: дата, пользователь, действие (цветной Tag: зелёный=CREATE, синий=UPDATE, красный=DELETE, голубой=APPROVE, оранжевый=REJECT), сущность + entityId (короткий), детали; серверная пагинация по 50 записей.
+
+**Layout.tsx** — пункт «Audit Log» в навигации для SUPER_ADMIN.
+
+**routes/index.tsx** — маршрут `/audit-log`.
+
+**i18n.ts** — добавлен раздел `auditLog.*` (title, date, user, action, entity, details, total) и `layout.auditLog` для RU/EN/TR.
+
+### Изменённые файлы
+
+- `backend/prisma/schema.prisma`
+- `backend/prisma/migrations/20260515300000_add_audit_log/migration.sql` (новый)
+- `backend/src/audit/audit.service.ts` (новый)
+- `backend/src/audit/audit.module.ts` (новый)
+- `backend/src/audit/audit.controller.ts` (новый)
+- `backend/src/app.module.ts`
+- `backend/src/assignments/assignments.service.ts`
+- `backend/src/assignments/assignments.module.ts`
+- `backend/src/workplaces/workplaces.service.ts`
+- `backend/src/workplaces/workplaces.controller.ts`
+- `backend/src/workplaces/workplaces.module.ts`
+- `backend/src/users/users.service.ts`
+- `backend/src/users/users.module.ts`
+- `backend/src/hr/hr.service.ts`
+- `backend/src/hr/hr.module.ts`
+- `frontend/src/api/client.ts`
+- `frontend/src/pages/AuditLog.tsx` (новый)
+- `frontend/src/components/Layout.tsx`
+- `frontend/src/routes/index.tsx`
+- `frontend/src/i18n.ts`
+
+---
+
 ## 2026-05-15 — Фаза 15: White-label и корпоративные настройки
 
 Добавлена возможность кастомизации внешнего вида для каждой организации.
