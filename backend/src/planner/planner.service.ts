@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { AssignmentStatus, Prisma, UserRole } from '@prisma/client';
 import ExcelJS from 'exceljs';
 import { PrismaService } from '../common/prisma/prisma.service.js';
@@ -149,9 +149,12 @@ export class PlannerService {
     const rangeFrom = new Date(`${fromKey}T00:00:00.000Z`);
     const rangeTo = new Date(`${toKey}T23:59:59.999Z`);
 
-    // Фильтры для выборки назначений под экспорт
-    const isSuperAdmin = auth.role === UserRole.SUPER_ADMIN;
-    const effectiveOrgId = isSuperAdmin ? params.orgId : auth.orgId;
+    const effectiveOrgId = params.orgId ?? auth.orgId;
+    if (!effectiveOrgId) {
+      throw new BadRequestException(
+        'orgId обязателен: пользователь не привязан к организации',
+      );
+    }
 
     const where: Prisma.AssignmentWhereInput = {
       deletedAt: null,
@@ -160,13 +163,9 @@ export class PlannerService {
         : { status: AssignmentStatus.ACTIVE }),
       startsAt: { lte: rangeTo },
       OR: [{ endsAt: null }, { endsAt: { gte: rangeFrom } }],
-      // фильтр по конкретному пользователю только если он явно передан
       ...(params.userId ? { userId: params.userId } : {}),
+      user: { orgId: effectiveOrgId },
     };
-
-    if (effectiveOrgId) {
-      where.user = { orgId: effectiveOrgId };
-    }
 
     const orderBy: Prisma.AssignmentOrderByWithRelationInput[] =
       mode === 'byWorkplaces'
@@ -334,13 +333,14 @@ export class PlannerService {
     auth: JwtPayload,
     params: Omit<PlannerMatrixQuery, 'page' | 'pageSize'>,
   ): Promise<PlannerMatrixRow[]> {
-    const isSuperAdmin = auth.role === UserRole.SUPER_ADMIN;
-
-    if (!isSuperAdmin && params.mode === 'byWorkplaces' && !auth.orgId) {
-      throw new NotFoundException('Пользователь не привязан к организации');
+    // params.orgId is an explicit override (e.g. platform admin cross-org view);
+    // fall back to the caller's own orgId from the JWT token.
+    const effectiveOrgId = params.orgId ?? auth.orgId;
+    if (!effectiveOrgId) {
+      throw new BadRequestException(
+        'orgId обязателен: пользователь не привязан к организации',
+      );
     }
-
-    const effectiveOrgId = isSuperAdmin ? params.orgId : auth.orgId;
 
     const where: Prisma.AssignmentWhereInput = {
       deletedAt: null,
@@ -349,13 +349,9 @@ export class PlannerService {
         : { status: AssignmentStatus.ACTIVE }),
       startsAt: { lte: params.to },
       OR: [{ endsAt: null }, { endsAt: { gte: params.from } }],
-      // фильтр по конкретному пользователю — только если явно передан
       ...(params.userId ? { userId: params.userId } : {}),
+      user: { orgId: effectiveOrgId },
     };
-
-    if (effectiveOrgId) {
-      where.user = { orgId: effectiveOrgId };
-    }
 
     const orderBy: Prisma.AssignmentOrderByWithRelationInput[] =
       params.mode === 'byWorkplaces'
