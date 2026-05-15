@@ -32,6 +32,7 @@ const AuditLogPage = lazy(() => import('../pages/AuditLog.js'));
 const TermsOfServicePage = lazy(() => import('../pages/TermsOfService.js'));
 const PrivacyPolicyPage = lazy(() => import('../pages/PrivacyPolicy.js'));
 const StatusPageComponent = lazy(() => import('../pages/StatusPage.js'));
+const PresentationPage = lazy(() => import('../pages/Presentation.js'));
 
 const PageLoader = (
   <div
@@ -117,6 +118,14 @@ const AppRoutes = () => {
     },
 
     // Публичные страницы
+    {
+      path: '/presentation',
+      element: (
+        <Suspense fallback={PageLoader}>
+          <PresentationPage />
+        </Suspense>
+      ),
+    },
     {
       path: '/terms',
       element: (
