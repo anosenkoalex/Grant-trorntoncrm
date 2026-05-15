@@ -1,33 +1,36 @@
-import { useState, useEffect, ReactNode } from 'react';
 import {
+  Alert,
+  Anchor,
   Button,
   Card,
   Col,
+  Collapse,
+  ConfigProvider,
+  Descriptions,
   Row,
   Select,
   Space,
+  Steps,
+  Table,
   Tag,
+  Timeline,
   Typography,
 } from 'antd';
 import {
-  CalendarOutlined,
-  BarChartOutlined,
-  BellOutlined,
-  FileOutlined,
-  GlobalOutlined,
-  LockOutlined,
-  RocketOutlined,
-  TeamOutlined,
-  ThunderboltOutlined,
+  CheckOutlined,
   CheckCircleOutlined,
+  RocketOutlined,
+  BellOutlined,
+  CalendarOutlined,
+  LockOutlined,
   SafetyOutlined,
   ApiOutlined,
+  ThunderboltOutlined,
+  FileTextOutlined,
   AuditOutlined,
-  SettingOutlined,
-  DollarOutlined,
-  MobileOutlined,
+  BarChartOutlined,
   ClockCircleOutlined,
-  UserOutlined,
+  GlobalOutlined,
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -36,8 +39,6 @@ import i18next from 'i18next';
 const { Title, Text, Paragraph } = Typography;
 
 const GT_RED = '#E8231A';
-const GT_BLACK = '#1A1A1A';
-const GT_LIGHT = '#F7F8FA';
 
 const LANG_OPTIONS = [
   { value: 'en', label: 'EN' },
@@ -46,218 +47,276 @@ const LANG_OPTIONS = [
 ];
 
 const NAV_SECTIONS = [
-  'overview',
-  'problem',
-  'assignments',
-  'planner',
-  'hr',
-  'analytics',
-  'automation',
-  'notifications',
-  'documents',
-  'integrations',
-  'profile',
-  'multilingual',
-  'audit',
-  'orgsettings',
-  'saas',
-  'security',
-  'tech',
-  'roadmap',
-  'cta',
+  { id: 'overview', navKey: 'navOverview' },
+  { id: 'assignments', navKey: 'navAssignments' },
+  { id: 'planner', navKey: 'navPlanner' },
+  { id: 'hr', navKey: 'navHr' },
+  { id: 'analytics', navKey: 'navAnalytics' },
+  { id: 'automation', navKey: 'navAutomation' },
+  { id: 'integrations', navKey: 'navIntegrations' },
+  { id: 'saas', navKey: 'navSaas' },
+  { id: 'security', navKey: 'navSecurity' },
+  { id: 'roadmap', navKey: 'navRoadmap' },
 ];
 
-function scrollTo(id: string) {
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: 'smooth' });
-}
+const SECTION: React.CSSProperties = { marginBottom: 24, scrollMarginTop: 80 };
 
-function SectionWrap({
-  id,
-  light = false,
-  children,
-}: {
-  id: string;
-  light?: boolean;
-  children: ReactNode;
-}) {
-  return (
-    <section
-      id={id}
-      style={{
-        background: light ? GT_LIGHT : '#fff',
-        padding: '72px 0',
-      }}
-    >
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px' }}>
-        {children}
-      </div>
-    </section>
-  );
-}
-
-function SectionHeader({
-  title,
-  subtitle,
-  accent = false,
-}: {
-  title: string;
-  subtitle?: string;
-  accent?: boolean;
-}) {
-  return (
-    <div style={{ textAlign: 'center', marginBottom: 48 }}>
-      <Title
-        level={2}
-        style={{
-          color: accent ? GT_RED : GT_BLACK,
-          marginBottom: subtitle ? 12 : 0,
-        }}
-      >
-        {title}
-      </Title>
-      {subtitle && (
-        <Paragraph
-          style={{ color: '#666', fontSize: 17, maxWidth: 680, margin: '0 auto' }}
-        >
-          {subtitle}
-        </Paragraph>
-      )}
-    </div>
-  );
-}
-
-function FeatureList({ items }: { items: string[] }) {
-  return (
-    <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-      {items.map((item) => (
-        <li
-          key={item}
-          style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: 10,
-            marginBottom: 10,
-          }}
-        >
-          <CheckCircleOutlined style={{ color: GT_RED, marginTop: 3 }} />
-          <Text style={{ fontSize: 15 }}>{item}</Text>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function IconCard({
-  icon,
-  title,
-  desc,
-}: {
-  icon: ReactNode;
-  title: string;
-  desc: string;
-}) {
-  return (
-    <Card
-      bordered={false}
-      style={{
-        height: '100%',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.07)',
-        borderTop: `3px solid ${GT_RED}`,
-      }}
-    >
-      <div style={{ fontSize: 28, color: GT_RED, marginBottom: 12 }}>{icon}</div>
-      <Title level={5} style={{ marginBottom: 6, color: GT_BLACK }}>
-        {title}
-      </Title>
-      <Text type="secondary" style={{ fontSize: 14 }}>
-        {desc}
-      </Text>
-    </Card>
-  );
-}
+const check = <CheckOutlined style={{ color: '#52c41a' }} />;
+const dash = <Text type="secondary">—</Text>;
 
 export default function PresentationPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  const lang = i18n.language.slice(0, 2);
 
   const handleLang = (val: string) => {
     void i18next.changeLanguage(val);
     localStorage.setItem('lang', val);
   };
 
-  const lang = i18n.language.slice(0, 2);
+  // ── PRICING TABLE ──────────────────────────────────────────
+  const pricingColumns = [
+    {
+      title: '',
+      dataIndex: 'feature',
+      key: 'feature',
+      width: 220,
+      render: (v: string) => <Text strong>{v}</Text>,
+    },
+    {
+      title: () => (
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontWeight: 600 }}>{t('presentation.saasPlan1')}</div>
+          <div style={{ color: GT_RED, fontWeight: 800, fontSize: 20 }}>
+            $29<span style={{ fontSize: 13, fontWeight: 400 }}>/mo</span>
+          </div>
+        </div>
+      ),
+      dataIndex: 'starter',
+      key: 'starter',
+      align: 'center' as const,
+    },
+    {
+      title: () => (
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontWeight: 600 }}>{t('presentation.saasPlan2')}</div>
+          <div style={{ color: GT_RED, fontWeight: 800, fontSize: 20 }}>
+            $99<span style={{ fontSize: 13, fontWeight: 400 }}>/mo</span>
+          </div>
+          <Tag color="error" style={{ fontSize: 11 }}>
+            Popular
+          </Tag>
+        </div>
+      ),
+      dataIndex: 'business',
+      key: 'business',
+      align: 'center' as const,
+    },
+    {
+      title: () => (
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontWeight: 600 }}>{t('presentation.saasPlan3')}</div>
+          <div style={{ color: GT_RED, fontWeight: 800, fontSize: 20 }}>
+            $299<span style={{ fontSize: 13, fontWeight: 400 }}>/mo</span>
+          </div>
+        </div>
+      ),
+      dataIndex: 'enterprise',
+      key: 'enterprise',
+      align: 'center' as const,
+    },
+  ];
+
+  const pricingData = [
+    {
+      key: '1',
+      feature: t('presentation.saasPlan1F1'),
+      starter: 'до 25',
+      business: 'до 200',
+      enterprise: '∞',
+    },
+    {
+      key: '2',
+      feature: t('presentation.saasPlan1F2'),
+      starter: check,
+      business: check,
+      enterprise: check,
+    },
+    {
+      key: '3',
+      feature: t('presentation.saasPlan1F3'),
+      starter: check,
+      business: check,
+      enterprise: check,
+    },
+    {
+      key: '4',
+      feature: t('presentation.saasPlan2F1'),
+      starter: dash,
+      business: check,
+      enterprise: check,
+    },
+    {
+      key: '5',
+      feature: t('presentation.saasPlan2F2'),
+      starter: dash,
+      business: check,
+      enterprise: check,
+    },
+    {
+      key: '6',
+      feature: t('presentation.saasPlan2F3'),
+      starter: dash,
+      business: check,
+      enterprise: check,
+    },
+    {
+      key: '7',
+      feature: t('presentation.saasPlan3F1'),
+      starter: dash,
+      business: dash,
+      enterprise: check,
+    },
+    {
+      key: '8',
+      feature: t('presentation.saasPlan3F2'),
+      starter: dash,
+      business: dash,
+      enterprise: check,
+    },
+    {
+      key: '9',
+      feature: t('presentation.saasPlan3F3'),
+      starter: dash,
+      business: dash,
+      enterprise: check,
+    },
+  ];
+
+  // ── AUDIT LOG TABLE ────────────────────────────────────────
+  const auditCols = [
+    {
+      title: 'Дата',
+      dataIndex: 'date',
+      key: 'date',
+      width: 150,
+      render: (v: string) => <Text type="secondary">{v}</Text>,
+    },
+    { title: 'Пользователь', dataIndex: 'user', key: 'user' },
+    {
+      title: 'Действие',
+      dataIndex: 'action',
+      key: 'action',
+      render: (v: string) => {
+        const m: Record<string, string> = {
+          CREATE: 'success',
+          UPDATE: 'processing',
+          DELETE: 'error',
+          APPROVE: 'cyan',
+          REJECT: 'orange',
+        };
+        return <Tag color={m[v] ?? 'default'}>{v}</Tag>;
+      },
+    },
+    {
+      title: 'Сущность',
+      dataIndex: 'entity',
+      key: 'entity',
+      render: (v: string) => <Text>{v}</Text>,
+    },
+    {
+      title: 'Детали',
+      dataIndex: 'details',
+      key: 'details',
+      render: (v: string) => <Text type="secondary">{v}</Text>,
+    },
+  ];
+
+  const auditRows = [
+    {
+      key: '1',
+      date: '16.05.2026 10:31',
+      user: 'admin@grantthornton.local',
+      action: 'CREATE',
+      entity: t('presentation.auditEntityAssign'),
+      details: 'Иванов И. → Офис A1, 01.06–30.06',
+    },
+    {
+      key: '2',
+      date: '16.05.2026 10:15',
+      user: 'manager@company.com',
+      action: 'APPROVE',
+      entity: t('presentation.auditEntityVacation'),
+      details: 'Петрова М., отпуск 10.06–24.06',
+    },
+    {
+      key: '3',
+      date: '16.05.2026 09:55',
+      user: 'admin@grantthornton.local',
+      action: 'UPDATE',
+      entity: t('presentation.auditEntityUser'),
+      details: 'Сидоров К.: должность обновлена',
+    },
+    {
+      key: '4',
+      date: '16.05.2026 09:40',
+      user: 'admin@grantthornton.local',
+      action: 'DELETE',
+      entity: t('presentation.auditEntityWorkplace'),
+      details: 'Зал C5 — удалено',
+    },
+    {
+      key: '5',
+      date: '15.05.2026 18:00',
+      user: 'manager@company.com',
+      action: 'REJECT',
+      entity: t('presentation.auditEntityVacation'),
+      details: 'Иванов И., комментарий: занятость',
+    },
+  ];
 
   return (
-    <div style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <ConfigProvider theme={{ token: { colorPrimary: GT_RED } }}>
       {/* ── STICKY HEADER ── */}
-      <header
+      <div
         style={{
-          position: 'fixed',
+          position: 'sticky',
           top: 0,
-          left: 0,
-          right: 0,
           zIndex: 1000,
           background: '#fff',
-          borderBottom: scrolled ? '1px solid #eee' : '1px solid transparent',
-          boxShadow: scrolled ? '0 2px 12px rgba(0,0,0,0.08)' : 'none',
-          transition: 'box-shadow 0.2s, border-color 0.2s',
+          borderBottom: '1px solid #f0f0f0',
+          padding: '0 32px',
           height: 64,
           display: 'flex',
           alignItems: 'center',
-          padding: '0 24px',
-          gap: 16,
+          gap: 24,
         }}
       >
-        {/* Logo */}
-        <div
-          style={{
-            background: GT_RED,
-            color: '#fff',
-            fontWeight: 800,
-            fontSize: 15,
-            padding: '4px 10px',
-            borderRadius: 6,
-            letterSpacing: 0.5,
-            cursor: 'pointer',
-            flexShrink: 0,
-          }}
-          onClick={() => scrollTo('overview')}
+        <Title
+          level={5}
+          style={{ color: GT_RED, margin: 0, flexShrink: 0, cursor: 'pointer' }}
+          onClick={() =>
+            document
+              .getElementById('overview')
+              ?.scrollIntoView({ behavior: 'smooth' })
+          }
         >
-          GT CRM
+          Grant Thornton CRM
+        </Title>
+
+        <div style={{ flex: 1, overflow: 'hidden', minWidth: 0 }}>
+          <Anchor
+            direction="horizontal"
+            offsetTop={64}
+            items={NAV_SECTIONS.map((s) => ({
+              key: s.id,
+              href: `#${s.id}`,
+              title: t(`presentation.${s.navKey}`),
+            }))}
+            style={{ fontSize: 13 }}
+          />
         </div>
 
-        {/* Nav */}
-        <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            gap: 4,
-            overflow: 'hidden',
-            flexWrap: 'nowrap',
-          }}
-        >
-          {NAV_SECTIONS.slice(0, 10).map((s) => (
-            <Button
-              key={s}
-              type="text"
-              size="small"
-              onClick={() => scrollTo(s)}
-              style={{ fontSize: 13, color: '#555', flexShrink: 0 }}
-            >
-              {t(`presentation.nav${s.charAt(0).toUpperCase()}${s.slice(1)}`)}
-            </Button>
-          ))}
-        </div>
-
-        {/* Lang + CTA */}
         <Space size={8} style={{ flexShrink: 0 }}>
           <Select
             size="small"
@@ -267,1129 +326,1585 @@ export default function PresentationPage() {
             style={{ width: 68 }}
             variant="borderless"
           />
-          <Button
-            type="primary"
-            size="small"
-            style={{ background: GT_RED, borderColor: GT_RED }}
-            onClick={() => navigate('/login')}
-          >
+          <Button type="primary" size="small" onClick={() => navigate('/login')}>
             {t('presentation.tryDemo')}
           </Button>
         </Space>
-      </header>
+      </div>
 
-      {/* spacer for fixed header */}
-      <div style={{ height: 64 }} />
-
-      {/* ── 1. HERO / OVERVIEW ── */}
-      <section
-        id="overview"
-        style={{
-          background: `linear-gradient(135deg, ${GT_BLACK} 0%, #2d2d2d 100%)`,
-          padding: '96px 24px 80px',
-          textAlign: 'center',
-          color: '#fff',
-        }}
-      >
-        <div style={{ maxWidth: 860, margin: '0 auto' }}>
-          <Tag
-            style={{
-              background: 'rgba(232,35,26,0.2)',
-              border: '1px solid rgba(232,35,26,0.5)',
-              color: '#ff6b6b',
-              marginBottom: 20,
-              fontSize: 13,
-              padding: '2px 12px',
-            }}
+      {/* ── PAGE CONTENT ── */}
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 24px 64px' }}>
+        {/* ═══════════════════════════════════════════════════
+            1. OVERVIEW
+        ═══════════════════════════════════════════════════ */}
+        <div id="overview" style={SECTION}>
+          <Card
+            title={
+              <Title level={3} style={{ color: GT_RED, margin: 0 }}>
+                {t('presentation.heroTitle')}
+              </Title>
+            }
           >
-            {t('presentation.heroTag')}
-          </Tag>
-          <Title
-            style={{
-              color: '#fff',
-              fontSize: 'clamp(32px, 5vw, 54px)',
-              marginBottom: 20,
-              lineHeight: 1.15,
-            }}
-          >
-            {t('presentation.heroTitle')}
-          </Title>
-          <Paragraph
-            style={{
-              color: 'rgba(255,255,255,0.75)',
-              fontSize: 18,
-              maxWidth: 640,
-              margin: '0 auto 40px',
-            }}
-          >
-            {t('presentation.heroSubtitle')}
-          </Paragraph>
-          <Space size={16} wrap style={{ justifyContent: 'center' }}>
-            <Button
-              size="large"
-              style={{
-                background: GT_RED,
-                borderColor: GT_RED,
-                color: '#fff',
-                fontWeight: 600,
-              }}
-              onClick={() => navigate('/login')}
-            >
-              {t('presentation.tryDemo')}
-            </Button>
-            <Button
-              size="large"
-              ghost
-              onClick={() => scrollTo('problem')}
-            >
-              {t('presentation.learnMore')}
-            </Button>
-          </Space>
-
-          {/* Stats row */}
-          <Row gutter={[32, 24]} style={{ marginTop: 64, textAlign: 'center' }}>
-            {[
-              { label: t('presentation.stat1Label'), value: t('presentation.stat1Value') },
-              { label: t('presentation.stat2Label'), value: t('presentation.stat2Value') },
-              { label: t('presentation.stat3Label'), value: t('presentation.stat3Value') },
-              { label: t('presentation.stat4Label'), value: t('presentation.stat4Value') },
-            ].map((s) => (
-              <Col xs={12} sm={6} key={s.label}>
-                <div
-                  style={{
-                    fontSize: 36,
-                    fontWeight: 800,
-                    color: GT_RED,
-                    lineHeight: 1.1,
-                  }}
-                >
-                  {s.value}
-                </div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, marginTop: 4 }}>
-                  {s.label}
-                </div>
-              </Col>
-            ))}
-          </Row>
-        </div>
-      </section>
-
-      {/* ── 2. PROBLEM ── */}
-      <SectionWrap id="problem" light>
-        <SectionHeader
-          title={t('presentation.problemTitle')}
-          subtitle={t('presentation.problemSubtitle')}
-          accent
-        />
-        <Row gutter={[24, 24]}>
-          {[
-            t('presentation.prob1'),
-            t('presentation.prob2'),
-            t('presentation.prob3'),
-            t('presentation.prob4'),
-            t('presentation.prob5'),
-            t('presentation.prob6'),
-          ].map((p) => (
-            <Col xs={24} sm={12} md={8} key={p}>
-              <Card
-                bordered={false}
-                style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)', height: '100%' }}
-              >
-                <div style={{ fontSize: 20, marginBottom: 8 }}>⚠️</div>
-                <Text style={{ fontSize: 15 }}>{p}</Text>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-        <div
-          style={{
-            marginTop: 40,
-            padding: '24px 32px',
-            background: '#fff',
-            border: `2px solid ${GT_RED}`,
-            borderRadius: 12,
-            textAlign: 'center',
-          }}
-        >
-          <Text style={{ fontSize: 17, color: GT_BLACK, fontWeight: 600 }}>
-            {t('presentation.problemSolution')}
-          </Text>
-        </div>
-      </SectionWrap>
-
-      {/* ── 3. ASSIGNMENTS ── */}
-      <SectionWrap id="assignments">
-        <Row gutter={[48, 32]} align="middle">
-          <Col xs={24} md={12}>
-            <SectionHeader
-              title={t('presentation.assignTitle')}
-              subtitle={t('presentation.assignSubtitle')}
+            <Alert
+              type="info"
+              message={t('presentation.heroSubtitle')}
+              showIcon
+              style={{ marginBottom: 20 }}
             />
-            <FeatureList
+            <Descriptions
+              bordered
+              size="small"
+              column={{ xs: 2, sm: 2, md: 4 }}
+            >
+              <Descriptions.Item label={t('presentation.stat1Label')}>
+                <Text strong style={{ color: GT_RED, fontSize: 18 }}>
+                  {t('presentation.stat1Value')}
+                </Text>
+              </Descriptions.Item>
+              <Descriptions.Item label={t('presentation.stat2Label')}>
+                <Text strong style={{ color: GT_RED, fontSize: 18 }}>
+                  {t('presentation.stat2Value')}
+                </Text>
+              </Descriptions.Item>
+              <Descriptions.Item label={t('presentation.stat3Label')}>
+                <Text strong style={{ color: GT_RED, fontSize: 18 }}>
+                  {t('presentation.stat3Value')}
+                </Text>
+              </Descriptions.Item>
+              <Descriptions.Item label={t('presentation.stat4Label')}>
+                <Text strong style={{ color: GT_RED, fontSize: 18 }}>
+                  {t('presentation.stat4Value')}
+                </Text>
+              </Descriptions.Item>
+            </Descriptions>
+            <Alert
+              type="success"
+              message={t('presentation.heroTag')}
+              showIcon
+              icon={<RocketOutlined />}
+              style={{ marginTop: 16 }}
+            />
+          </Card>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════
+            2. PROBLEM
+        ═══════════════════════════════════════════════════ */}
+        <div id="problem" style={SECTION}>
+          <Card
+            title={
+              <Title level={4} style={{ margin: 0 }}>
+                {t('presentation.problemTitle')}
+              </Title>
+            }
+          >
+            <Alert
+              type="warning"
+              message={t('presentation.problemSubtitle')}
+              style={{ marginBottom: 16 }}
+            />
+            <Collapse
               items={[
-                t('presentation.assignF1'),
-                t('presentation.assignF2'),
-                t('presentation.assignF3'),
-                t('presentation.assignF4'),
-                t('presentation.assignF5'),
-              ]}
+                t('presentation.prob1'),
+                t('presentation.prob2'),
+                t('presentation.prob3'),
+                t('presentation.prob4'),
+                t('presentation.prob5'),
+                t('presentation.prob6'),
+              ].map((prob, i) => ({
+                key: String(i + 1),
+                label: prob,
+                children: (
+                  <Paragraph type="secondary" style={{ margin: 0 }}>
+                    {prob}
+                  </Paragraph>
+                ),
+              }))}
             />
-          </Col>
-          <Col xs={24} md={12}>
-            <Card
-              bordered={false}
-              style={{
-                background: GT_LIGHT,
-                borderRadius: 16,
-                padding: 8,
-              }}
-            >
-              <div style={{ padding: '16px 0' }}>
-                {[
-                  { name: 'Иванов И.', place: 'Офис A1', date: '2026-06-01', status: 'active' },
-                  { name: 'Петрова М.', place: 'Зал B2', date: '2026-06-02', status: 'active' },
-                  { name: 'Сидоров К.', place: 'Офис A3', date: '2026-06-03', status: 'pending' },
-                ].map((row, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '10px 16px',
-                      background: '#fff',
-                      borderRadius: 8,
-                      marginBottom: 8,
-                      boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-                    }}
-                  >
-                    <Space>
-                      <UserOutlined style={{ color: GT_RED }} />
-                      <Text strong>{row.name}</Text>
-                    </Space>
-                    <Text type="secondary" style={{ fontSize: 13 }}>{row.place}</Text>
-                    <Text type="secondary" style={{ fontSize: 13 }}>{row.date}</Text>
-                    <Tag color={row.status === 'active' ? 'green' : 'orange'}>
-                      {row.status === 'active' ? t('presentation.active') : t('presentation.pending')}
-                    </Tag>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </Col>
-        </Row>
-      </SectionWrap>
+            <Alert
+              type="success"
+              message={t('presentation.problemSolution')}
+              showIcon
+              icon={<CheckCircleOutlined />}
+              style={{ marginTop: 16 }}
+            />
+          </Card>
+        </div>
 
-      {/* ── 4. PLANNER ── */}
-      <SectionWrap id="planner" light>
-        <SectionHeader
-          title={t('presentation.plannerTitle')}
-          subtitle={t('presentation.plannerSubtitle')}
-          accent
-        />
-        <Row gutter={[24, 24]}>
-          <Col xs={24} md={14}>
-            {/* Fake matrix preview */}
-            <Card
-              bordered={false}
-              style={{ borderRadius: 12, overflow: 'hidden' }}
-            >
-              <div
-                style={{
-                  overflowX: 'auto',
-                  fontSize: 13,
-                }}
-              >
-                <table
-                  style={{
-                    borderCollapse: 'collapse',
-                    width: '100%',
-                    minWidth: 420,
-                  }}
-                >
-                  <thead>
-                    <tr style={{ background: GT_BLACK }}>
-                      <th
-                        style={{
-                          color: '#fff',
-                          padding: '8px 12px',
-                          textAlign: 'left',
-                          fontWeight: 600,
-                        }}
-                      >
-                        {t('presentation.planEmployee')}
-                      </th>
-                      {['01', '02', '03', '04', '05'].map((d) => (
-                        <th
-                          key={d}
-                          style={{
-                            color: '#fff',
-                            padding: '8px 10px',
-                            textAlign: 'center',
-                          }}
-                        >
-                          {d}
-                        </th>
+        {/* ═══════════════════════════════════════════════════
+            3. ASSIGNMENTS
+        ═══════════════════════════════════════════════════ */}
+        <div id="assignments" style={SECTION}>
+          <Card
+            title={
+              <Title level={4} style={{ margin: 0 }}>
+                {t('presentation.assignTitle')}
+              </Title>
+            }
+          >
+            <Alert
+              type="info"
+              message={t('presentation.assignSubtitle')}
+              style={{ marginBottom: 16 }}
+            />
+            <Collapse
+              defaultActiveKey={['fields']}
+              items={[
+                {
+                  key: 'fields',
+                  label: 'Поля назначения',
+                  children: (
+                    <Descriptions bordered size="small" column={2}>
+                      <Descriptions.Item label="Сотрудник">
+                        Выбор из списка пользователей организации
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Рабочее место">
+                        Активное место с кодом и цветом
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Период">
+                        Дата начала и окончания назначения
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Тип смены">
+                        <Space wrap>
+                          <Tag color="blue">OFFICE</Tag>
+                          <Tag color="green">REMOTE</Tag>
+                          <Tag color="orange">FIELD</Tag>
+                        </Space>
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Статус" span={2}>
+                        <Space wrap>
+                          <Tag color="success">Активное</Tag>
+                          <Tag color="default">Завершено</Tag>
+                          <Tag color="error">Удалено (корзина)</Tag>
+                        </Space>
+                      </Descriptions.Item>
+                    </Descriptions>
+                  ),
+                },
+                {
+                  key: 'features',
+                  label: 'Дополнительные функции',
+                  children: (
+                    <Row gutter={[16, 8]}>
+                      {[
+                        t('presentation.assignF1'),
+                        t('presentation.assignF2'),
+                        t('presentation.assignF3'),
+                        t('presentation.assignF4'),
+                        t('presentation.assignF5'),
+                      ].map((f) => (
+                        <Col xs={24} sm={12} key={f}>
+                          <Space>
+                            <CheckCircleOutlined style={{ color: GT_RED }} />
+                            <Text>{f}</Text>
+                          </Space>
+                        </Col>
                       ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[
-                      { name: 'Иванов И.', shifts: ['A1', '', 'A1', 'B2', ''] },
-                      { name: 'Петрова М.', shifts: ['', 'B2', '', 'A3', 'B2'] },
-                      { name: 'Сидоров К.', shifts: ['A3', 'A1', '', '', 'A1'] },
-                    ].map((emp, i) => (
-                      <tr
-                        key={i}
+                    </Row>
+                  ),
+                },
+                {
+                  key: 'views',
+                  label: 'Режимы и фильтры',
+                  children: (
+                    <Descriptions bordered size="small" column={1}>
+                      <Descriptions.Item label="Переключатель вида">
+                        <Tag>Активные</Tag>
+                        <Tag>Корзина</Tag>
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Фильтры">
+                        По сотруднику, рабочему месту, дате, типу смены
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Экспорт">
+                        Таблица с пагинацией, 20 записей на страницу
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Запросы корректировок">
+                        Сотрудник подаёт запрос, менеджер одобряет/отклоняет
+                      </Descriptions.Item>
+                    </Descriptions>
+                  ),
+                },
+              ]}
+            />
+          </Card>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════
+            4. PLANNER
+        ═══════════════════════════════════════════════════ */}
+        <div id="planner" style={SECTION}>
+          <Card
+            title={
+              <Title level={4} style={{ margin: 0 }}>
+                {t('presentation.plannerTitle')}
+              </Title>
+            }
+          >
+            <Alert
+              type="info"
+              message={t('presentation.plannerSubtitle')}
+              style={{ marginBottom: 20 }}
+            />
+            <Row gutter={[24, 16]}>
+              <Col xs={24} md={14}>
+                <Collapse
+                  items={[
+                    {
+                      key: 'matrix',
+                      label: 'Матрица планировщика',
+                      children: (
+                        <Descriptions bordered size="small" column={1}>
+                          <Descriptions.Item label="Ось Y">
+                            Сотрудники или рабочие места (переключение)
+                          </Descriptions.Item>
+                          <Descriptions.Item label="Ось X">
+                            Дни месяца
+                          </Descriptions.Item>
+                          <Descriptions.Item label="Ячейки">
+                            Назначения: код места, тип смены, цвет
+                          </Descriptions.Item>
+                          <Descriptions.Item label="Счётчик сотрудников">
+                            Показывает N первых + «ещё X»
+                          </Descriptions.Item>
+                        </Descriptions>
+                      ),
+                    },
+                    {
+                      key: 'filters',
+                      label: 'Навигация и фильтрация',
+                      children: (
+                        <Descriptions bordered size="small" column={1}>
+                          <Descriptions.Item label="Период">
+                            Выбор месяца и года через DatePicker
+                          </Descriptions.Item>
+                          <Descriptions.Item label="Поиск">
+                            По имени сотрудника или коду места
+                          </Descriptions.Item>
+                          <Descriptions.Item label="Изоляция">
+                            Данные строго по своей организации (orgId)
+                          </Descriptions.Item>
+                        </Descriptions>
+                      ),
+                    },
+                    {
+                      key: 'export',
+                      label: 'Экспорт Excel',
+                      children: (
+                        <Space direction="vertical">
+                          <Text>{t('presentation.planF4')}</Text>
+                          <Alert
+                            type="success"
+                            message="Матрица выгружается в .xlsx с сохранением цветов и форматирования"
+                            showIcon
+                          />
+                        </Space>
+                      ),
+                    },
+                  ]}
+                />
+              </Col>
+              <Col xs={24} md={10}>
+                <Card
+                  size="small"
+                  title="Рабочий процесс планировщика"
+                  style={{ borderTop: `3px solid ${GT_RED}` }}
+                >
+                  <Steps
+                    direction="vertical"
+                    size="small"
+                    current={-1}
+                    items={[
+                      {
+                        title: t('presentation.planF1'),
+                        description: 'Матрица по сотрудникам или местам',
+                      },
+                      {
+                        title: t('presentation.planF2'),
+                        description: 'Навигация по месяцам',
+                      },
+                      {
+                        title: t('presentation.planF3'),
+                        description: 'Анализ загрузки',
+                      },
+                      {
+                        title: t('presentation.planF5'),
+                        description: 'Экспорт в Excel',
+                      },
+                    ]}
+                  />
+                </Card>
+              </Col>
+            </Row>
+          </Card>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════
+            5. HR
+        ═══════════════════════════════════════════════════ */}
+        <div id="hr" style={SECTION}>
+          <Card
+            title={
+              <Title level={4} style={{ margin: 0 }}>
+                {t('presentation.hrTitle')}
+              </Title>
+            }
+          >
+            <Alert
+              type="info"
+              message={t('presentation.hrSubtitle')}
+              style={{ marginBottom: 16 }}
+            />
+            <Collapse
+              defaultActiveKey={['types']}
+              items={[
+                {
+                  key: 'types',
+                  label: 'Типы заявок',
+                  children: (
+                    <Descriptions bordered size="small" column={1}>
+                      <Descriptions.Item label={<Tag color="blue">VACATION</Tag>}>
+                        Ежегодный оплачиваемый отпуск с диапазоном дат
+                      </Descriptions.Item>
+                      <Descriptions.Item
+                        label={<Tag color="orange">SICK_LEAVE</Tag>}
+                      >
+                        Больничный лист — открытая или фиксированная дата
+                      </Descriptions.Item>
+                      <Descriptions.Item label={<Tag color="green">DAY_OFF</Tag>}>
+                        Отгул — отдельный день
+                      </Descriptions.Item>
+                    </Descriptions>
+                  ),
+                },
+                {
+                  key: 'statuses',
+                  label: 'Статусы согласования',
+                  children: (
+                    <Space wrap>
+                      <Tag color="warning">PENDING — на рассмотрении</Tag>
+                      <Tag color="success">APPROVED — одобрено</Tag>
+                      <Tag color="error">REJECTED — отклонено (с комментарием)</Tag>
+                    </Space>
+                  ),
+                },
+                {
+                  key: 'workflow',
+                  label: 'Процесс согласования',
+                  children: (
+                    <Steps
+                      size="small"
+                      current={-1}
+                      items={[
+                        {
+                          title: 'Сотрудник',
+                          description: 'Создаёт заявку: тип, даты, комментарий',
+                        },
+                        {
+                          title: 'Уведомление',
+                          description: 'Система уведомляет менеджера',
+                        },
+                        {
+                          title: 'Менеджер',
+                          description: 'Одобряет или отклоняет с комментарием',
+                        },
+                        {
+                          title: 'Ответ',
+                          description: 'Сотрудник получает уведомление о решении',
+                        },
+                      ]}
+                    />
+                  ),
+                },
+                {
+                  key: 'calendar',
+                  label: 'Календарь команды',
+                  children: (
+                    <Row gutter={[16, 8]}>
+                      {[
+                        t('presentation.hrF1'),
+                        t('presentation.hrF2'),
+                        t('presentation.hrF3'),
+                        t('presentation.hrF4'),
+                      ].map((f) => (
+                        <Col xs={24} sm={12} key={f}>
+                          <Space>
+                            <CalendarOutlined style={{ color: GT_RED }} />
+                            <Text>{f}</Text>
+                          </Space>
+                        </Col>
+                      ))}
+                    </Row>
+                  ),
+                },
+              ]}
+            />
+          </Card>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════
+            6. ANALYTICS
+        ═══════════════════════════════════════════════════ */}
+        <div id="analytics" style={SECTION}>
+          <Card
+            title={
+              <Title level={4} style={{ margin: 0 }}>
+                {t('presentation.analyticsTitle')}
+              </Title>
+            }
+          >
+            <Alert
+              type="info"
+              message={t('presentation.analyticsSubtitle')}
+              style={{ marginBottom: 16 }}
+            />
+            <Row gutter={[24, 16]}>
+              <Col xs={24} md={14}>
+                <Collapse
+                  defaultActiveKey={['kpi']}
+                  items={[
+                    {
+                      key: 'kpi',
+                      label: 'KPI дашборд',
+                      children: (
+                        <Descriptions bordered size="small" column={2}>
+                          <Descriptions.Item label={t('presentation.kpi1')}>
+                            <Text strong style={{ color: '#52c41a' }}>
+                              94%
+                            </Text>
+                          </Descriptions.Item>
+                          <Descriptions.Item label={t('presentation.kpi2')}>
+                            <Text strong style={{ color: GT_RED }}>
+                              1 248 ч.
+                            </Text>
+                          </Descriptions.Item>
+                          <Descriptions.Item label={t('presentation.kpi3')}>
+                            <Text strong style={{ color: '#1677ff' }}>
+                              3 820 ч.
+                            </Text>
+                          </Descriptions.Item>
+                          <Descriptions.Item label={t('presentation.kpi4')}>
+                            <Text strong style={{ color: '#faad14' }}>
+                              7
+                            </Text>
+                          </Descriptions.Item>
+                        </Descriptions>
+                      ),
+                    },
+                    {
+                      key: 'features',
+                      label: 'Функциональность',
+                      children: (
+                        <Row gutter={[16, 8]}>
+                          {[
+                            t('presentation.anlF1'),
+                            t('presentation.anlF2'),
+                            t('presentation.anlF3'),
+                            t('presentation.anlF4'),
+                            t('presentation.anlF5'),
+                          ].map((f) => (
+                            <Col xs={24} sm={12} key={f}>
+                              <Space>
+                                <BarChartOutlined style={{ color: GT_RED }} />
+                                <Text>{f}</Text>
+                              </Space>
+                            </Col>
+                          ))}
+                        </Row>
+                      ),
+                    },
+                    {
+                      key: 'filters',
+                      label: 'Фильтрация и экспорт',
+                      children: (
+                        <Descriptions bordered size="small" column={1}>
+                          <Descriptions.Item label="Период">
+                            Произвольный диапазон дат (DatePicker)
+                          </Descriptions.Item>
+                          <Descriptions.Item label="Фильтр">
+                            По сотрудникам, рабочим местам, типу смены
+                          </Descriptions.Item>
+                          <Descriptions.Item label="CSV экспорт">
+                            Выгрузка всей сводки в CSV одной кнопкой
+                          </Descriptions.Item>
+                          <Descriptions.Item label="Сводка по местам">
+                            Плановые ч. / отчётные ч. / % выполнения / смены
+                          </Descriptions.Item>
+                        </Descriptions>
+                      ),
+                    },
+                  ]}
+                />
+              </Col>
+              <Col xs={24} md={10}>
+                <Alert
+                  type="success"
+                  showIcon
+                  icon={<BarChartOutlined />}
+                  message="График динамики"
+                  description="Линейный график плановых vs отчётных часов по дням периода (recharts)"
+                  style={{ marginBottom: 12 }}
+                />
+                <Alert
+                  type="info"
+                  showIcon
+                  message="Рабочие отчёты"
+                  description="Каждый сотрудник заполняет фактические часы — видно расхождение план/факт"
+                />
+              </Col>
+            </Row>
+          </Card>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════
+            7. AUTOMATION
+        ═══════════════════════════════════════════════════ */}
+        <div id="automation" style={SECTION}>
+          <Card
+            title={
+              <Title level={4} style={{ margin: 0 }}>
+                {t('presentation.autoTitle')}
+              </Title>
+            }
+          >
+            <Alert
+              type="info"
+              message={t('presentation.autoSubtitle')}
+              style={{ marginBottom: 20 }}
+            />
+            <Row gutter={[24, 16]}>
+              <Col xs={24} md={12}>
+                <Card size="small" title="Поток уведомления" style={{ borderTop: `3px solid ${GT_RED}` }}>
+                  <Timeline
+                    items={[
+                      {
+                        color: GT_RED,
+                        dot: <ThunderboltOutlined />,
+                        children: (
+                          <div>
+                            <Text strong>Триггер события</Text>
+                            <br />
+                            <Text type="secondary">
+                              Назначение создано / обновлено / отменено
+                            </Text>
+                          </div>
+                        ),
+                      },
+                      {
+                        color: 'blue',
+                        children: (
+                          <div>
+                            <Text strong>Проверка настроек</Text>
+                            <br />
+                            <Text type="secondary">
+                              Включён ли данный тип уведомления для орг.
+                            </Text>
+                          </div>
+                        ),
+                      },
+                      {
+                        color: 'blue',
+                        dot: <BellOutlined />,
+                        children: (
+                          <div>
+                            <Text strong>Отправка уведомления</Text>
+                            <br />
+                            <Text type="secondary">
+                              Системное + Telegram (если настроен)
+                            </Text>
+                          </div>
+                        ),
+                      },
+                      {
+                        color: 'green',
+                        children: (
+                          <div>
+                            <Text strong>Запись в лог</Text>
+                            <br />
+                            <Text type="secondary">
+                              NotificationLog: канал, тип, получатель
+                            </Text>
+                          </div>
+                        ),
+                      },
+                      {
+                        color: 'gray',
+                        dot: <ClockCircleOutlined />,
+                        children: (
+                          <div>
+                            <Text strong>SLA Cron (каждый час)</Text>
+                            <br />
+                            <Text type="secondary">
+                              Напоминание за N часов до начала смены
+                            </Text>
+                          </div>
+                        ),
+                      },
+                    ]}
+                  />
+                </Card>
+              </Col>
+              <Col xs={24} md={12}>
+                <Collapse
+                  items={[
+                    {
+                      key: 'triggers',
+                      label: t('presentation.autoCard1Title'),
+                      children: (
+                        <Descriptions bordered size="small" column={1}>
+                          <Descriptions.Item label="При создании">
+                            Уведомление сотруднику о новом назначении
+                          </Descriptions.Item>
+                          <Descriptions.Item label="При обновлении">
+                            Уведомление об изменении расписания
+                          </Descriptions.Item>
+                          <Descriptions.Item label="При отмене">
+                            Уведомление об отмене назначения
+                          </Descriptions.Item>
+                        </Descriptions>
+                      ),
+                    },
+                    {
+                      key: 'sla',
+                      label: t('presentation.autoCard2Title'),
+                      children: (
+                        <Descriptions bordered size="small" column={1}>
+                          <Descriptions.Item label="Cron расписание">
+                            Каждый час: <Tag>0 * * * *</Tag>
+                          </Descriptions.Item>
+                          <Descriptions.Item label="Настройка">
+                            Порог в часах до начала (например, 24 ч.)
+                          </Descriptions.Item>
+                          <Descriptions.Item label="Трекинг">
+                            Поле <Tag>reminderSentAt</Tag> — не повторяет
+                          </Descriptions.Item>
+                        </Descriptions>
+                      ),
+                    },
+                    {
+                      key: 'log',
+                      label: 'Лог уведомлений',
+                      children: (
+                        <Descriptions bordered size="small" column={1}>
+                          <Descriptions.Item label="Таблица">
+                            NotificationLog: дата, тип, канал, получатель
+                          </Descriptions.Item>
+                          <Descriptions.Item label="Каналы">
+                            <Tag>SYSTEM</Tag> <Tag>TELEGRAM</Tag>
+                          </Descriptions.Item>
+                          <Descriptions.Item label="Доступ">
+                            SUPER_ADMIN и MANAGER в разделе Automation
+                          </Descriptions.Item>
+                        </Descriptions>
+                      ),
+                    },
+                  ]}
+                />
+              </Col>
+            </Row>
+          </Card>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════
+            8. NOTIFICATIONS
+        ═══════════════════════════════════════════════════ */}
+        <div id="notifications" style={SECTION}>
+          <Card
+            title={
+              <Title level={4} style={{ margin: 0 }}>
+                {t('presentation.notifTitle')}
+              </Title>
+            }
+          >
+            <Alert
+              type="info"
+              message={t('presentation.notifSubtitle')}
+              style={{ marginBottom: 16 }}
+            />
+            <Collapse
+              items={[
+                {
+                  key: 'system',
+                  label: (
+                    <Space>
+                      <BellOutlined style={{ color: GT_RED }} />
+                      <span>{t('presentation.notifCard1Title')}</span>
+                    </Space>
+                  ),
+                  children: (
+                    <Descriptions bordered size="small" column={1}>
+                      <Descriptions.Item label="Отображение">
+                        Badge с счётчиком непрочитанных в шапке
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Дропдаун">
+                        Список последних уведомлений, клик = прочитано
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Типы">
+                        <Tag>ASSIGNMENT</Tag> <Tag>REMINDER</Tag> <Tag>SYSTEM</Tag>{' '}
+                        <Tag>VACATION</Tag>
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Обновление">
+                        Автополинг каждые 30 секунд
+                      </Descriptions.Item>
+                    </Descriptions>
+                  ),
+                },
+                {
+                  key: 'telegram',
+                  label: (
+                    <Space>
+                      <GlobalOutlined style={{ color: '#0088cc' }} />
+                      <span>{t('presentation.notifCard2Title')}</span>
+                    </Space>
+                  ),
+                  children: (
+                    <Descriptions bordered size="small" column={1}>
+                      <Descriptions.Item label="Настройка">
+                        Bot Token + Chat ID в Developer Console
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Формат">
+                        HTML-разметка: жирный, курсив, ссылки
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Тест">
+                        Кнопка «Отправить тест» прямо из настроек
+                      </Descriptions.Item>
+                    </Descriptions>
+                  ),
+                },
+                {
+                  key: 'email',
+                  label: (
+                    <Space>
+                      <GlobalOutlined style={{ color: GT_RED }} />
+                      <span>{t('presentation.notifCard3Title')}</span>
+                    </Space>
+                  ),
+                  children: (
+                    <Descriptions bordered size="small" column={1}>
+                      <Descriptions.Item label="Welcome Email">
+                        Отправляется после оплаты и создания аккаунта
+                      </Descriptions.Item>
+                      <Descriptions.Item label="SMTP">
+                        Настраивается через переменные окружения
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Содержание">
+                        Логин, ссылка на систему, название плана
+                      </Descriptions.Item>
+                    </Descriptions>
+                  ),
+                },
+              ]}
+            />
+          </Card>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════
+            9. DOCUMENTS
+        ═══════════════════════════════════════════════════ */}
+        <div id="documents" style={SECTION}>
+          <Card
+            title={
+              <Title level={4} style={{ margin: 0 }}>
+                {t('presentation.docsTitle')}
+              </Title>
+            }
+          >
+            <Alert
+              type="info"
+              message={t('presentation.docsSubtitle')}
+              style={{ marginBottom: 16 }}
+            />
+            <Collapse
+              items={[
+                {
+                  key: 'upload',
+                  label: 'Загрузка файлов',
+                  children: (
+                    <Descriptions bordered size="small" column={1}>
+                      <Descriptions.Item label="Интерфейс">
+                        Drag & Drop зона или клик для выбора файла
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Ограничение">
+                        Максимум 20 МБ на файл
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Привязка">
+                        К конкретному назначению (AssignmentFile)
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Иконки">
+                        Автоматически по MIME-типу (PDF / изображение / Excel / Word)
+                      </Descriptions.Item>
+                    </Descriptions>
+                  ),
+                },
+                {
+                  key: 'formats',
+                  label: 'Поддерживаемые форматы',
+                  children: (
+                    <Space wrap>
+                      {[
+                        'PDF',
+                        'XLSX / XLS',
+                        'DOCX / DOC',
+                        'JPG / PNG',
+                        'GIF',
+                        'TXT',
+                        'ZIP',
+                        'CSV',
+                        'любой файл',
+                      ].map((f) => (
+                        <Tag key={f} icon={<FileTextOutlined />}>
+                          {f}
+                        </Tag>
+                      ))}
+                    </Space>
+                  ),
+                },
+                {
+                  key: 'manage',
+                  label: 'Управление файлами',
+                  children: (
+                    <Row gutter={[16, 8]}>
+                      {[
+                        t('presentation.docsF1'),
+                        t('presentation.docsF2'),
+                        t('presentation.docsF3'),
+                        t('presentation.docsF4'),
+                      ].map((f) => (
+                        <Col xs={24} sm={12} key={f}>
+                          <Space>
+                            <CheckCircleOutlined style={{ color: GT_RED }} />
+                            <Text>{f}</Text>
+                          </Space>
+                        </Col>
+                      ))}
+                    </Row>
+                  ),
+                },
+              ]}
+            />
+            <Alert
+              type="success"
+              showIcon
+              message="Скачивание файлов — авторизованный стриминг через GET /files/:id"
+              style={{ marginTop: 12 }}
+            />
+          </Card>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════
+            10. INTEGRATIONS
+        ═══════════════════════════════════════════════════ */}
+        <div id="integrations" style={SECTION}>
+          <Card
+            title={
+              <Title level={4} style={{ margin: 0 }}>
+                {t('presentation.intTitle')}
+              </Title>
+            }
+          >
+            <Alert
+              type="info"
+              message={t('presentation.intSubtitle')}
+              style={{ marginBottom: 16 }}
+            />
+            <Collapse
+              items={[
+                {
+                  key: 'api',
+                  label: (
+                    <Space>
+                      <ApiOutlined style={{ color: GT_RED }} />
+                      <span>{t('presentation.intCard1Title')}</span>
+                    </Space>
+                  ),
+                  children: (
+                    <Descriptions bordered size="small" column={1}>
+                      <Descriptions.Item label="Аутентификация">
+                        API-ключи (SHA-256 hash), Bearer token
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Эндпоинты">
+                        <Tag>GET /public/assignments</Tag>{' '}
+                        <Tag>GET /public/users</Tag>
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Управление">
+                        Создание / просмотр / удаление ключей в Developer Console
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Изоляция">
+                        Данные строго в рамках своей организации
+                      </Descriptions.Item>
+                    </Descriptions>
+                  ),
+                },
+                {
+                  key: 'gcal',
+                  label: (
+                    <Space>
+                      <CalendarOutlined style={{ color: '#4285f4' }} />
+                      <span>{t('presentation.intCard2Title')}</span>
+                    </Space>
+                  ),
+                  children: (
+                    <Descriptions bordered size="small" column={1}>
+                      <Descriptions.Item label="OAuth2 flow">
+                        Авторизация через Google, токены в БД
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Синхронизация">
+                        Каждое назначение → событие в Google Calendar
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Интерфейс">
+                        Статус Connect/Disconnect + кнопка Sync в My Place
+                      </Descriptions.Item>
+                    </Descriptions>
+                  ),
+                },
+                {
+                  key: 'sms',
+                  label: (
+                    <Space>
+                      <GlobalOutlined />
+                      <span>{t('presentation.intCard3Title')}</span>
+                    </Space>
+                  ),
+                  children: (
+                    <Descriptions bordered size="small" column={1}>
+                      <Descriptions.Item label="Провайдер">
+                        Настраивается через API URL + Key в Dev Console
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Sender ID">
+                        GRANTHORN (до 11 символов)
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Тест">
+                        Отправка тестового SMS прямо из настроек
+                      </Descriptions.Item>
+                    </Descriptions>
+                  ),
+                },
+                {
+                  key: 'stripe',
+                  label: (
+                    <Space>
+                      <GlobalOutlined style={{ color: '#635bff' }} />
+                      <span>{t('presentation.intCard4Title')}</span>
+                    </Space>
+                  ),
+                  children: (
+                    <Descriptions bordered size="small" column={1}>
+                      <Descriptions.Item label="Checkout">
+                        Stripe Checkout Session при регистрации
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Webhooks">
+                        checkout.session.completed, subscription.updated
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Portal">
+                        Stripe Customer Portal для управления подпиской
+                      </Descriptions.Item>
+                    </Descriptions>
+                  ),
+                },
+              ]}
+            />
+          </Card>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════
+            11. MY PROFILE
+        ═══════════════════════════════════════════════════ */}
+        <div id="profile" style={SECTION}>
+          <Card
+            title={
+              <Title level={4} style={{ margin: 0 }}>
+                {t('presentation.profileTitle')}
+              </Title>
+            }
+          >
+            <Alert
+              type="info"
+              message={t('presentation.profileSubtitle')}
+              style={{ marginBottom: 16 }}
+            />
+            <Row gutter={[24, 16]}>
+              <Col xs={24} md={14}>
+                <Descriptions bordered size="small" column={1}>
+                  <Descriptions.Item label={t('presentation.profileFieldName')}>
+                    Иванов Иван Иванович
+                  </Descriptions.Item>
+                  <Descriptions.Item label={t('presentation.profileFieldEmail')}>
+                    ivan@company.com
+                  </Descriptions.Item>
+                  <Descriptions.Item label={t('presentation.profileFieldRole')}>
+                    <Tag>{t('presentation.profileRoleWorker')}</Tag>
+                  </Descriptions.Item>
+                  <Descriptions.Item label={t('presentation.profileFieldShifts')}>
+                    12 / 24
+                  </Descriptions.Item>
+                  <Descriptions.Item label={t('presentation.profileFieldHours')}>
+                    96 ч.
+                  </Descriptions.Item>
+                </Descriptions>
+              </Col>
+              <Col xs={24} md={10}>
+                <Collapse
+                  size="small"
+                  items={[
+                    {
+                      key: '1',
+                      label: 'Моя статистика',
+                      children: (
+                        <Text type="secondary">
+                          Блок «Моя статистика»: плановые и отчётные часы,
+                          назначения за период
+                        </Text>
+                      ),
+                    },
+                    {
+                      key: '2',
+                      label: 'Моё расписание',
+                      children: (
+                        <Text type="secondary">
+                          Список активных назначений с датами и рабочим местом
+                        </Text>
+                      ),
+                    },
+                    {
+                      key: '3',
+                      label: 'Запрос на смену места',
+                      children: (
+                        <Text type="secondary">
+                          Сотрудник может запросить изменение рабочего места
+                        </Text>
+                      ),
+                    },
+                    {
+                      key: '4',
+                      label: 'Google Calendar',
+                      children: (
+                        <Text type="secondary">
+                          Connect / Sync / Disconnect прямо в профиле
+                        </Text>
+                      ),
+                    },
+                  ]}
+                />
+              </Col>
+            </Row>
+          </Card>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════
+            12. MULTILINGUAL
+        ═══════════════════════════════════════════════════ */}
+        <div id="multilingual" style={SECTION}>
+          <Card
+            title={
+              <Title level={4} style={{ margin: 0 }}>
+                {t('presentation.mlTitle')}
+              </Title>
+            }
+          >
+            <Alert
+              type="info"
+              message={t('presentation.mlSubtitle')}
+              style={{ marginBottom: 16 }}
+            />
+            <Descriptions bordered size="small" column={{ xs: 1, sm: 3 }}>
+              <Descriptions.Item label={<Tag color="blue">RU</Tag>}>
+                <Text>Русский — основной язык интерфейса</Text>
+              </Descriptions.Item>
+              <Descriptions.Item label={<Tag color="green">EN</Tag>}>
+                <Text>English — full UI translation</Text>
+              </Descriptions.Item>
+              <Descriptions.Item label={<Tag color="red">TR</Tag>}>
+                <Text>Türkçe — tam arayüz çevirisi</Text>
+              </Descriptions.Item>
+            </Descriptions>
+            <Alert
+              type="success"
+              message={t('presentation.mlNote')}
+              showIcon
+              style={{ marginTop: 12 }}
+            />
+          </Card>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════
+            13. AUDIT LOG
+        ═══════════════════════════════════════════════════ */}
+        <div id="audit" style={SECTION}>
+          <Card
+            title={
+              <Title level={4} style={{ margin: 0 }}>
+                {t('presentation.auditTitle')}
+              </Title>
+            }
+          >
+            <Alert
+              type="info"
+              message={t('presentation.auditSubtitle')}
+              style={{ marginBottom: 16 }}
+            />
+            <Table
+              columns={auditCols}
+              dataSource={auditRows}
+              pagination={false}
+              size="small"
+              scroll={{ x: 700 }}
+              style={{ marginBottom: 16 }}
+            />
+            <Collapse
+              size="small"
+              items={[
+                {
+                  key: 'entities',
+                  label: 'Что логируется',
+                  children: (
+                    <Descriptions bordered size="small" column={2}>
+                      <Descriptions.Item label="Назначения">
+                        <Tag color="success">CREATE</Tag>{' '}
+                        <Tag color="processing">UPDATE</Tag>{' '}
+                        <Tag color="error">DELETE</Tag>
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Пользователи">
+                        <Tag color="success">CREATE</Tag>{' '}
+                        <Tag color="processing">UPDATE</Tag>
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Рабочие места">
+                        <Tag color="success">CREATE</Tag>{' '}
+                        <Tag color="processing">UPDATE</Tag>{' '}
+                        <Tag color="error">DELETE</Tag>
+                      </Descriptions.Item>
+                      <Descriptions.Item label="HR заявки">
+                        <Tag color="cyan">APPROVE</Tag>{' '}
+                        <Tag color="orange">REJECT</Tag>
+                      </Descriptions.Item>
+                    </Descriptions>
+                  ),
+                },
+                {
+                  key: 'details',
+                  label: 'Читаемые детали',
+                  children: (
+                    <Row gutter={[16, 8]}>
+                      {[
+                        t('presentation.auditF1'),
+                        t('presentation.auditF2'),
+                        t('presentation.auditF3'),
+                        t('presentation.auditF4'),
+                      ].map((f) => (
+                        <Col xs={24} sm={12} key={f}>
+                          <Space>
+                            <AuditOutlined style={{ color: GT_RED }} />
+                            <Text>{f}</Text>
+                          </Space>
+                        </Col>
+                      ))}
+                    </Row>
+                  ),
+                },
+              ]}
+            />
+          </Card>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════
+            14. ORG SETTINGS
+        ═══════════════════════════════════════════════════ */}
+        <div id="orgsettings" style={SECTION}>
+          <Card
+            title={
+              <Title level={4} style={{ margin: 0 }}>
+                {t('presentation.orgTitle')}
+              </Title>
+            }
+          >
+            <Alert
+              type="info"
+              message={t('presentation.orgSubtitle')}
+              style={{ marginBottom: 16 }}
+            />
+            <Collapse
+              items={[
+                {
+                  key: 'branding',
+                  label: t('presentation.orgCard1Title'),
+                  children: (
+                    <Descriptions bordered size="small" column={1}>
+                      <Descriptions.Item label="Название">
+                        companyDisplayName — отображается вместо имени орг.
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Логотип">
+                        URL изображения — показывается в сайдбаре
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Цвет">
+                        primaryColor — меняет акцентный цвет Ant Design глобально
+                      </Descriptions.Item>
+                    </Descriptions>
+                  ),
+                },
+                {
+                  key: 'teams',
+                  label: t('presentation.orgCard2Title'),
+                  children: (
+                    <Descriptions bordered size="small" column={1}>
+                      <Descriptions.Item label="Роли">
+                        <Tag>SUPER_ADMIN</Tag> <Tag>MANAGER</Tag> <Tag>USER</Tag>
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Изоляция">
+                        Полная мультитенантность: orgId на всех запросах
+                      </Descriptions.Item>
+                    </Descriptions>
+                  ),
+                },
+                {
+                  key: 'whitelabel',
+                  label: t('presentation.orgCard3Title'),
+                  children: (
+                    <Alert
+                      type="success"
+                      showIcon
+                      message="White Label"
+                      description="Enterprise-план позволяет полностью скрыть брендинг GT CRM и использовать собственный"
+                    />
+                  ),
+                },
+              ]}
+            />
+          </Card>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════
+            15. SaaS / PRICING
+        ═══════════════════════════════════════════════════ */}
+        <div id="saas" style={SECTION}>
+          <Card
+            title={
+              <Title level={4} style={{ margin: 0 }}>
+                {t('presentation.saasTitle')}
+              </Title>
+            }
+          >
+            <Alert
+              type="info"
+              message={t('presentation.saasSubtitle')}
+              style={{ marginBottom: 16 }}
+            />
+            <Table
+              columns={pricingColumns}
+              dataSource={pricingData}
+              pagination={false}
+              size="small"
+              scroll={{ x: 600 }}
+              rowClassName={(_, index) =>
+                index % 2 === 0 ? '' : 'ant-table-row-light'
+              }
+            />
+            <Alert
+              type="success"
+              showIcon
+              icon={<RocketOutlined />}
+              message="14 дней бесплатного пробного периода на любом плане"
+              style={{ marginTop: 12 }}
+            />
+          </Card>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════
+            16. SECURITY
+        ═══════════════════════════════════════════════════ */}
+        <div id="security" style={SECTION}>
+          <Card
+            title={
+              <Title level={4} style={{ margin: 0 }}>
+                {t('presentation.secTitle')}
+              </Title>
+            }
+          >
+            <Alert
+              type="info"
+              message={t('presentation.secSubtitle')}
+              style={{ marginBottom: 16 }}
+            />
+            <Collapse
+              items={[
+                {
+                  key: 'jwt',
+                  label: (
+                    <Space>
+                      <LockOutlined style={{ color: GT_RED }} />
+                      <span>{t('presentation.secCard1Title')}</span>
+                    </Space>
+                  ),
+                  children: (
+                    <Descriptions bordered size="small" column={1}>
+                      <Descriptions.Item label="Алгоритм">
+                        HS256 / RS256, срок действия настраивается
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Хранение">
+                        localStorage (gt_crm_token), очистка при unauthorized
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Refresh">
+                        Автоматический редирект на / при истечении токена
+                      </Descriptions.Item>
+                    </Descriptions>
+                  ),
+                },
+                {
+                  key: 'rbac',
+                  label: (
+                    <Space>
+                      <SafetyOutlined style={{ color: GT_RED }} />
+                      <span>{t('presentation.secCard2Title')}</span>
+                    </Space>
+                  ),
+                  children: (
+                    <Descriptions bordered size="small" column={1}>
+                      <Descriptions.Item label="SUPER_ADMIN">
+                        Полный доступ: все разделы, настройки, биллинг, аудит
+                      </Descriptions.Item>
+                      <Descriptions.Item label="MANAGER">
+                        Назначения, HR, автоматизация, статистика своей орг.
+                      </Descriptions.Item>
+                      <Descriptions.Item label="USER">
+                        Только My Place: своё расписание, отчёты, отпуска
+                      </Descriptions.Item>
+                    </Descriptions>
+                  ),
+                },
+                {
+                  key: 'tls',
+                  label: (
+                    <Space>
+                      <LockOutlined style={{ color: '#52c41a' }} />
+                      <span>{t('presentation.secCard3Title')}</span>
+                    </Space>
+                  ),
+                  children: (
+                    <Text type="secondary">{t('presentation.secCard3Desc')}</Text>
+                  ),
+                },
+                {
+                  key: 'gdpr',
+                  label: (
+                    <Space>
+                      <GlobalOutlined style={{ color: GT_RED }} />
+                      <span>{t('presentation.secCard4Title')}</span>
+                    </Space>
+                  ),
+                  children: (
+                    <Text type="secondary">{t('presentation.secCard4Desc')}</Text>
+                  ),
+                },
+              ]}
+            />
+          </Card>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════
+            17. TECHNOLOGIES
+        ═══════════════════════════════════════════════════ */}
+        <div id="tech" style={SECTION}>
+          <Card
+            title={
+              <Title level={4} style={{ margin: 0 }}>
+                {t('presentation.techTitle')}
+              </Title>
+            }
+          >
+            <Alert
+              type="info"
+              message={t('presentation.techSubtitle')}
+              style={{ marginBottom: 16 }}
+            />
+            <Descriptions bordered size="small" column={{ xs: 1, sm: 2, md: 3 }}>
+              <Descriptions.Item label={<Tag color="blue">React 18</Tag>}>
+                {t('presentation.techReact')}
+              </Descriptions.Item>
+              <Descriptions.Item label={<Tag color="red">NestJS</Tag>}>
+                {t('presentation.techNest')}
+              </Descriptions.Item>
+              <Descriptions.Item label={<Tag color="green">PostgreSQL</Tag>}>
+                {t('presentation.techPg')}
+              </Descriptions.Item>
+              <Descriptions.Item label={<Tag color="purple">Prisma ORM</Tag>}>
+                {t('presentation.techPrisma')}
+              </Descriptions.Item>
+              <Descriptions.Item label={<Tag color="cyan">Ant Design 5</Tag>}>
+                {t('presentation.techAntd')}
+              </Descriptions.Item>
+              <Descriptions.Item label={<Tag color="geekblue">TypeScript</Tag>}>
+                {t('presentation.techTs')}
+              </Descriptions.Item>
+            </Descriptions>
+            <Space wrap style={{ marginTop: 16 }}>
+              {[
+                'React Query',
+                'i18next',
+                'axios',
+                'recharts',
+                'multer',
+                'stripe',
+                'googleapis',
+                '@nestjs/schedule',
+                'Docker',
+                'Nginx',
+                'pnpm',
+                'Vite',
+              ].map((t) => (
+                <Tag key={t}>{t}</Tag>
+              ))}
+            </Space>
+          </Card>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════
+            18. ROADMAP
+        ═══════════════════════════════════════════════════ */}
+        <div id="roadmap" style={SECTION}>
+          <Card
+            title={
+              <Title level={4} style={{ margin: 0 }}>
+                {t('presentation.roadTitle')}
+              </Title>
+            }
+          >
+            <Alert
+              type="info"
+              message={t('presentation.roadSubtitle')}
+              style={{ marginBottom: 24 }}
+            />
+            <Timeline
+              items={[
+                {
+                  color: 'green',
+                  dot: <CheckCircleOutlined style={{ fontSize: 16 }} />,
+                  children: (
+                    <div>
+                      <Space style={{ marginBottom: 8 }}>
+                        <Text strong style={{ fontSize: 16 }}>
+                          Q2 2026
+                        </Text>
+                        <Tag color="success">{t('presentation.roadDone')}</Tag>
+                      </Space>
+                      <ul
                         style={{
-                          background: i % 2 === 0 ? '#fff' : GT_LIGHT,
+                          margin: 0,
+                          paddingLeft: 20,
+                          listStyleType: 'disc',
                         }}
                       >
-                        <td
-                          style={{
-                            padding: '8px 12px',
-                            fontWeight: 500,
-                            color: GT_BLACK,
-                          }}
-                        >
-                          {emp.name}
-                        </td>
-                        {emp.shifts.map((s, j) => (
-                          <td
-                            key={j}
-                            style={{
-                              padding: '8px 10px',
-                              textAlign: 'center',
-                            }}
-                          >
-                            {s ? (
-                              <span
-                                style={{
-                                  background: GT_RED,
-                                  color: '#fff',
-                                  borderRadius: 4,
-                                  padding: '2px 6px',
-                                  fontSize: 12,
-                                  fontWeight: 600,
-                                }}
-                              >
-                                {s}
-                              </span>
-                            ) : (
-                              <span style={{ color: '#ccc' }}>—</span>
-                            )}
-                          </td>
+                        {[
+                          t('presentation.road1I1'),
+                          t('presentation.road1I2'),
+                          t('presentation.road1I3'),
+                        ].map((item) => (
+                          <li key={item}>
+                            <Text>{item}</Text>
+                          </li>
                         ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-          </Col>
-          <Col xs={24} md={10}>
-            <FeatureList
-              items={[
-                t('presentation.planF1'),
-                t('presentation.planF2'),
-                t('presentation.planF3'),
-                t('presentation.planF4'),
-                t('presentation.planF5'),
-              ]}
-            />
-          </Col>
-        </Row>
-      </SectionWrap>
-
-      {/* ── 5. HR ── */}
-      <SectionWrap id="hr">
-        <SectionHeader
-          title={t('presentation.hrTitle')}
-          subtitle={t('presentation.hrSubtitle')}
-        />
-        <Row gutter={[24, 24]}>
-          {[
-            {
-              icon: <CalendarOutlined />,
-              title: t('presentation.hrCard1Title'),
-              desc: t('presentation.hrCard1Desc'),
-            },
-            {
-              icon: <CheckCircleOutlined />,
-              title: t('presentation.hrCard2Title'),
-              desc: t('presentation.hrCard2Desc'),
-            },
-            {
-              icon: <BarChartOutlined />,
-              title: t('presentation.hrCard3Title'),
-              desc: t('presentation.hrCard3Desc'),
-            },
-          ].map((c) => (
-            <Col xs={24} sm={8} key={c.title}>
-              <IconCard icon={c.icon} title={c.title} desc={c.desc} />
-            </Col>
-          ))}
-        </Row>
-        <div style={{ marginTop: 32 }}>
-          <FeatureList
-            items={[
-              t('presentation.hrF1'),
-              t('presentation.hrF2'),
-              t('presentation.hrF3'),
-              t('presentation.hrF4'),
-            ]}
-          />
-        </div>
-      </SectionWrap>
-
-      {/* ── 6. ANALYTICS ── */}
-      <SectionWrap id="analytics" light>
-        <SectionHeader
-          title={t('presentation.analyticsTitle')}
-          subtitle={t('presentation.analyticsSubtitle')}
-          accent
-        />
-        <Row gutter={[24, 24]}>
-          <Col xs={24} md={12}>
-            <FeatureList
-              items={[
-                t('presentation.anlF1'),
-                t('presentation.anlF2'),
-                t('presentation.anlF3'),
-                t('presentation.anlF4'),
-                t('presentation.anlF5'),
-              ]}
-            />
-          </Col>
-          <Col xs={24} md={12}>
-            {/* Fake KPI cards */}
-            <Row gutter={[12, 12]}>
-              {[
-                { label: t('presentation.kpi1'), value: '94%', color: '#52c41a' },
-                { label: t('presentation.kpi2'), value: '1,248', color: GT_RED },
-                { label: t('presentation.kpi3'), value: '3,820', color: '#1677ff' },
-                { label: t('presentation.kpi4'), value: '7', color: '#faad14' },
-              ].map((kpi) => (
-                <Col xs={12} key={kpi.label}>
-                  <Card
-                    bordered={false}
-                    style={{
-                      textAlign: 'center',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: 28,
-                        fontWeight: 800,
-                        color: kpi.color,
-                        lineHeight: 1.2,
-                      }}
-                    >
-                      {kpi.value}
+                      </ul>
                     </div>
-                    <Text type="secondary" style={{ fontSize: 13 }}>
-                      {kpi.label}
-                    </Text>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-          </Col>
-        </Row>
-      </SectionWrap>
-
-      {/* ── 7. AUTOMATION ── */}
-      <SectionWrap id="automation">
-        <SectionHeader
-          title={t('presentation.autoTitle')}
-          subtitle={t('presentation.autoSubtitle')}
-        />
-        <Row gutter={[24, 24]}>
-          {[
-            {
-              icon: <ThunderboltOutlined />,
-              title: t('presentation.autoCard1Title'),
-              desc: t('presentation.autoCard1Desc'),
-            },
-            {
-              icon: <ClockCircleOutlined />,
-              title: t('presentation.autoCard2Title'),
-              desc: t('presentation.autoCard2Desc'),
-            },
-            {
-              icon: <BellOutlined />,
-              title: t('presentation.autoCard3Title'),
-              desc: t('presentation.autoCard3Desc'),
-            },
-          ].map((c) => (
-            <Col xs={24} sm={8} key={c.title}>
-              <IconCard icon={c.icon} title={c.title} desc={c.desc} />
-            </Col>
-          ))}
-        </Row>
-      </SectionWrap>
-
-      {/* ── 8. NOTIFICATIONS ── */}
-      <SectionWrap id="notifications" light>
-        <SectionHeader
-          title={t('presentation.notifTitle')}
-          subtitle={t('presentation.notifSubtitle')}
-          accent
-        />
-        <Row gutter={[24, 24]} justify="center">
-          {[
-            {
-              icon: <BellOutlined />,
-              title: t('presentation.notifCard1Title'),
-              desc: t('presentation.notifCard1Desc'),
-            },
-            {
-              icon: <MobileOutlined />,
-              title: t('presentation.notifCard2Title'),
-              desc: t('presentation.notifCard2Desc'),
-            },
-            {
-              icon: <GlobalOutlined />,
-              title: t('presentation.notifCard3Title'),
-              desc: t('presentation.notifCard3Desc'),
-            },
-          ].map((c) => (
-            <Col xs={24} sm={8} key={c.title}>
-              <IconCard icon={c.icon} title={c.title} desc={c.desc} />
-            </Col>
-          ))}
-        </Row>
-      </SectionWrap>
-
-      {/* ── 9. DOCUMENTS ── */}
-      <SectionWrap id="documents">
-        <Row gutter={[48, 32]} align="middle">
-          <Col xs={24} md={12}>
-            <SectionHeader
-              title={t('presentation.docsTitle')}
-              subtitle={t('presentation.docsSubtitle')}
-            />
-            <FeatureList
-              items={[
-                t('presentation.docsF1'),
-                t('presentation.docsF2'),
-                t('presentation.docsF3'),
-                t('presentation.docsF4'),
+                  ),
+                },
+                {
+                  color: GT_RED,
+                  children: (
+                    <div>
+                      <Text strong style={{ fontSize: 16 }}>
+                        Q3 2026
+                      </Text>
+                      <ul
+                        style={{
+                          margin: '8px 0 0',
+                          paddingLeft: 20,
+                          listStyleType: 'disc',
+                        }}
+                      >
+                        {[
+                          t('presentation.road2I1'),
+                          t('presentation.road2I2'),
+                          t('presentation.road2I3'),
+                        ].map((item) => (
+                          <li key={item}>
+                            <Text>{item}</Text>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ),
+                },
+                {
+                  color: 'gray',
+                  children: (
+                    <div>
+                      <Text strong style={{ fontSize: 16 }}>
+                        Q4 2026
+                      </Text>
+                      <ul
+                        style={{
+                          margin: '8px 0 0',
+                          paddingLeft: 20,
+                          listStyleType: 'disc',
+                        }}
+                      >
+                        {[
+                          t('presentation.road3I1'),
+                          t('presentation.road3I2'),
+                          t('presentation.road3I3'),
+                        ].map((item) => (
+                          <li key={item}>
+                            <Text type="secondary">{item}</Text>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ),
+                },
               ]}
             />
-          </Col>
-          <Col xs={24} md={12}>
-            <Card
-              bordered={false}
-              style={{ background: GT_LIGHT, borderRadius: 16 }}
-            >
-              {[
-                { name: 'contract_june.pdf', size: '2.4 MB', type: 'PDF' },
-                { name: 'schedule_q2.xlsx', size: '840 KB', type: 'Excel' },
-                { name: 'photo_id.jpg', size: '1.1 MB', type: 'Image' },
-                { name: 'report_may.docx', size: '320 KB', type: 'Word' },
-              ].map((f) => (
-                <div
-                  key={f.name}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '10px 16px',
-                    background: '#fff',
-                    borderRadius: 8,
-                    marginBottom: 8,
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
-                  }}
-                >
-                  <Space>
-                    <FileOutlined style={{ color: GT_RED }} />
-                    <Text style={{ fontSize: 14 }}>{f.name}</Text>
-                  </Space>
-                  <Space size={8}>
-                    <Text type="secondary" style={{ fontSize: 12 }}>{f.size}</Text>
-                    <Tag>{f.type}</Tag>
-                  </Space>
-                </div>
-              ))}
-            </Card>
-          </Col>
-        </Row>
-      </SectionWrap>
-
-      {/* ── 10. INTEGRATIONS ── */}
-      <SectionWrap id="integrations" light>
-        <SectionHeader
-          title={t('presentation.intTitle')}
-          subtitle={t('presentation.intSubtitle')}
-          accent
-        />
-        <Row gutter={[24, 24]} justify="center">
-          {[
-            {
-              icon: <ApiOutlined />,
-              title: t('presentation.intCard1Title'),
-              desc: t('presentation.intCard1Desc'),
-            },
-            {
-              icon: <CalendarOutlined />,
-              title: t('presentation.intCard2Title'),
-              desc: t('presentation.intCard2Desc'),
-            },
-            {
-              icon: <MobileOutlined />,
-              title: t('presentation.intCard3Title'),
-              desc: t('presentation.intCard3Desc'),
-            },
-            {
-              icon: <DollarOutlined />,
-              title: t('presentation.intCard4Title'),
-              desc: t('presentation.intCard4Desc'),
-            },
-          ].map((c) => (
-            <Col xs={24} sm={12} md={6} key={c.title}>
-              <IconCard icon={c.icon} title={c.title} desc={c.desc} />
-            </Col>
-          ))}
-        </Row>
-      </SectionWrap>
-
-      {/* ── 11. MY PROFILE ── */}
-      <SectionWrap id="profile">
-        <SectionHeader
-          title={t('presentation.profileTitle')}
-          subtitle={t('presentation.profileSubtitle')}
-        />
-        <Row gutter={[24, 24]}>
-          <Col xs={24} md={12}>
-            <FeatureList
-              items={[
-                t('presentation.profileF1'),
-                t('presentation.profileF2'),
-                t('presentation.profileF3'),
-                t('presentation.profileF4'),
-                t('presentation.profileF5'),
-              ]}
-            />
-          </Col>
-          <Col xs={24} md={12}>
-            <Card
-              bordered={false}
-              style={{
-                background: GT_LIGHT,
-                borderRadius: 16,
-                padding: '8px 0',
-              }}
-            >
-              {[
-                { label: t('presentation.profileFieldName'), value: 'Иванов Иван' },
-                { label: t('presentation.profileFieldEmail'), value: 'ivan@company.com' },
-                { label: t('presentation.profileFieldRole'), value: t('presentation.profileRoleWorker') },
-                { label: t('presentation.profileFieldShifts'), value: '12 / 24' },
-                { label: t('presentation.profileFieldHours'), value: '96 ч.' },
-              ].map((row) => (
-                <div
-                  key={row.label}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    padding: '10px 20px',
-                    borderBottom: '1px solid #f0f0f0',
-                  }}
-                >
-                  <Text type="secondary" style={{ fontSize: 14 }}>
-                    {row.label}
-                  </Text>
-                  <Text strong style={{ fontSize: 14 }}>
-                    {row.value}
-                  </Text>
-                </div>
-              ))}
-            </Card>
-          </Col>
-        </Row>
-      </SectionWrap>
-
-      {/* ── 12. MULTILINGUAL ── */}
-      <SectionWrap id="multilingual" light>
-        <SectionHeader
-          title={t('presentation.mlTitle')}
-          subtitle={t('presentation.mlSubtitle')}
-          accent
-        />
-        <Row gutter={[24, 24]} justify="center">
-          {[
-            {
-              lang: '🇷🇺 Русский',
-              example: 'Добро пожаловать в GT CRM',
-              tag: 'RU',
-            },
-            {
-              lang: '🇬🇧 English',
-              example: 'Welcome to GT CRM',
-              tag: 'EN',
-            },
-            {
-              lang: '🇹🇷 Türkçe',
-              example: "GT CRM'e Hoş Geldiniz",
-              tag: 'TR',
-            },
-          ].map((l) => (
-            <Col xs={24} sm={8} key={l.tag}>
-              <Card
-                bordered={false}
-                style={{
-                  textAlign: 'center',
-                  boxShadow: '0 2px 12px rgba(0,0,0,0.07)',
-                  borderTop: `3px solid ${GT_RED}`,
-                  height: '100%',
-                }}
-              >
-                <Tag
-                  style={{
-                    background: GT_RED,
-                    color: '#fff',
-                    border: 'none',
-                    fontWeight: 700,
-                    fontSize: 13,
-                    marginBottom: 12,
-                  }}
-                >
-                  {l.tag}
-                </Tag>
-                <Title level={5} style={{ marginBottom: 8 }}>
-                  {l.lang}
-                </Title>
-                <Text type="secondary" style={{ fontStyle: 'italic' }}>
-                  {l.example}
-                </Text>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-        <Paragraph
-          style={{
-            textAlign: 'center',
-            marginTop: 32,
-            color: '#666',
-            fontSize: 15,
-          }}
-        >
-          {t('presentation.mlNote')}
-        </Paragraph>
-      </SectionWrap>
-
-      {/* ── 13. AUDIT LOG ── */}
-      <SectionWrap id="audit">
-        <SectionHeader
-          title={t('presentation.auditTitle')}
-          subtitle={t('presentation.auditSubtitle')}
-        />
-        <Row gutter={[48, 32]} align="middle">
-          <Col xs={24} md={14}>
-            <Card bordered={false} style={{ borderRadius: 12, overflow: 'hidden' }}>
-              {[
-                {
-                  date: '15.05.2026 10:31',
-                  user: 'admin@grantthornton.local',
-                  action: 'CREATE',
-                  entity: t('presentation.auditEntityAssign'),
-                  color: 'green',
-                },
-                {
-                  date: '15.05.2026 10:28',
-                  user: 'admin@grantthornton.local',
-                  action: 'UPDATE',
-                  entity: t('presentation.auditEntityUser'),
-                  color: 'blue',
-                },
-                {
-                  date: '15.05.2026 10:15',
-                  user: 'manager@company.com',
-                  action: 'APPROVE',
-                  entity: t('presentation.auditEntityVacation'),
-                  color: 'cyan',
-                },
-                {
-                  date: '15.05.2026 09:55',
-                  user: 'admin@grantthornton.local',
-                  action: 'DELETE',
-                  entity: t('presentation.auditEntityWorkplace'),
-                  color: 'red',
-                },
-              ].map((row, i) => (
-                <div
-                  key={i}
-                  style={{
-                    display: 'flex',
-                    gap: 12,
-                    alignItems: 'center',
-                    padding: '10px 0',
-                    borderBottom: '1px solid #f5f5f5',
-                    flexWrap: 'wrap',
-                  }}
-                >
-                  <Text type="secondary" style={{ fontSize: 12, minWidth: 130 }}>
-                    {row.date}
-                  </Text>
-                  <Text style={{ fontSize: 13, flex: 1 }}>{row.user}</Text>
-                  <Tag color={row.color}>{row.action}</Tag>
-                  <Text type="secondary" style={{ fontSize: 13 }}>
-                    {row.entity}
-                  </Text>
-                </div>
-              ))}
-            </Card>
-          </Col>
-          <Col xs={24} md={10}>
-            <FeatureList
-              items={[
-                t('presentation.auditF1'),
-                t('presentation.auditF2'),
-                t('presentation.auditF3'),
-                t('presentation.auditF4'),
-              ]}
-            />
-          </Col>
-        </Row>
-      </SectionWrap>
-
-      {/* ── 14. ORG SETTINGS ── */}
-      <SectionWrap id="orgsettings" light>
-        <SectionHeader
-          title={t('presentation.orgTitle')}
-          subtitle={t('presentation.orgSubtitle')}
-          accent
-        />
-        <Row gutter={[24, 24]} justify="center">
-          {[
-            {
-              icon: <SettingOutlined />,
-              title: t('presentation.orgCard1Title'),
-              desc: t('presentation.orgCard1Desc'),
-            },
-            {
-              icon: <TeamOutlined />,
-              title: t('presentation.orgCard2Title'),
-              desc: t('presentation.orgCard2Desc'),
-            },
-            {
-              icon: <SafetyOutlined />,
-              title: t('presentation.orgCard3Title'),
-              desc: t('presentation.orgCard3Desc'),
-            },
-          ].map((c) => (
-            <Col xs={24} sm={8} key={c.title}>
-              <IconCard icon={c.icon} title={c.title} desc={c.desc} />
-            </Col>
-          ))}
-        </Row>
-      </SectionWrap>
-
-      {/* ── 15. SaaS / PRICING ── */}
-      <SectionWrap id="saas">
-        <SectionHeader
-          title={t('presentation.saasTitle')}
-          subtitle={t('presentation.saasSubtitle')}
-        />
-        <Row gutter={[24, 24]} justify="center">
-          {[
-            {
-              name: t('presentation.saasPlan1'),
-              price: '$29',
-              features: [
-                t('presentation.saasPlan1F1'),
-                t('presentation.saasPlan1F2'),
-                t('presentation.saasPlan1F3'),
-              ],
-              highlight: false,
-            },
-            {
-              name: t('presentation.saasPlan2'),
-              price: '$99',
-              features: [
-                t('presentation.saasPlan2F1'),
-                t('presentation.saasPlan2F2'),
-                t('presentation.saasPlan2F3'),
-              ],
-              highlight: true,
-            },
-            {
-              name: t('presentation.saasPlan3'),
-              price: '$299',
-              features: [
-                t('presentation.saasPlan3F1'),
-                t('presentation.saasPlan3F2'),
-                t('presentation.saasPlan3F3'),
-              ],
-              highlight: false,
-            },
-          ].map((plan) => (
-            <Col xs={24} sm={8} key={plan.name}>
-              <Card
-                bordered={plan.highlight}
-                style={{
-                  textAlign: 'center',
-                  borderColor: plan.highlight ? GT_RED : undefined,
-                  boxShadow: plan.highlight
-                    ? `0 4px 24px rgba(232,35,26,0.15)`
-                    : '0 2px 8px rgba(0,0,0,0.06)',
-                  height: '100%',
-                }}
-              >
-                <Text
-                  strong
-                  style={{
-                    fontSize: 17,
-                    color: plan.highlight ? GT_RED : GT_BLACK,
-                  }}
-                >
-                  {plan.name}
-                </Text>
-                <div
-                  style={{
-                    fontSize: 36,
-                    fontWeight: 800,
-                    color: GT_RED,
-                    margin: '8px 0 4px',
-                  }}
-                >
-                  {plan.price}
-                </div>
-                <Text type="secondary" style={{ fontSize: 13 }}>
-                  {t('presentation.perMonth')}
-                </Text>
-                <div style={{ marginTop: 16 }}>
-                  <FeatureList items={plan.features} />
-                </div>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      </SectionWrap>
-
-      {/* ── 16. SECURITY ── */}
-      <SectionWrap id="security" light>
-        <SectionHeader
-          title={t('presentation.secTitle')}
-          subtitle={t('presentation.secSubtitle')}
-          accent
-        />
-        <Row gutter={[24, 24]} justify="center">
-          {[
-            {
-              icon: <LockOutlined />,
-              title: t('presentation.secCard1Title'),
-              desc: t('presentation.secCard1Desc'),
-            },
-            {
-              icon: <SafetyOutlined />,
-              title: t('presentation.secCard2Title'),
-              desc: t('presentation.secCard2Desc'),
-            },
-            {
-              icon: <AuditOutlined />,
-              title: t('presentation.secCard3Title'),
-              desc: t('presentation.secCard3Desc'),
-            },
-            {
-              icon: <GlobalOutlined />,
-              title: t('presentation.secCard4Title'),
-              desc: t('presentation.secCard4Desc'),
-            },
-          ].map((c) => (
-            <Col xs={24} sm={12} md={6} key={c.title}>
-              <IconCard icon={c.icon} title={c.title} desc={c.desc} />
-            </Col>
-          ))}
-        </Row>
-      </SectionWrap>
-
-      {/* ── 17. TECHNOLOGIES ── */}
-      <SectionWrap id="tech">
-        <SectionHeader
-          title={t('presentation.techTitle')}
-          subtitle={t('presentation.techSubtitle')}
-        />
-        <Row gutter={[24, 24]} justify="center">
-          {[
-            { name: 'React 18', desc: t('presentation.techReact') },
-            { name: 'NestJS', desc: t('presentation.techNest') },
-            { name: 'PostgreSQL', desc: t('presentation.techPg') },
-            { name: 'Prisma ORM', desc: t('presentation.techPrisma') },
-            { name: 'Ant Design', desc: t('presentation.techAntd') },
-            { name: 'TypeScript', desc: t('presentation.techTs') },
-          ].map((tech) => (
-            <Col xs={12} sm={8} md={4} key={tech.name}>
-              <Card
-                bordered={false}
-                style={{
-                  textAlign: 'center',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                  height: '100%',
-                }}
-              >
-                <div
-                  style={{
-                    fontWeight: 800,
-                    fontSize: 15,
-                    color: GT_BLACK,
-                    marginBottom: 6,
-                  }}
-                >
-                  {tech.name}
-                </div>
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  {tech.desc}
-                </Text>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      </SectionWrap>
-
-      {/* ── 18. ROADMAP ── */}
-      <SectionWrap id="roadmap" light>
-        <SectionHeader
-          title={t('presentation.roadTitle')}
-          subtitle={t('presentation.roadSubtitle')}
-          accent
-        />
-        <Row gutter={[24, 24]}>
-          {[
-            {
-              quarter: 'Q2 2026',
-              items: [
-                t('presentation.road1I1'),
-                t('presentation.road1I2'),
-                t('presentation.road1I3'),
-              ],
-              done: true,
-            },
-            {
-              quarter: 'Q3 2026',
-              items: [
-                t('presentation.road2I1'),
-                t('presentation.road2I2'),
-                t('presentation.road2I3'),
-              ],
-              done: false,
-            },
-            {
-              quarter: 'Q4 2026',
-              items: [
-                t('presentation.road3I1'),
-                t('presentation.road3I2'),
-                t('presentation.road3I3'),
-              ],
-              done: false,
-            },
-          ].map((phase) => (
-            <Col xs={24} sm={8} key={phase.quarter}>
-              <Card
-                bordered={false}
-                style={{
-                  height: '100%',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                  borderTop: `3px solid ${phase.done ? '#52c41a' : GT_RED}`,
-                }}
-              >
-                <div style={{ marginBottom: 12 }}>
-                  <Text strong style={{ fontSize: 16, color: GT_BLACK }}>
-                    {phase.quarter}
-                  </Text>
-                  {phase.done && (
-                    <Tag color="green" style={{ marginLeft: 8 }}>
-                      {t('presentation.roadDone')}
-                    </Tag>
-                  )}
-                </div>
-                <FeatureList items={phase.items} />
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      </SectionWrap>
-
-      {/* ── 19. CTA ── */}
-      <section
-        id="cta"
-        style={{
-          background: `linear-gradient(135deg, ${GT_RED} 0%, #c41a12 100%)`,
-          padding: '80px 24px',
-          textAlign: 'center',
-          color: '#fff',
-        }}
-      >
-        <div style={{ maxWidth: 700, margin: '0 auto' }}>
-          <RocketOutlined style={{ fontSize: 48, color: '#fff', marginBottom: 24 }} />
-          <Title
-            style={{
-              color: '#fff',
-              fontSize: 'clamp(26px, 4vw, 42px)',
-              marginBottom: 16,
-            }}
-          >
-            {t('presentation.ctaTitle')}
-          </Title>
-          <Paragraph
-            style={{
-              color: 'rgba(255,255,255,0.85)',
-              fontSize: 17,
-              marginBottom: 36,
-            }}
-          >
-            {t('presentation.ctaSubtitle')}
-          </Paragraph>
-          <Space size={16} wrap style={{ justifyContent: 'center' }}>
-            <Button
-              size="large"
-              style={{
-                background: '#fff',
-                color: GT_RED,
-                borderColor: '#fff',
-                fontWeight: 700,
-              }}
-              onClick={() => navigate('/login')}
-            >
-              {t('presentation.ctaTryBtn')}
-            </Button>
-            <Button
-              size="large"
-              ghost
-              style={{ borderColor: 'rgba(255,255,255,0.7)', color: '#fff' }}
-              onClick={() => navigate('/register')}
-            >
-              {t('presentation.ctaRegBtn')}
-            </Button>
-          </Space>
-          <Paragraph
-            style={{
-              color: 'rgba(255,255,255,0.6)',
-              fontSize: 13,
-              marginTop: 24,
-              marginBottom: 0,
-            }}
-          >
-            {t('presentation.ctaNote')}
-          </Paragraph>
+          </Card>
         </div>
-      </section>
 
-      {/* Footer */}
-      <footer
-        style={{
-          background: GT_BLACK,
-          color: 'rgba(255,255,255,0.5)',
-          textAlign: 'center',
-          padding: '20px 24px',
-          fontSize: 13,
-        }}
-      >
-        © {new Date().getFullYear()} Grant Thornton CRM.{' '}
-        {t('presentation.footerRights')}
-      </footer>
-    </div>
+        {/* ═══════════════════════════════════════════════════
+            19. CTA
+        ═══════════════════════════════════════════════════ */}
+        <div id="cta" style={SECTION}>
+          <Card>
+            <Alert
+              type="success"
+              showIcon
+              icon={<RocketOutlined />}
+              message={
+                <Title level={4} style={{ margin: 0 }}>
+                  {t('presentation.ctaTitle')}
+                </Title>
+              }
+              description={
+                <div>
+                  <Paragraph style={{ marginBottom: 16 }}>
+                    {t('presentation.ctaSubtitle')}
+                  </Paragraph>
+                  <Space wrap>
+                    <Button
+                      type="primary"
+                      size="large"
+                      onClick={() => navigate('/login')}
+                    >
+                      {t('presentation.ctaTryBtn')}
+                    </Button>
+                    <Button size="large" onClick={() => navigate('/register')}>
+                      {t('presentation.ctaRegBtn')}
+                    </Button>
+                  </Space>
+                  <Paragraph
+                    type="secondary"
+                    style={{ marginTop: 12, marginBottom: 0, fontSize: 13 }}
+                  >
+                    {t('presentation.ctaNote')}
+                  </Paragraph>
+                </div>
+              }
+            />
+          </Card>
+        </div>
+      </div>
+    </ConfigProvider>
   );
 }
