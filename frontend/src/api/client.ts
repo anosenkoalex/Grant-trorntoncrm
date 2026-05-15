@@ -1566,3 +1566,24 @@ export const updateOrgBranding = async (payload: {
   const { data } = await api.patch<MyOrgResponse>('/orgs/branding', payload);
   return data;
 };
+
+/* -------------------- AUDIT LOG -------------------- */
+
+export type AuditLogItem = {
+  id: string;
+  orgId: string;
+  userId: string;
+  action: string;
+  entity: string;
+  entityId: string | null;
+  details: Record<string, unknown> | null;
+  createdAt: string;
+  user: { id: string; email: string; fullName: string | null };
+};
+
+export const fetchAuditLog = async (
+  params: { page?: number; pageSize?: number } = {},
+): Promise<{ items: AuditLogItem[]; total: number; page: number; pageSize: number }> => {
+  const { data } = await api.get('/audit', { params });
+  return data;
+};

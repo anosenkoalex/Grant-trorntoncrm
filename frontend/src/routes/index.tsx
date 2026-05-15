@@ -21,6 +21,7 @@ import RegisterSuccessPage from '../pages/RegisterSuccess.js';
 import BillingPage from '../pages/Billing.js';
 import SuperAdminPage from '../pages/SuperAdmin.js';
 import OrgSettingsPage from '../pages/OrgSettings.js';
+import AuditLogPage from '../pages/AuditLog.js';
 
 const ProtectedRoute = () => {
   const { token } = useAuth();
@@ -92,6 +93,7 @@ const AppRoutes = () => {
         { path: '/hr', element: <HRPage /> },
         { path: '/billing', element: <BillingPage /> },
         { path: '/org-settings', element: <OrgSettingsPage /> },
+        { path: '/audit-log', element: <AuditLogPage /> },
         { path: '/super-admin', element: <SuperAdminPage /> },
         { path: '/dev', element: <DevPage /> },
       ],

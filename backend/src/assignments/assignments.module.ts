@@ -6,9 +6,10 @@ import { EmailService } from '../notifications/email.service.js';
 import { SmsService } from '../sms/sms.service.js';
 import { AutomationModule } from '../automation/automation.module.js';
 import { FilesModule } from '../files/files.module.js';
+import { AuditModule } from '../audit/audit.module.js';
 
 @Module({
-  imports: [AutomationModule, FilesModule],
+  imports: [AutomationModule, FilesModule, AuditModule],
   controllers: [AssignmentsController],
   providers: [AssignmentsService, PrismaService, EmailService, SmsService],
   exports: [AssignmentsService],

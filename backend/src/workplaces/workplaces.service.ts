@@ -6,13 +6,17 @@ import {
 } from '@nestjs/common';
 import { AssignmentStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../common/prisma/prisma.service.js';
+import { AuditService } from '../audit/audit.service.js';
 import { CreateWorkplaceDto } from './dto/create-workplace.dto.js';
 import { UpdateWorkplaceDto } from './dto/update-workplace.dto.js';
 import { ListWorkplacesDto } from './dto/list-workplaces.dto.js';
 
 @Injectable()
 export class WorkplacesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly audit: AuditService,
+  ) {}
 
   private buildWhere(
     { search, isActive }: ListWorkplacesDto,
@@ -56,13 +60,17 @@ export class WorkplacesService {
     throw error;
   }
 
-  async create(data: CreateWorkplaceDto) {
+  async create(data: CreateWorkplaceDto, actorId?: string) {
     try {
       await this.prisma.org.findUniqueOrThrow({ where: { id: data.orgId } });
-      return await this.prisma.workplace.create({
+      const workplace = await this.prisma.workplace.create({
         data,
         include: { org: { select: { id: true, name: true, slug: true } } },
       });
+      if (actorId) {
+        void this.audit.log(data.orgId, actorId, 'CREATE', 'Workplace', workplace.id, { name: workplace.name, code: workplace.code });
+      }
+      return workplace;
     } catch (error) {
       this.handleUniqueError(error);
     }
@@ -105,27 +113,31 @@ export class WorkplacesService {
     return workplace;
   }
 
-  async update(id: string, data: UpdateWorkplaceDto) {
-    await this.findOne(id);
+  async update(id: string, data: UpdateWorkplaceDto, actorId?: string) {
+    const existing = await this.findOne(id);
 
     try {
       if (data.orgId) {
         await this.prisma.org.findUniqueOrThrow({ where: { id: data.orgId } });
       }
-      return await this.prisma.workplace.update({
+      const updated = await this.prisma.workplace.update({
         where: { id },
         data,
         include: { org: { select: { id: true, name: true, slug: true } } },
       });
+      if (actorId && existing.orgId) {
+        void this.audit.log(existing.orgId, actorId, 'UPDATE', 'Workplace', id);
+      }
+      return updated;
     } catch (error) {
       this.handleUniqueError(error);
     }
   }
 
-  async remove(id: string) {
+  async remove(id: string, actorId?: string) {
     const workplace = await this.prisma.workplace.findUnique({
       where: { id },
-      select: { id: true, code: true, name: true },
+      select: { id: true, code: true, name: true, orgId: true },
     });
 
     if (!workplace) {
@@ -194,6 +206,10 @@ export class WorkplacesService {
         where: { id },
       });
     });
+
+    if (actorId && workplace.orgId) {
+      void this.audit.log(workplace.orgId, actorId, 'DELETE', 'Workplace', id, { name: workplace.name, code: workplace.code });
+    }
 
     return { success: true };
   }

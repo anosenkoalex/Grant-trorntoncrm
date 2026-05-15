@@ -12,6 +12,7 @@ import { UpdateUserDto } from './dto/update-user.dto.js';
 import * as bcrypt from 'bcryptjs';
 import { ListUsersDto } from './dto/list-users.dto.js';
 import { EmailService } from '../notifications/email.service.js';
+import { AuditService } from '../audit/audit.service.js';
 import { ConfigService } from '@nestjs/config';
 
 type SelectedUser = {
@@ -43,6 +44,7 @@ export class UsersService implements OnModuleInit {
   constructor(
     private readonly prisma: PrismaService,
     private readonly emailService: EmailService,
+    private readonly audit: AuditService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -153,6 +155,10 @@ export class UsersService implements OnModuleInit {
 
     if (sendPassword && !isAdmin) {
       await this.sendEmailWithPassword(email, rawPassword);
+    }
+
+    if (created.orgId) {
+      void this.audit.log(created.orgId, created.id, 'CREATE', 'User', created.id, { email: created.email, role: created.role });
     }
 
     return this.presentUser(created);
@@ -322,6 +328,10 @@ export class UsersService implements OnModuleInit {
       data: updateData,
       select: this.baseSelect(),
     });
+
+    if (updated.orgId) {
+      void this.audit.log(updated.orgId, id, 'UPDATE', 'User', id);
+    }
 
     return this.presentUser(updated);
   }

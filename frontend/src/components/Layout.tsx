@@ -456,6 +456,11 @@ const AppLayout = () => {
           path: '/org-settings',
           label: t('layout.orgSettings', 'Настройки организации'),
         },
+        {
+          key: 'audit-log',
+          path: '/audit-log',
+          label: t('layout.auditLog', 'Audit Log'),
+        },
       );
     }
 
@@ -559,167 +564,170 @@ const AppLayout = () => {
   return (
     <ConfigProvider
       theme={
-        primaryColor
-          ? { token: { colorPrimary: primaryColor } }
-          : undefined
+        primaryColor ? { token: { colorPrimary: primaryColor } } : undefined
       }
     >
-    <Layout style={{ minHeight: '100vh' }}>
-      {/* Backdrop */}
-      {isMobile && !isSiderCollapsed && (
-        <div
-          className="mobile-sider-overlay visible"
-          onClick={closeSider}
-          aria-hidden="true"
-        />
-      )}
+      <Layout style={{ minHeight: '100vh' }}>
+        {/* Backdrop */}
+        {isMobile && !isSiderCollapsed && (
+          <div
+            className="mobile-sider-overlay visible"
+            onClick={closeSider}
+            aria-hidden="true"
+          />
+        )}
 
-      <Sider
-        width={240}
-        collapsedWidth={0}
-        collapsed={isMobile ? isSiderCollapsed : false}
-        trigger={null}
-        style={
-          isMobile
-            ? {
-                position: 'fixed',
-                left: 0,
-                top: 0,
-                bottom: 0,
-                zIndex: 1000,
-                transform: isSiderCollapsed
-                  ? 'translateX(-100%)'
-                  : 'translateX(0)',
-                transition: 'transform 0.25s ease',
-                overflow: 'hidden auto',
-              }
-            : {
-                position: 'sticky',
-                top: 0,
-                height: '100vh',
-                overflow: 'hidden auto',
-              }
-        }
-      >
-        <div
-          style={{
-            color: '#fff',
-            fontSize: 16,
-            fontWeight: 600,
-            padding: '14px 16px',
-            borderBottom: '1px solid rgba(255,255,255,0.1)',
-            marginBottom: 4,
-          }}
-        >
-          {orgQuery.data?.companyDisplayName?.trim() || 'Grant Thornton'}
-        </div>
-        <Menu
-          theme="dark"
-          mode="inline"
-          selectedKeys={[selectedKey]}
-          items={navigationItems.map((item) => ({
-            key: item.key,
-            label: item.label,
-            icon: item.icon,
-          }))}
-          onClick={(info) => {
-            const target = navigationItems.find(
-              (item) => item.key === info.key,
-            );
-            if (target) navigate(target.path);
-            if (isMobile) closeSider();
-          }}
-        />
-      </Sider>
-
-      <Layout style={{ minWidth: 0 }}>
-        <Header
-          style={{
-            background: '#fff',
-            paddingInline: isMobile ? 12 : 24,
-            height: 56,
-            lineHeight: 'normal',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-          }}
-        >
-          <Space size={8} style={{ overflow: 'hidden', flex: 1, minWidth: 0 }}>
-            {navigationItems.length > 0 && (
-              <Button
-                type="text"
-                icon={
-                  isSiderCollapsed ? (
-                    <MenuUnfoldOutlined />
-                  ) : (
-                    <MenuFoldOutlined />
-                  )
+        <Sider
+          width={240}
+          collapsedWidth={0}
+          collapsed={isMobile ? isSiderCollapsed : false}
+          trigger={null}
+          style={
+            isMobile
+              ? {
+                  position: 'fixed',
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  zIndex: 1000,
+                  transform: isSiderCollapsed
+                    ? 'translateX(-100%)'
+                    : 'translateX(0)',
+                  transition: 'transform 0.25s ease',
+                  overflow: 'hidden auto',
                 }
-                onClick={() => setIsSiderCollapsed((p) => !p)}
-                aria-label="Toggle navigation"
-                style={{ flexShrink: 0 }}
-              />
-            )}
-            <Typography.Text
-              style={{
-                fontWeight: 500,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {!isMobile && `${t('layout.welcome')} `}
-              {displayName}
-            </Typography.Text>
-            {isFetchingProfile && <Spin size="small" />}
-          </Space>
-
-          <Space size={8} style={{ flexShrink: 0 }}>
-            <Select
-              size="small"
-              value={i18n.language.slice(0, 2)}
-              onChange={handleLangChange}
-              options={langOptions}
-              style={{ width: 68 }}
-              variant="borderless"
-            />
-            {user && <NotificationsDropdown userId={user.sub} />}
-            <Button size={isMobile ? 'small' : 'middle'} onClick={logout}>
-              {isMobile ? t('layout.logoutShort', 'Выйти') : t('layout.logout')}
-            </Button>
-          </Space>
-        </Header>
-
-        <Content
-          style={{
-            padding: isMobile ? 8 : 24,
-            background: '#f5f5f5',
-            minHeight: 0,
-          }}
+              : {
+                  position: 'sticky',
+                  top: 0,
+                  height: '100vh',
+                  overflow: 'hidden auto',
+                }
+          }
         >
           <div
             style={{
-              background: '#fff',
-              borderRadius: isMobile ? 8 : 12,
-              padding: isMobile ? 12 : 24,
-              minHeight: '60vh',
+              color: '#fff',
+              fontSize: 16,
+              fontWeight: 600,
+              padding: '14px 16px',
+              borderBottom: '1px solid rgba(255,255,255,0.1)',
+              marginBottom: 4,
             }}
           >
-            {isFetchingProfile && !profile ? <Skeleton active /> : <Outlet />}
+            {orgQuery.data?.companyDisplayName?.trim() || 'Grant Thornton'}
           </div>
-        </Content>
-      </Layout>
+          <Menu
+            theme="dark"
+            mode="inline"
+            selectedKeys={[selectedKey]}
+            items={navigationItems.map((item) => ({
+              key: item.key,
+              label: item.label,
+              icon: item.icon,
+            }))}
+            onClick={(info) => {
+              const target = navigationItems.find(
+                (item) => item.key === info.key,
+              );
+              if (target) navigate(target.path);
+              if (isMobile) closeSider();
+            }}
+          />
+        </Sider>
 
-      {showOnboarding && (
-        <OnboardingWizard
-          onDone={() => {
-            setOnboardingDone(true);
-            void orgQuery.refetch();
-          }}
-        />
-      )}
-    </Layout>
+        <Layout style={{ minWidth: 0 }}>
+          <Header
+            style={{
+              background: '#fff',
+              paddingInline: isMobile ? 12 : 24,
+              height: 56,
+              lineHeight: 'normal',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+            }}
+          >
+            <Space
+              size={8}
+              style={{ overflow: 'hidden', flex: 1, minWidth: 0 }}
+            >
+              {navigationItems.length > 0 && (
+                <Button
+                  type="text"
+                  icon={
+                    isSiderCollapsed ? (
+                      <MenuUnfoldOutlined />
+                    ) : (
+                      <MenuFoldOutlined />
+                    )
+                  }
+                  onClick={() => setIsSiderCollapsed((p) => !p)}
+                  aria-label="Toggle navigation"
+                  style={{ flexShrink: 0 }}
+                />
+              )}
+              <Typography.Text
+                style={{
+                  fontWeight: 500,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {!isMobile && `${t('layout.welcome')} `}
+                {displayName}
+              </Typography.Text>
+              {isFetchingProfile && <Spin size="small" />}
+            </Space>
+
+            <Space size={8} style={{ flexShrink: 0 }}>
+              <Select
+                size="small"
+                value={i18n.language.slice(0, 2)}
+                onChange={handleLangChange}
+                options={langOptions}
+                style={{ width: 68 }}
+                variant="borderless"
+              />
+              {user && <NotificationsDropdown userId={user.sub} />}
+              <Button size={isMobile ? 'small' : 'middle'} onClick={logout}>
+                {isMobile
+                  ? t('layout.logoutShort', 'Выйти')
+                  : t('layout.logout')}
+              </Button>
+            </Space>
+          </Header>
+
+          <Content
+            style={{
+              padding: isMobile ? 8 : 24,
+              background: '#f5f5f5',
+              minHeight: 0,
+            }}
+          >
+            <div
+              style={{
+                background: '#fff',
+                borderRadius: isMobile ? 8 : 12,
+                padding: isMobile ? 12 : 24,
+                minHeight: '60vh',
+              }}
+            >
+              {isFetchingProfile && !profile ? <Skeleton active /> : <Outlet />}
+            </div>
+          </Content>
+        </Layout>
+
+        {showOnboarding && (
+          <OnboardingWizard
+            onDone={() => {
+              setOnboardingDone(true);
+              void orgQuery.refetch();
+            }}
+          />
+        )}
+      </Layout>
     </ConfigProvider>
   );
 };

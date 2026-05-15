@@ -215,7 +215,8 @@ export class BillingService {
 
     this.logger.log(`Org created for ${pending.adminEmail} with plan ${plan}`);
 
-    const appUrl = this.config.get<string>('APP_URL') ?? 'http://localhost:5173';
+    const appUrl =
+      this.config.get<string>('APP_URL') ?? 'http://localhost:5173';
     try {
       await this.emailService.sendWelcomeEmail(
         pending.adminEmail,

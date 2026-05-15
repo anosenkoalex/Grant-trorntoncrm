@@ -209,7 +209,9 @@ export class AssignmentsController {
   @Get('users-summary')
   @Roles(UserRole.SUPER_ADMIN, UserRole.MANAGER)
   getUsersAssignmentsSummary(@Req() req: any) {
-    return this.assignmentsService.getUsersAssignmentsSummary(this.getOrgId(req));
+    return this.assignmentsService.getUsersAssignmentsSummary(
+      this.getOrgId(req),
+    );
   }
 
   // ================================================================

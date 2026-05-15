@@ -3,6 +3,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { VacationStatus, VacationType } from '@prisma/client';
 import { PrismaService } from '../common/prisma/prisma.service.js';
 import { NotificationsService } from '../notifications/notifications.service.js';
+import { AuditService } from '../audit/audit.service.js';
 
 export type CreateVacationDto = {
   dateFrom: string;
@@ -18,6 +19,7 @@ export class HrService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationsService,
+    private readonly audit: AuditService,
   ) {}
 
   async create(userId: string, orgId: string, dto: CreateVacationDto) {
@@ -116,6 +118,7 @@ export class HrService {
       `Заявка одобрена`,
       `Ваша заявка (${typeLabel}) с ${this.formatDate(req.dateFrom)} по ${this.formatDate(req.dateTo)} одобрена.`,
     );
+    void this.audit.log(req.orgId, decidedById, 'APPROVE', 'VacationRequest', id, { type: req.type });
 
     return updated;
   }
@@ -144,6 +147,7 @@ export class HrService {
       `Заявка отклонена`,
       `Ваша заявка (${typeLabel}) с ${this.formatDate(req.dateFrom)} по ${this.formatDate(req.dateTo)} отклонена${comment ? `: ${comment}` : '.'}`,
     );
+    void this.audit.log(req.orgId, decidedById, 'REJECT', 'VacationRequest', id, { type: req.type });
 
     return updated;
   }

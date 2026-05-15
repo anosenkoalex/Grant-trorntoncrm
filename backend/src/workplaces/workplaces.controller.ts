@@ -40,8 +40,9 @@ export class WorkplacesController {
   create(
     @Body(new ZodValidationPipe(createWorkplaceSchema))
     payload: CreateWorkplaceDto,
+    @CurrentUser() user: JwtPayload,
   ) {
-    return this.workplacesService.create(payload);
+    return this.workplacesService.create(payload, user.sub);
   }
 
   // ✅ Доступно всем авторизованным ролям (чтобы USER мог выбрать любое рабочее место в модалке)
@@ -68,13 +69,14 @@ export class WorkplacesController {
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateWorkplaceSchema))
     payload: UpdateWorkplaceDto,
+    @CurrentUser() user: JwtPayload,
   ) {
-    return this.workplacesService.update(id, payload);
+    return this.workplacesService.update(id, payload, user.sub);
   }
 
   @Delete(':id')
   @Roles(UserRole.SUPER_ADMIN)
-  remove(@Param('id') id: string) {
-    return this.workplacesService.remove(id);
+  remove(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.workplacesService.remove(id, user.sub);
   }
 }

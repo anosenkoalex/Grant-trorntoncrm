@@ -20,6 +20,7 @@ import { ListAssignmentsDto } from './dto/list-assignments.dto.js';
 import { AutomationService } from '../automation/automation.service.js';
 import { EmailService } from '../notifications/email.service.js';
 import { SmsService } from '../sms/sms.service.js';
+import { AuditService } from '../audit/audit.service.js';
 
 type AdjustmentStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 
@@ -100,6 +101,7 @@ export class AssignmentsService {
     private readonly automation: AutomationService,
     private readonly email: EmailService,
     private readonly smsService: SmsService,
+    private readonly audit: AuditService,
   ) {}
 
   /**
@@ -133,7 +135,10 @@ export class AssignmentsService {
    * Базовый where для обычных списков:
    *  - берём только НЕ удалённые (deletedAt = null)
    */
-  private buildWhere(params: ListAssignmentsDto, orgId?: string): Prisma.AssignmentWhereInput {
+  private buildWhere(
+    params: ListAssignmentsDto,
+    orgId?: string,
+  ): Prisma.AssignmentWhereInput {
     const where: Prisma.AssignmentWhereInput = {
       deletedAt: null,
     };
@@ -413,6 +418,15 @@ export class AssignmentsService {
       },
     );
 
+    void this.audit.log(
+      assignment!.workplace.orgId,
+      assignment!.userId,
+      'CREATE',
+      'Assignment',
+      assignment!.id,
+      { workplaceId: assignment!.workplaceId },
+    );
+
     return assignment;
   }
 
@@ -688,6 +702,15 @@ export class AssignmentsService {
           workplaceId: assignment!.workplaceId,
         },
       );
+
+      void this.audit.log(
+        existing.user.orgId,
+        assignment!.userId,
+        'UPDATE',
+        'Assignment',
+        id,
+        { workplaceId: assignment!.workplaceId },
+      );
     }
 
     return assignment;
@@ -840,6 +863,15 @@ export class AssignmentsService {
           userId: updated.userId,
           workplaceId: updated.workplaceId,
         },
+      );
+
+      void this.audit.log(
+        workplace.orgId,
+        updated.userId,
+        'DELETE',
+        'Assignment',
+        id,
+        { workplaceId: updated.workplaceId },
       );
     }
 

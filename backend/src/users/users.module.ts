@@ -4,11 +4,13 @@ import { UsersController } from './users.controller.js';
 import { MeController } from './me.controller.js';
 import { PrismaModule } from '../common/prisma/prisma.module.js';
 import { NotificationsModule } from '../notifications/notifications.module.js';
+import { AuditModule } from '../audit/audit.module.js';
 
 @Module({
   imports: [
     PrismaModule,
     NotificationsModule, // 👈 EmailService и NotificationsService живут тут
+    AuditModule,
   ],
   controllers: [
     UsersController,

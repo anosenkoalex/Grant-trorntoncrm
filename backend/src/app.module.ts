@@ -24,6 +24,7 @@ import { HrModule } from './hr/hr.module.js';
 import { BillingModule } from './billing/billing.module.js';
 import { SuperAdminModule } from './super-admin/super-admin.module.js';
 import { GoogleCalendarModule } from './integrations/google-calendar/google-calendar.module.js';
+import { AuditModule } from './audit/audit.module.js';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { GoogleCalendarModule } from './integrations/google-calendar/google-cale
     BillingModule,
     SuperAdminModule,
     GoogleCalendarModule,
+    AuditModule,
   ],
 })
 export class AppModule {}

@@ -24,6 +24,7 @@ const ru = {
     hr: 'HR',
     billing: 'Биллинг',
     orgSettings: 'Настройки организации',
+    auditLog: 'Audit Log',
   },
   workplaces: {
     title: 'Рабочие места',
@@ -720,6 +721,15 @@ const ru = {
     saved: 'Настройки сохранены',
     saveError: 'Не удалось сохранить настройки',
   },
+  auditLog: {
+    title: 'Audit Log',
+    date: 'Дата',
+    user: 'Пользователь',
+    action: 'Действие',
+    entity: 'Сущность',
+    details: 'Детали',
+    total: 'Всего: {{total}} записей',
+  },
   onboarding: {
     title: 'Добро пожаловать в Grant Thornton CRM',
     subtitle: 'Давайте настроим систему — это займёт пару минут',
@@ -771,6 +781,7 @@ const en = {
     hr: 'HR',
     billing: 'Billing',
     orgSettings: 'Organization Settings',
+    auditLog: 'Audit Log',
   },
   dashboard: {
     greeting: 'Welcome, {{name}}',
@@ -1501,6 +1512,15 @@ const en = {
     saved: 'Settings saved',
     saveError: 'Failed to save settings',
   },
+  auditLog: {
+    title: 'Audit Log',
+    date: 'Date',
+    user: 'User',
+    action: 'Action',
+    entity: 'Entity',
+    details: 'Details',
+    total: 'Total: {{total}} records',
+  },
   onboarding: {
     title: 'Welcome to Grant Thornton CRM',
     subtitle: "Let's set up the system — it will only take a few minutes",
@@ -1552,6 +1572,7 @@ const tr = {
     hr: 'İK',
     billing: 'Faturalama',
     orgSettings: 'Kuruluş Ayarları',
+    auditLog: 'Audit Log',
   },
   dashboard: {
     greeting: 'Hoş geldiniz, {{name}}',
@@ -2272,7 +2293,8 @@ const tr = {
   orgSettings: {
     title: 'Kuruluş Ayarları',
     displayName: 'Şirket görünen adı',
-    displayNameHint: 'Kenar çubuğu başlığındaki "Grant Thornton" ifadesini değiştirir',
+    displayNameHint:
+      'Kenar çubuğu başlığındaki "Grant Thornton" ifadesini değiştirir',
     logoUrl: 'Logo URL',
     logoUrlHint: 'Bir görüntüye doğrudan bağlantı (PNG, SVG)',
     primaryColor: 'Ana arayüz rengi',
@@ -2280,6 +2302,15 @@ const tr = {
     save: 'Kaydet',
     saved: 'Ayarlar kaydedildi',
     saveError: 'Ayarlar kaydedilemedi',
+  },
+  auditLog: {
+    title: 'Audit Log',
+    date: 'Tarih',
+    user: 'Kullanıcı',
+    action: 'İşlem',
+    entity: 'Varlık',
+    details: 'Detaylar',
+    total: 'Toplam: {{total}} kayıt',
   },
   onboarding: {
     title: "Grant Thornton CRM'e Hoş Geldiniz",
