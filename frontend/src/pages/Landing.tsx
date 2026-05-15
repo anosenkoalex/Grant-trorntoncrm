@@ -11,7 +11,7 @@ import {
   message,
 } from 'antd';
 import { CheckOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.js';
 
@@ -200,9 +200,7 @@ export default function LandingPage() {
                 fontWeight: 600,
               }}
             >
-              {demoLoading
-                ? t('landing.tryDemoLoading')
-                : t('landing.tryDemo')}
+              {demoLoading ? t('landing.tryDemoLoading') : t('landing.tryDemo')}
             </Button>
             <Button size="large" ghost onClick={() => navigate('/login')}>
               {t('landing.signIn')}
@@ -350,10 +348,14 @@ export default function LandingPage() {
       </Content>
 
       <Footer
-        style={{ textAlign: 'center', background: '#f0f2f5', color: '#888' }}
+        style={{ textAlign: 'center', background: '#f0f2f5', color: '#888', padding: '16px 24px' }}
       >
-        © {new Date().getFullYear()} Grant Thornton CRM.{' '}
-        {t('landing.footerRights')}
+        <div>© {new Date().getFullYear()} Grant Thornton CRM. {t('landing.footerRights')}</div>
+        <div style={{ marginTop: 8 }}>
+          <Link to="/terms" style={{ color: '#888', marginInline: 8 }}>{t('landing.footerTerms', 'Terms of Service')}</Link>
+          <Link to="/privacy" style={{ color: '#888', marginInline: 8 }}>{t('landing.footerPrivacy', 'Privacy Policy')}</Link>
+          <Link to="/status" style={{ color: '#888', marginInline: 8 }}>{t('landing.footerStatus', 'Status')}</Link>
+        </div>
       </Footer>
     </Layout>
   );
