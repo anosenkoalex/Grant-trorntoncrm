@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../common/prisma/prisma.service.js';
+import { EmailService } from '../notifications/email.service.js';
 import { SubscriptionPlan, SubscriptionStatus } from '@prisma/client';
 
 export interface InitiateRegistrationDto {
@@ -31,6 +32,7 @@ export class BillingService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
+    private readonly emailService: EmailService,
   ) {
     const secretKey = this.config.get<string>('STRIPE_SECRET_KEY');
     this.stripe = secretKey ? new Stripe(secretKey) : null;
@@ -212,6 +214,18 @@ export class BillingService {
     });
 
     this.logger.log(`Org created for ${pending.adminEmail} with plan ${plan}`);
+
+    const appUrl = this.config.get<string>('APP_URL') ?? 'http://localhost:5173';
+    try {
+      await this.emailService.sendWelcomeEmail(
+        pending.adminEmail,
+        pending.companyName,
+        plan,
+        appUrl,
+      );
+    } catch (e) {
+      this.logger.error('Welcome email failed', e as Error);
+    }
   }
 
   private async handleSubscriptionUpdated(sub: Stripe.Subscription) {

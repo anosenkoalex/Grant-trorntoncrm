@@ -392,6 +392,42 @@ export class EmailService {
   }
 
   /**
+   * Welcome email after registration
+   */
+  async sendWelcomeEmail(
+    to: string,
+    companyName: string,
+    plan: string,
+    appUrl: string,
+  ) {
+    if (!this.isConfigured) return;
+    const loginUrl = `${appUrl.replace(/\/$/, '')}/login`;
+    const html = `
+<!doctype html>
+<html lang="en">
+  <body style="font-family:Arial,sans-serif;background:#f5f6f8;padding:24px;">
+    <div style="max-width:600px;margin:auto;background:#ffffff;padding:24px;border-radius:8px;">
+      <h2 style="margin-top:0;color:#1f2937;">Welcome to Grant Thornton CRM</h2>
+      <p>Hello! Your company <strong>${companyName}</strong> has been successfully registered.</p>
+      <p>Plan: <strong>${plan}</strong></p>
+      <p>Login email: <strong>${to}</strong></p>
+      <div style="margin:32px 0;text-align:center;">
+        <a href="${loginUrl}" style="display:inline-block;padding:14px 24px;background:#0B5ED7;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:600;">
+          Sign In to CRM
+        </a>
+      </div>
+      <p style="color:#6b7280;font-size:13px;">This email was sent automatically.</p>
+    </div>
+  </body>
+</html>`;
+    try {
+      await this.sendHtmlEmail(to, 'Welcome to Grant Thornton CRM', html);
+    } catch (e) {
+      this.logger.error('Failed to send welcome email', e as Error);
+    }
+  }
+
+  /**
    * HTML-письмо (универсальное)
    */
   async sendHtmlEmail(to: string, subject: string, html: string) {
