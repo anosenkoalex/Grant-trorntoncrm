@@ -4,6 +4,51 @@
 
 ---
 
+## 2026-05-15 — Фаза 13: Onboarding Wizard
+
+Добавлен пошаговый мастер настройки для новых организаций.
+
+### Backend
+
+**Prisma schema** — в модель `Org` добавлено поле `onboardingCompleted Boolean @default(false)`.
+
+**Миграция** — `20260515100000_add_onboarding_flag/migration.sql`
+
+**OrgsController** — два новых эндпоинта (объявлены ДО параметрических маршрутов):
+
+- `GET /orgs/me` (SUPER_ADMIN | MANAGER) — возвращает `{ id, name, slug, onboardingCompleted }`
+- `PATCH /orgs/onboarding-complete` (SUPER_ADMIN) — ставит флаг `onboardingCompleted: true`
+
+**OrgsService** — добавлены `getMyOrg(orgId)` и `completeOnboarding(orgId)`.
+
+### Frontend
+
+**api/client.ts** — добавлены тип `MyOrgResponse`, функции `fetchMyOrg()` и `completeOnboarding()`.
+
+**OnboardingWizard.tsx** (новый компонент) — Modal Ant Design без возможности закрыть, со Steps (3 шага):
+
+1. Создать рабочее место (name + code) → `createWorkplace()` → Step 2
+2. Добавить сотрудника (fullName + email + password) → `createUser()` → Step 3
+3. Result «Готово!» → `completeOnboarding()` → закрыть
+   На шагах 1 и 2 есть кнопка «Пропустить» — переходит к следующему шагу.
+
+**Layout.tsx** — `useQuery` для `fetchMyOrg` (только для SUPER_ADMIN с `orgId`). Если `onboardingCompleted === false`, рендерит `<OnboardingWizard onDone={() => refetch()}>` поверх контента.
+
+**i18n.ts** — добавлен раздел `onboarding.*` во все три языка (RU/EN/TR).
+
+### Изменённые файлы
+
+- `backend/prisma/schema.prisma`
+- `backend/prisma/migrations/20260515100000_add_onboarding_flag/migration.sql` (новый)
+- `backend/src/orgs/orgs.service.ts`
+- `backend/src/orgs/orgs.controller.ts`
+- `frontend/src/api/client.ts`
+- `frontend/src/components/OnboardingWizard.tsx` (новый)
+- `frontend/src/components/Layout.tsx`
+- `frontend/src/i18n.ts`
+
+---
+
 ## 2026-05-15 — Фаза 12: Интеграция Google Calendar
 
 Реализован полный OAuth2 flow для подключения Google Calendar и синхронизации назначений сотрудника как событий.
