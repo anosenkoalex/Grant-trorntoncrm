@@ -4,6 +4,65 @@
 
 ---
 
+## 2026-05-15 — Фаза 12: Интеграция Google Calendar
+
+Реализован полный OAuth2 flow для подключения Google Calendar и синхронизации назначений сотрудника как событий.
+
+### Backend
+
+**Prisma schema** — в модель `User` добавлены поля: `googleAccessToken String?`, `googleRefreshToken String?`, `googleCalendarConnected Boolean @default(false)`.
+
+**Миграция** — `20260515000000_add_google_calendar/migration.sql`
+
+**Новый модуль** — `backend/src/integrations/google-calendar/`:
+
+- `google-calendar.service.ts` — создаёт OAuth2 URL (userId в `state` как base64), обменивает код на токены, сохраняет в БД, синхронизирует активные назначения (каждую смену → событие в Google Calendar; если смен нет — событие по дням). Авто-обновление access_token при истечении.
+- `google-calendar.controller.ts`:
+  - `GET /integrations/google/auth-url` — JWT-protected, возвращает `{ url }` для редиректа браузера на Google OAuth
+  - `GET /integrations/google/callback` — публичный, получает `code` + `state`, сохраняет токены, редиректит на `/my-place?gc=success|error`
+  - `GET /integrations/google/status` — JWT-protected, `{ connected: boolean }`
+  - `DELETE /integrations/google/disconnect` — JWT-protected, очищает токены
+  - `POST /integrations/google/sync` — JWT-protected, создаёт события в Google Calendar
+- `google-calendar.module.ts`
+
+**env.validation.ts** — добавлены `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` (optional).
+
+**app.module.ts** — добавлен `GoogleCalendarModule`.
+
+**package.json** — зависимость `googleapis`.
+
+### Frontend
+
+**api/client.ts** — добавлены: тип `GoogleCalendarStatus`, функции `fetchGoogleCalendarStatus`, `getGoogleCalendarAuthUrl`, `disconnectGoogleCalendar`, `syncGoogleCalendar`.
+
+**MyPlace.tsx** — добавлен Card «Google Calendar»: статус-тег (Connected/Not connected), кнопка Connect (открывает OAuth URL через `window.location.href`), Sync и Disconnect (с loading-состоянием). `useEffect` при монтировании читает `?gc=success|error` из URL, показывает уведомление, очищает параметр через `history.replaceState`.
+
+**i18n.ts** — добавлен раздел `googleCalendar` во все три языка (RU/EN/TR).
+
+### Переменные окружения (добавить в Render)
+
+```
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+GOOGLE_REDIRECT_URI=https://grant-trorntoncrm.onrender.com/integrations/google/callback
+```
+
+### Изменённые файлы
+
+- `backend/prisma/schema.prisma`
+- `backend/prisma/migrations/20260515000000_add_google_calendar/migration.sql` (новый)
+- `backend/src/integrations/google-calendar/google-calendar.service.ts` (новый)
+- `backend/src/integrations/google-calendar/google-calendar.controller.ts` (новый)
+- `backend/src/integrations/google-calendar/google-calendar.module.ts` (новый)
+- `backend/src/app.module.ts`
+- `backend/src/config/env.validation.ts`
+- `backend/package.json`
+- `frontend/src/api/client.ts`
+- `frontend/src/pages/MyPlace.tsx`
+- `frontend/src/i18n.ts`
+
+---
+
 ## 2026-05-15 — Фаза 10: Фикс изоляции планировщика по orgId
 
 В `planner.service.ts` оба вызова `prisma.assignment.findMany` фильтровали данные по `workplace.orgId` (`where.workplace = { is: { orgId } }`), что расходилось с паттерном, принятым в остальных сервисах. Заменено на `where.user = { orgId }` — теперь показываются только назначения сотрудников своей организации.
