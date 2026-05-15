@@ -90,6 +90,7 @@ model Org {
   id          String        @id @default(cuid())
   name        String
   slug        String        @unique
+  onboardingCompleted Boolean @default(false)
 
   users       User[]
   workplaces  Workplace[]

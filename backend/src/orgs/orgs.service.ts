@@ -41,6 +41,23 @@ export class OrgsService {
     return this.prisma.org.update({ where: { id }, data });
   }
 
+  async getMyOrg(orgId: string) {
+    const org = await this.prisma.org.findUnique({
+      where: { id: orgId },
+      select: { id: true, name: true, slug: true, onboardingCompleted: true },
+    });
+    if (!org) throw new NotFoundException('Организация не найдена');
+    return org;
+  }
+
+  async completeOnboarding(orgId: string) {
+    return this.prisma.org.update({
+      where: { id: orgId },
+      data: { onboardingCompleted: true },
+      select: { id: true, onboardingCompleted: true },
+    });
+  }
+
   async remove(id: string) {
     await this.findOne(id);
     await this.prisma.assignment.deleteMany({

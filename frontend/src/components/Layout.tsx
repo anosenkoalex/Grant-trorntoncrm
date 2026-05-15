@@ -28,10 +28,12 @@ import {
   fetchNotifications,
   markNotificationRead,
   markAllNotificationsRead,
+  fetchMyOrg,
   type Notification,
   type NotificationType,
 } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.js';
+import OnboardingWizard from './OnboardingWizard.js';
 
 const { Header, Sider, Content } = Layout;
 
@@ -365,6 +367,19 @@ const AppLayout = () => {
 
   const [isMobile, setIsMobile] = useState(false);
   const [isSiderCollapsed, setIsSiderCollapsed] = useState(true);
+  const [onboardingDone, setOnboardingDone] = useState(false);
+
+  const orgQuery = useQuery({
+    queryKey: ['orgs', 'me'],
+    queryFn: fetchMyOrg,
+    enabled: isAdmin && !!user?.orgId,
+    retry: false,
+  });
+
+  const showOnboarding =
+    isAdmin &&
+    !onboardingDone &&
+    orgQuery.data?.onboardingCompleted === false;
 
   useEffect(() => {
     const handleResize = () => {
@@ -680,6 +695,15 @@ const AppLayout = () => {
           </div>
         </Content>
       </Layout>
+
+      {showOnboarding && (
+        <OnboardingWizard
+          onDone={() => {
+            setOnboardingDone(true);
+            void orgQuery.refetch();
+          }}
+        />
+      )}
     </Layout>
   );
 };

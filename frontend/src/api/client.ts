@@ -1536,3 +1536,21 @@ export const syncGoogleCalendar = async (): Promise<{ synced: number }> => {
   );
   return data;
 };
+
+/* -------------------- ORGS -------------------- */
+
+export type MyOrgResponse = {
+  id: string;
+  name: string;
+  slug: string;
+  onboardingCompleted: boolean;
+};
+
+export const fetchMyOrg = async (): Promise<MyOrgResponse> => {
+  const { data } = await api.get<MyOrgResponse>('/orgs/me');
+  return data;
+};
+
+export const completeOnboarding = async (): Promise<void> => {
+  await api.patch('/orgs/onboarding-complete');
+};
