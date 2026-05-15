@@ -4,6 +4,46 @@
 
 ---
 
+## 2026-05-15 — Фаза 15: White-label и корпоративные настройки
+
+Добавлена возможность кастомизации внешнего вида для каждой организации.
+
+### Backend
+
+**Prisma schema** — в модель `Org` добавлены поля: `logoUrl String?`, `primaryColor String?`, `companyDisplayName String?`.
+
+**Миграция** — `20260515200000_add_org_branding/migration.sql`
+
+**OrgsService** — обновлён `getMyOrg()` (теперь возвращает все три новых поля); добавлен метод `updateBranding(orgId, { logoUrl?, primaryColor?, companyDisplayName? })`.
+
+**OrgsController** — добавлен эндпоинт `PATCH /orgs/branding` (SUPER_ADMIN), объявлен до параметрических маршрутов.
+
+### Frontend
+
+**api/client.ts** — расширен тип `MyOrgResponse` тремя новыми необязательными полями; добавлена функция `updateOrgBranding()`.
+
+**OrgSettings.tsx** (новая страница) — форма с полями: `companyDisplayName` (Input), `logoUrl` (Input URL), `primaryColor` (Ant Design ColorPicker с кнопкой «Сбросить»). Форма предзаполняется из `GET /orgs/me`; мутация через `PATCH /orgs/branding`.
+
+**Layout.tsx** — пункт «Настройки организации» добавлен в сайдбар для SUPER_ADMIN; сайдбар показывает `companyDisplayName` вместо «Grant Thornton» если задано; весь admin-layout обёрнут в `<ConfigProvider theme={{ token: { colorPrimary } }}>` — меняет основной цвет Ant Design на лету.
+
+**routes/index.tsx** — добавлен маршрут `/org-settings`.
+
+**i18n.ts** — добавлен раздел `orgSettings.*` и ключ `layout.orgSettings` во все три языка (RU/EN/TR).
+
+### Изменённые файлы
+
+- `backend/prisma/schema.prisma`
+- `backend/prisma/migrations/20260515200000_add_org_branding/migration.sql` (новый)
+- `backend/src/orgs/orgs.service.ts`
+- `backend/src/orgs/orgs.controller.ts`
+- `frontend/src/api/client.ts`
+- `frontend/src/pages/OrgSettings.tsx` (новый)
+- `frontend/src/components/Layout.tsx`
+- `frontend/src/routes/index.tsx`
+- `frontend/src/i18n.ts`
+
+---
+
 ## 2026-05-15 — Фаза 14: Welcome email после регистрации
 
 После успешной оплаты и создания аккаунта (событие `checkout.session.completed`) отправляется welcome-письмо новому администратору.
