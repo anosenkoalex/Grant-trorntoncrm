@@ -4,6 +4,26 @@
 
 ---
 
+## 2026-05-15 — Фаза 14: Welcome email после регистрации
+
+После успешной оплаты и создания аккаунта (событие `checkout.session.completed`) отправляется welcome-письмо новому администратору.
+
+### Изменения по файлам
+
+**email.service.ts** — добавлен метод `sendWelcomeEmail(to, companyName, plan, appUrl)`: строит HTML-письмо с приветствием по имени компании, email для входа, ссылкой на систему и названием плана; вызывает `sendHtmlEmail()`; содержит собственный try/catch, чтобы ошибка SMTP не пробрасывалась наружу; если SMTP не настроен — молча пропускает
+
+**billing.module.ts** — добавлен импорт `NotificationsModule` (который экспортирует `EmailService`)
+
+**billing.service.ts** — `EmailService` инжектирован в конструктор; в `handleCheckoutCompleted()` после `this.logger.log(...)` вызывается `emailService.sendWelcomeEmail(...)` в отдельном try/catch — ошибка email никогда не ломает регистрацию
+
+**Изменённые файлы:**
+
+- `backend/src/notifications/email.service.ts`
+- `backend/src/billing/billing.module.ts`
+- `backend/src/billing/billing.service.ts`
+
+---
+
 ## 2026-05-15 — Фаза 13: Onboarding Wizard
 
 Добавлен пошаговый мастер настройки для новых организаций.
