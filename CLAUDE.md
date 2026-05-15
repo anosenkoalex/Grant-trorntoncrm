@@ -4,6 +4,81 @@
 
 ---
 
+## 2026-05-15 — Фаза 10: Фикс изоляции планировщика по orgId
+
+В `planner.service.ts` оба вызова `prisma.assignment.findMany` фильтровали данные по `workplace.orgId` (`where.workplace = { is: { orgId } }`), что расходилось с паттерном, принятым в остальных сервисах. Заменено на `where.user = { orgId }` — теперь показываются только назначения сотрудников своей организации.
+
+Контроллер уже получал `orgId` через `@CurrentUser()` и передавал в сервис — изменений не потребовалось.
+
+### Изменения по файлам
+
+**planner.service.ts** — в `collectRows()` и `exportMatrixToExcel()`: `where.workplace = { is: { orgId: effectiveOrgId } }` заменено на `where.user = { orgId: effectiveOrgId }`; добавлен `/* eslint-disable @typescript-eslint/no-explicit-any */`
+
+**Изменённые файлы:**
+
+- `backend/src/planner/planner.service.ts`
+
+---
+
+## 2026-05-15 — Перевод оставшихся хардкоженных строк (Assignments, Planner)
+
+Переведены оставшиеся хардкоженные русские строки в Assignments.tsx и Planner.tsx; добавлены недостающие i18n-ключи для всех трёх языков.
+
+### Изменения по файлам
+
+**Assignments.tsx** — кнопки переключения вида (`viewActive`/`viewTrash`), кнопки запросов (`assignmentRequests`, `scheduleAdjustmentsButton`, `assignmentRequestsTitle`), блок «Свободных сотрудников» (`freeUsers`, `common.show`), модалка свободных сотрудников (`freeUsersModal.title`, `freeUsersModal.allAssigned`, `common.close`, `common.loading`)
+
+**Planner.tsx** — добавлен `/* eslint-disable @typescript-eslint/no-explicit-any */`; перевод строки «Сотрудники: N, N, N + ещё X» через `t('planner.employees')` и `t('planner.andMore', { count })`
+
+**i18n.ts** — добавлены новые ключи во все три языка (RU/EN/TR):
+
+- `assignments.*`: `viewActive`, `viewTrash`, `assignmentRequests`, `scheduleAdjustmentsButton`, `assignmentRequestsTitle`, `freeUsers`, `show`, `freeUsersModal.{ title, allAssigned }`
+- `planner.*`: `title`, `byUsers`, `byWorkplaces`, `downloadExcel`, `totalEmployees`, `totalWorkplaces`, `periodSummary`, `exportError`, `employees`, `andMore`
+- `common.*`: `show`, `close`
+
+**Изменённые файлы:**
+
+- `frontend/src/i18n.ts`
+- `frontend/src/pages/Assignments.tsx`
+- `frontend/src/pages/Planner.tsx`
+
+---
+
+## 2026-05-15 — Перевод всех хардкоженных русских строк на i18n-ключи
+
+Все хардкоженные русские строки в компонентах фронтенда заменены на вызовы `t('ключ')` через `useTranslation`. Добавлены недостающие ключи в переводы для RU/EN/TR.
+
+### Изменения по файлам
+
+**AssignmentAdjustments.tsx** — все заголовки колонок, метки статусов, кнопки и сообщения заменены на `t('assignmentAdjustments.*')`; устранён `any` через явный тип
+
+**Statistics.tsx** — `shiftKindLabels` и `workplaceColumns` перенесены внутрь компонента; `KpiCards` и `DynamicsChart` получили `useTranslation()`; все Russian-строки заменены на i18n-ключи (фильтры, заголовки, экспорт, модалки)
+
+**FileAttachment.tsx** — добавлен `useTranslation`; все `message.success/error` и UI-текст заменены на `t('fileAttachment.*')`
+
+**WorkReportCalendarModal.tsx** — добавлен `useTranslation`; заголовок модалки, кнопка OK, описание и теги переведены через `t('workReportModal.*')`; удалено неиспользуемое состояние `currentMonth`
+
+**Dashboard.tsx** — хардкоженный fallback `'Администратор'` заменён на `t('layout.adminFallbackName')`
+
+**Workplaces.tsx** — хардкоженный `'дн.'` заменён на `t('common.days')`
+
+**i18n.ts** — добавлены недостающие ключи:
+
+- RU: `notifications.*Short`-варианты; `myPlace.shiftKind*`, `noCorrectionIntervals`, `invalidInterval`; `assignmentAdjustments.filterStatus/filterAll`
+- TR: все 9 новых разделов — `register`, `registerSuccess`, `billing`, `superAdmin`, `scheduleAdjustments`, `assignmentAdjustments`, `fileAttachment`, `workReportModal`, `mobileFilters`
+
+**Изменённые файлы:**
+
+- `frontend/src/i18n.ts`
+- `frontend/src/pages/AssignmentAdjustments.tsx`
+- `frontend/src/pages/Statistics.tsx`
+- `frontend/src/pages/Dashboard.tsx`
+- `frontend/src/pages/Workplaces.tsx`
+- `frontend/src/components/FileAttachment.tsx`
+- `frontend/src/components/WorkReportCalendarModal.tsx`
+
+---
+
 ## 2026-05-14 — Мультитенантная изоляция данных по организациям
 
 Все основные сервисы теперь фильтруют данные по `orgId` из JWT-токена текущего пользователя. Данные одной организации больше не видны пользователям другой.

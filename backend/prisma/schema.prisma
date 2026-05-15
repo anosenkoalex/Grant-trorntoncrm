@@ -126,6 +126,10 @@ model User {
   passwordUpdatedAt DateTime?
   passwordSentAt    DateTime?
 
+  googleAccessToken      String?
+  googleRefreshToken     String?
+  googleCalendarConnected Boolean @default(false)
+
   assignments   Assignment[]
   notifications Notification[]
   slots         Slot[]

@@ -1504,3 +1504,35 @@ export const fetchSuperAdminStats = async (): Promise<{
   const { data } = await api.get('/super-admin/stats');
   return data;
 };
+
+/* -------------------- GOOGLE CALENDAR -------------------- */
+
+export type GoogleCalendarStatus = {
+  connected: boolean;
+};
+
+export const fetchGoogleCalendarStatus =
+  async (): Promise<GoogleCalendarStatus> => {
+    const { data } = await api.get<GoogleCalendarStatus>(
+      '/integrations/google/status',
+    );
+    return data;
+  };
+
+export const getGoogleCalendarAuthUrl = async (): Promise<{ url: string }> => {
+  const { data } = await api.get<{ url: string }>(
+    '/integrations/google/auth-url',
+  );
+  return data;
+};
+
+export const disconnectGoogleCalendar = async (): Promise<void> => {
+  await api.delete('/integrations/google/disconnect');
+};
+
+export const syncGoogleCalendar = async (): Promise<{ synced: number }> => {
+  const { data } = await api.post<{ synced: number }>(
+    '/integrations/google/sync',
+  );
+  return data;
+};

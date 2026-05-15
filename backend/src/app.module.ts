@@ -23,6 +23,7 @@ import { ApiKeysModule } from './api-keys/api-keys.module.js';
 import { HrModule } from './hr/hr.module.js';
 import { BillingModule } from './billing/billing.module.js';
 import { SuperAdminModule } from './super-admin/super-admin.module.js';
+import { GoogleCalendarModule } from './integrations/google-calendar/google-calendar.module.js';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { SuperAdminModule } from './super-admin/super-admin.module.js';
     HrModule,
     BillingModule,
     SuperAdminModule,
+    GoogleCalendarModule,
   ],
 })
 export class AppModule {}

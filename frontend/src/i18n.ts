@@ -691,6 +691,22 @@ const ru = {
       loadError: 'Не удалось загрузить API-ключи',
     },
   },
+  googleCalendar: {
+    title: 'Google Calendar',
+    description: 'Синхронизируйте ваши назначения с Google Calendar.',
+    connect: 'Подключить Google Calendar',
+    disconnect: 'Отключить',
+    sync: 'Синхронизировать',
+    connected: 'Подключено',
+    notConnected: 'Не подключено',
+    connectError: 'Не удалось подключить Google Calendar',
+    disconnectSuccess: 'Google Calendar отключён',
+    disconnectError: 'Не удалось отключить',
+    syncSuccess: 'Синхронизировано событий: {{count}}',
+    syncError: 'Ошибка синхронизации с Google Calendar',
+    callbackSuccess: 'Google Calendar успешно подключён',
+    callbackError: 'Не удалось подключить Google Calendar',
+  },
 };
 
 const en = {
@@ -1417,6 +1433,22 @@ const en = {
   mobileFilters: {
     label: 'Filters',
   },
+  googleCalendar: {
+    title: 'Google Calendar',
+    description: 'Sync your assignments with Google Calendar.',
+    connect: 'Connect Google Calendar',
+    disconnect: 'Disconnect',
+    sync: 'Sync Now',
+    connected: 'Connected',
+    notConnected: 'Not connected',
+    connectError: 'Failed to connect Google Calendar',
+    disconnectSuccess: 'Google Calendar disconnected',
+    disconnectError: 'Failed to disconnect',
+    syncSuccess: 'Synced {{count}} events',
+    syncError: 'Failed to sync with Google Calendar',
+    callbackSuccess: 'Google Calendar connected successfully',
+    callbackError: 'Failed to connect Google Calendar',
+  },
 };
 
 const tr = {
@@ -2141,6 +2173,22 @@ const tr = {
   },
   mobileFilters: {
     label: 'Filtreler',
+  },
+  googleCalendar: {
+    title: 'Google Takvim',
+    description: 'Görevlerinizi Google Takvim ile senkronize edin.',
+    connect: "Google Takvim'i Bağla",
+    disconnect: 'Bağlantıyı Kes',
+    sync: 'Senkronize Et',
+    connected: 'Bağlandı',
+    notConnected: 'Bağlı değil',
+    connectError: "Google Takvim bağlanamadı",
+    disconnectSuccess: 'Google Takvim bağlantısı kesildi',
+    disconnectError: 'Bağlantı kesilemedi',
+    syncSuccess: '{{count}} etkinlik senkronize edildi',
+    syncError: 'Google Takvim senkronizasyonu başarısız',
+    callbackSuccess: 'Google Takvim başarıyla bağlandı',
+    callbackError: "Google Takvim bağlanamadı",
   },
 };
 

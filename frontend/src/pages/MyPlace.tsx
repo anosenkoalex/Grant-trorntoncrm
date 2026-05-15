@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Button,
   Card,
@@ -53,6 +54,12 @@ import {
 } from '../api/client.js';
 import type { WorkReport, StatisticsResponse } from '../api/client.js';
 import { fetchWorkReports, fetchStatistics } from '../api/client.js';
+import {
+  fetchGoogleCalendarStatus,
+  getGoogleCalendarAuthUrl,
+  disconnectGoogleCalendar,
+  syncGoogleCalendar,
+} from '../api/client.js';
 
 import { useAuth } from '../context/AuthContext.js';
 
@@ -273,6 +280,10 @@ const MyPlacePage = () => {
   const [plannerToDate, setPlannerToDate] = useState<Dayjs | null>(null);
   const [plannerAutoRangeInitialized, setPlannerAutoRangeInitialized] =
     useState(false);
+
+  // Google Calendar
+  const [gcSyncing, setGcSyncing] = useState(false);
+  const [gcDisconnecting, setGcDisconnecting] = useState(false);
 
   // глобальный интервал времени (для "применить ко всем датам")
   const [requestGlobalTime, setRequestGlobalTime] = useState<
@@ -534,6 +545,33 @@ const MyPlacePage = () => {
       }),
     keepPreviousData: true,
   });
+
+  const {
+    data: gcStatus,
+    refetch: refetchGcStatus,
+  } = useQuery({
+    queryKey: ['my-place', 'google-calendar-status'],
+    enabled: !!user,
+    queryFn: () => fetchGoogleCalendarStatus(),
+  });
+
+  // Handle Google OAuth callback result (?gc=success|error)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const gc = params.get('gc');
+    if (gc === 'success') {
+      void message.success(t('googleCalendar.callbackSuccess', 'Google Calendar успешно подключён'));
+      void refetchGcStatus();
+      const url = new URL(window.location.href);
+      url.searchParams.delete('gc');
+      window.history.replaceState({}, '', url.toString());
+    } else if (gc === 'error') {
+      void message.error(t('googleCalendar.callbackError', 'Не удалось подключить Google Calendar'));
+      const url = new URL(window.location.href);
+      url.searchParams.delete('gc');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, []);
 
   const assignments = mySchedule?.assignments ?? [];
   const slots = mySchedule?.slots ?? [];
@@ -856,7 +894,6 @@ const MyPlacePage = () => {
 
     const base = workReportSelectedDate ?? dayjs();
     void loadWorkReportsForDate(base);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isWorkReportModalOpen, workReportSelectedDate]);
 
   // ====== МАППИНГИ ДЛЯ ТИПОВ СМЕН ======
@@ -2926,6 +2963,72 @@ const MyPlacePage = () => {
           </Form.List>
         </Form>
       </Modal>
+
+      {/* GOOGLE CALENDAR */}
+      <Card title={t('googleCalendar.title', 'Google Calendar')}>
+        <Space direction="vertical" size={12} style={{ width: '100%' }}>
+          <Text type="secondary">{t('googleCalendar.description', 'Синхронизируйте ваши назначения с Google Calendar.')}</Text>
+          <Space wrap>
+            <Tag color={gcStatus?.connected ? 'success' : 'default'}>
+              {gcStatus?.connected
+                ? t('googleCalendar.connected', 'Подключено')
+                : t('googleCalendar.notConnected', 'Не подключено')}
+            </Tag>
+            {!gcStatus?.connected ? (
+              <Button
+                type="primary"
+                onClick={async () => {
+                  try {
+                    const { url } = await getGoogleCalendarAuthUrl();
+                    window.location.href = url;
+                  } catch {
+                    void message.error(t('googleCalendar.connectError', 'Не удалось подключить Google Calendar'));
+                  }
+                }}
+              >
+                {t('googleCalendar.connect', 'Подключить Google Calendar')}
+              </Button>
+            ) : (
+              <>
+                <Button
+                  loading={gcSyncing}
+                  onClick={async () => {
+                    setGcSyncing(true);
+                    try {
+                      const { synced } = await syncGoogleCalendar();
+                      void message.success(t('googleCalendar.syncSuccess', 'Синхронизировано событий: {{count}}', { count: synced }));
+                    } catch {
+                      void message.error(t('googleCalendar.syncError', 'Ошибка синхронизации с Google Calendar'));
+                    } finally {
+                      setGcSyncing(false);
+                    }
+                  }}
+                >
+                  {t('googleCalendar.sync', 'Синхронизировать')}
+                </Button>
+                <Button
+                  danger
+                  loading={gcDisconnecting}
+                  onClick={async () => {
+                    setGcDisconnecting(true);
+                    try {
+                      await disconnectGoogleCalendar();
+                      void message.success(t('googleCalendar.disconnectSuccess', 'Google Calendar отключён'));
+                      void refetchGcStatus();
+                    } catch {
+                      void message.error(t('googleCalendar.disconnectError', 'Не удалось отключить'));
+                    } finally {
+                      setGcDisconnecting(false);
+                    }
+                  }}
+                >
+                  {t('googleCalendar.disconnect', 'Отключить')}
+                </Button>
+              </>
+            )}
+          </Space>
+        </Space>
+      </Card>
 
       {/* МОДАЛКИ НИЖЕ */}
 
