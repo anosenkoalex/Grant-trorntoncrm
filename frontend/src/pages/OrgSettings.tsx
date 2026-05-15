@@ -2,14 +2,12 @@ import { useEffect, useState } from 'react';
 import {
   Button,
   Card,
-  ColorPicker,
   Form,
   Input,
   message,
   Space,
   Typography,
 } from 'antd';
-import type { Color } from 'antd/es/color-picker';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { fetchMyOrg, updateOrgBranding } from '../api/client.js';
@@ -84,12 +82,15 @@ export default function OrgSettings() {
 
           <Form.Item label={t('orgSettings.primaryColor')}>
             <Space direction="vertical" size={8}>
-              <ColorPicker
-                value={color ?? '#0B5ED7'}
-                onChange={(c: Color) => setColor(c.toHexString())}
-                showText
-                format="hex"
-              />
+              <Space align="center">
+                <input
+                  type="color"
+                  value={color ?? '#0B5ED7'}
+                  onChange={(e) => setColor(e.target.value)}
+                  style={{ width: 40, height: 32, cursor: 'pointer', border: '1px solid #d9d9d9', borderRadius: 6, padding: 2 }}
+                />
+                <Typography.Text>{color ?? '#0B5ED7'}</Typography.Text>
+              </Space>
               {color && (
                 <Button
                   type="link"
