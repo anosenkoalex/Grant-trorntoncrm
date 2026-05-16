@@ -59,7 +59,7 @@ const NAV_SECTIONS = [
   { id: 'roadmap', navKey: 'navRoadmap' },
 ];
 
-const SECTION: React.CSSProperties = { marginBottom: 24, scrollMarginTop: 110 };
+const SECTION: React.CSSProperties = { marginBottom: 24, scrollMarginTop: 80 };
 
 const check = <CheckOutlined style={{ color: '#52c41a' }} />;
 const dash = <Text type="secondary">—</Text>;
@@ -277,13 +277,15 @@ export default function PresentationPage() {
 
   return (
     <ConfigProvider theme={{ token: { colorPrimary: GT_RED } }}>
-      {/* ── STICKY HEADER ── */}
+      {/* ── FIXED HEADER ── */}
       <div
         style={{
-          position: 'sticky',
+          position: 'fixed',
           top: 0,
+          left: 0,
+          right: 0,
           zIndex: 100,
-          background: '#fff',
+          backgroundColor: '#fff',
           borderBottom: '1px solid #f0f0f0',
           padding: '0 32px',
           height: 64,
@@ -307,7 +309,7 @@ export default function PresentationPage() {
         <div style={{ flex: 1, overflow: 'hidden', minWidth: 0 }}>
           <Anchor
             direction="horizontal"
-            offsetTop={104}
+            targetOffset={48}
             items={NAV_SECTIONS.map((s) => ({
               key: s.id,
               href: `#${s.id}`,
@@ -341,7 +343,7 @@ export default function PresentationPage() {
         style={{
           maxWidth: 1100,
           margin: '0 auto',
-          padding: '104px 24px 64px',
+          padding: '80px 24px 64px',
         }}
       >
         {/* ═══════════════════════════════════════════════════
