@@ -331,7 +331,7 @@ export default function PresentationPage() {
           <Button
             type="primary"
             size="small"
-            onClick={() => navigate('/login')}
+            onClick={() => navigate('/')}
           >
             {t('presentation.tryDemo')}
           </Button>
@@ -1926,7 +1926,7 @@ export default function PresentationPage() {
                     <Button
                       type="primary"
                       size="large"
-                      onClick={() => navigate('/login')}
+                      onClick={() => navigate('/')}
                     >
                       {t('presentation.ctaTryBtn')}
                     </Button>
