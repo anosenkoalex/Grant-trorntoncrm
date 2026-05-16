@@ -59,7 +59,7 @@ const NAV_SECTIONS = [
   { id: 'roadmap', navKey: 'navRoadmap' },
 ];
 
-const SECTION: React.CSSProperties = { marginBottom: 24, scrollMarginTop: 80 };
+const SECTION: React.CSSProperties = { marginBottom: 24, scrollMarginTop: 110 };
 
 const check = <CheckOutlined style={{ color: '#52c41a' }} />;
 const dash = <Text type="secondary">—</Text>;
@@ -282,7 +282,7 @@ export default function PresentationPage() {
         style={{
           position: 'sticky',
           top: 0,
-          zIndex: 1000,
+          zIndex: 100,
           background: '#fff',
           borderBottom: '1px solid #f0f0f0',
           padding: '0 32px',
@@ -307,7 +307,7 @@ export default function PresentationPage() {
         <div style={{ flex: 1, overflow: 'hidden', minWidth: 0 }}>
           <Anchor
             direction="horizontal"
-            offsetTop={64}
+            offsetTop={104}
             items={NAV_SECTIONS.map((s) => ({
               key: s.id,
               href: `#${s.id}`,
@@ -326,14 +326,24 @@ export default function PresentationPage() {
             style={{ width: 68 }}
             variant="borderless"
           />
-          <Button type="primary" size="small" onClick={() => navigate('/login')}>
+          <Button
+            type="primary"
+            size="small"
+            onClick={() => navigate('/login')}
+          >
             {t('presentation.tryDemo')}
           </Button>
         </Space>
       </div>
 
       {/* ── PAGE CONTENT ── */}
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 24px 64px' }}>
+      <div
+        style={{
+          maxWidth: 1100,
+          margin: '0 auto',
+          padding: '104px 24px 64px',
+        }}
+      >
         {/* ═══════════════════════════════════════════════════
             1. OVERVIEW
         ═══════════════════════════════════════════════════ */}
@@ -662,7 +672,9 @@ export default function PresentationPage() {
                   label: 'Типы заявок',
                   children: (
                     <Descriptions bordered size="small" column={1}>
-                      <Descriptions.Item label={<Tag color="blue">VACATION</Tag>}>
+                      <Descriptions.Item
+                        label={<Tag color="blue">VACATION</Tag>}
+                      >
                         Ежегодный оплачиваемый отпуск с диапазоном дат
                       </Descriptions.Item>
                       <Descriptions.Item
@@ -670,7 +682,9 @@ export default function PresentationPage() {
                       >
                         Больничный лист — открытая или фиксированная дата
                       </Descriptions.Item>
-                      <Descriptions.Item label={<Tag color="green">DAY_OFF</Tag>}>
+                      <Descriptions.Item
+                        label={<Tag color="green">DAY_OFF</Tag>}
+                      >
                         Отгул — отдельный день
                       </Descriptions.Item>
                     </Descriptions>
@@ -683,7 +697,9 @@ export default function PresentationPage() {
                     <Space wrap>
                       <Tag color="warning">PENDING — на рассмотрении</Tag>
                       <Tag color="success">APPROVED — одобрено</Tag>
-                      <Tag color="error">REJECTED — отклонено (с комментарием)</Tag>
+                      <Tag color="error">
+                        REJECTED — отклонено (с комментарием)
+                      </Tag>
                     </Space>
                   ),
                 },
@@ -709,7 +725,8 @@ export default function PresentationPage() {
                         },
                         {
                           title: 'Ответ',
-                          description: 'Сотрудник получает уведомление о решении',
+                          description:
+                            'Сотрудник получает уведомление о решении',
                         },
                       ]}
                     />
@@ -873,7 +890,11 @@ export default function PresentationPage() {
             />
             <Row gutter={[24, 16]}>
               <Col xs={24} md={12}>
-                <Card size="small" title="Поток уведомления" style={{ borderTop: `3px solid ${GT_RED}` }}>
+                <Card
+                  size="small"
+                  title="Поток уведомления"
+                  style={{ borderTop: `3px solid ${GT_RED}` }}
+                >
                   <Timeline
                     items={[
                       {
@@ -1039,8 +1060,8 @@ export default function PresentationPage() {
                         Список последних уведомлений, клик = прочитано
                       </Descriptions.Item>
                       <Descriptions.Item label="Типы">
-                        <Tag>ASSIGNMENT</Tag> <Tag>REMINDER</Tag> <Tag>SYSTEM</Tag>{' '}
-                        <Tag>VACATION</Tag>
+                        <Tag>ASSIGNMENT</Tag> <Tag>REMINDER</Tag>{' '}
+                        <Tag>SYSTEM</Tag> <Tag>VACATION</Tag>
                       </Descriptions.Item>
                       <Descriptions.Item label="Обновление">
                         Автополинг каждые 30 секунд
@@ -1130,7 +1151,8 @@ export default function PresentationPage() {
                         К конкретному назначению (AssignmentFile)
                       </Descriptions.Item>
                       <Descriptions.Item label="Иконки">
-                        Автоматически по MIME-типу (PDF / изображение / Excel / Word)
+                        Автоматически по MIME-типу (PDF / изображение / Excel /
+                        Word)
                       </Descriptions.Item>
                     </Descriptions>
                   ),
@@ -1226,7 +1248,8 @@ export default function PresentationPage() {
                         <Tag>GET /public/users</Tag>
                       </Descriptions.Item>
                       <Descriptions.Item label="Управление">
-                        Создание / просмотр / удаление ключей в Developer Console
+                        Создание / просмотр / удаление ключей в Developer
+                        Console
                       </Descriptions.Item>
                       <Descriptions.Item label="Изоляция">
                         Данные строго в рамках своей организации
@@ -1327,16 +1350,22 @@ export default function PresentationPage() {
                   <Descriptions.Item label={t('presentation.profileFieldName')}>
                     Иванов Иван Иванович
                   </Descriptions.Item>
-                  <Descriptions.Item label={t('presentation.profileFieldEmail')}>
+                  <Descriptions.Item
+                    label={t('presentation.profileFieldEmail')}
+                  >
                     ivan@company.com
                   </Descriptions.Item>
                   <Descriptions.Item label={t('presentation.profileFieldRole')}>
                     <Tag>{t('presentation.profileRoleWorker')}</Tag>
                   </Descriptions.Item>
-                  <Descriptions.Item label={t('presentation.profileFieldShifts')}>
+                  <Descriptions.Item
+                    label={t('presentation.profileFieldShifts')}
+                  >
                     12 / 24
                   </Descriptions.Item>
-                  <Descriptions.Item label={t('presentation.profileFieldHours')}>
+                  <Descriptions.Item
+                    label={t('presentation.profileFieldHours')}
+                  >
                     96 ч.
                   </Descriptions.Item>
                 </Descriptions>
@@ -1534,7 +1563,8 @@ export default function PresentationPage() {
                         URL изображения — показывается в сайдбаре
                       </Descriptions.Item>
                       <Descriptions.Item label="Цвет">
-                        primaryColor — меняет акцентный цвет Ant Design глобально
+                        primaryColor — меняет акцентный цвет Ant Design
+                        глобально
                       </Descriptions.Item>
                     </Descriptions>
                   ),
@@ -1545,7 +1575,8 @@ export default function PresentationPage() {
                   children: (
                     <Descriptions bordered size="small" column={1}>
                       <Descriptions.Item label="Роли">
-                        <Tag>SUPER_ADMIN</Tag> <Tag>MANAGER</Tag> <Tag>USER</Tag>
+                        <Tag>SUPER_ADMIN</Tag> <Tag>MANAGER</Tag>{' '}
+                        <Tag>USER</Tag>
                       </Descriptions.Item>
                       <Descriptions.Item label="Изоляция">
                         Полная мультитенантность: orgId на всех запросах
@@ -1677,7 +1708,9 @@ export default function PresentationPage() {
                     </Space>
                   ),
                   children: (
-                    <Text type="secondary">{t('presentation.secCard3Desc')}</Text>
+                    <Text type="secondary">
+                      {t('presentation.secCard3Desc')}
+                    </Text>
                   ),
                 },
                 {
@@ -1689,7 +1722,9 @@ export default function PresentationPage() {
                     </Space>
                   ),
                   children: (
-                    <Text type="secondary">{t('presentation.secCard4Desc')}</Text>
+                    <Text type="secondary">
+                      {t('presentation.secCard4Desc')}
+                    </Text>
                   ),
                 },
               ]}
@@ -1713,7 +1748,11 @@ export default function PresentationPage() {
               message={t('presentation.techSubtitle')}
               style={{ marginBottom: 16 }}
             />
-            <Descriptions bordered size="small" column={{ xs: 1, sm: 2, md: 3 }}>
+            <Descriptions
+              bordered
+              size="small"
+              column={{ xs: 1, sm: 2, md: 3 }}
+            >
               <Descriptions.Item label={<Tag color="blue">React 18</Tag>}>
                 {t('presentation.techReact')}
               </Descriptions.Item>
