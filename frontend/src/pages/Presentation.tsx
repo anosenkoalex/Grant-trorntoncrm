@@ -7,6 +7,7 @@ import {
   Collapse,
   ConfigProvider,
   Descriptions,
+  Grid,
   Row,
   Select,
   Space,
@@ -37,6 +38,7 @@ import { useNavigate } from 'react-router-dom';
 import i18next from 'i18next';
 
 const { Title, Text, Paragraph } = Typography;
+const { useBreakpoint } = Grid;
 
 const GT_RED = '#E8231A';
 
@@ -68,6 +70,8 @@ export default function PresentationPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const lang = i18n.language.slice(0, 2);
+  const screens = useBreakpoint();
+  const isMobile = !screens.md;
 
   const handleLang = (val: string) => {
     void i18next.changeLanguage(val);
@@ -287,55 +291,88 @@ export default function PresentationPage() {
           zIndex: 100,
           backgroundColor: '#fff',
           borderBottom: '1px solid #f0f0f0',
-          padding: '0 32px',
-          height: 64,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 24,
         }}
       >
-        <Title
-          level={5}
-          style={{ color: GT_RED, margin: 0, flexShrink: 0, cursor: 'pointer' }}
-          onClick={() =>
-            document
-              .getElementById('overview')
-              ?.scrollIntoView({ behavior: 'smooth' })
-          }
+        {/* Top row: logo + controls */}
+        <div
+          style={{
+            padding: isMobile ? '0 12px' : '0 32px',
+            height: 48,
+            display: 'flex',
+            alignItems: 'center',
+            gap: isMobile ? 8 : 24,
+          }}
         >
-          Grant Thornton CRM
-        </Title>
+          <Title
+            level={5}
+            style={{
+              color: GT_RED,
+              margin: 0,
+              flexShrink: 0,
+              cursor: 'pointer',
+              fontSize: isMobile ? 13 : undefined,
+              whiteSpace: 'nowrap',
+            }}
+            onClick={() =>
+              document
+                .getElementById('overview')
+                ?.scrollIntoView({ behavior: 'smooth' })
+            }
+          >
+            {isMobile ? 'GT CRM' : 'Grant Thornton CRM'}
+          </Title>
 
-        <div style={{ flex: 1, overflow: 'hidden', minWidth: 0 }}>
-          <Anchor
-            direction="horizontal"
-            targetOffset={48}
-            items={NAV_SECTIONS.map((s) => ({
-              key: s.id,
-              href: `#${s.id}`,
-              title: t(`presentation.${s.navKey}`),
-            }))}
-            style={{ fontSize: 13 }}
-          />
+          {!isMobile && (
+            <div style={{ flex: 1, overflow: 'hidden', minWidth: 0 }}>
+              <Anchor
+                direction="horizontal"
+                targetOffset={48}
+                items={NAV_SECTIONS.map((s) => ({
+                  key: s.id,
+                  href: `#${s.id}`,
+                  title: t(`presentation.${s.navKey}`),
+                }))}
+                style={{ fontSize: 13 }}
+              />
+            </div>
+          )}
+
+          <Space size={8} style={{ flexShrink: 0, marginLeft: 'auto' }}>
+            <Select
+              size="small"
+              value={lang}
+              onChange={handleLang}
+              options={LANG_OPTIONS}
+              style={{ width: 68 }}
+              variant="borderless"
+            />
+            <Button type="primary" size="small" onClick={() => navigate('/')}>
+              {t('presentation.tryDemo')}
+            </Button>
+          </Space>
         </div>
 
-        <Space size={8} style={{ flexShrink: 0 }}>
-          <Select
-            size="small"
-            value={lang}
-            onChange={handleLang}
-            options={LANG_OPTIONS}
-            style={{ width: 68 }}
-            variant="borderless"
-          />
-          <Button
-            type="primary"
-            size="small"
-            onClick={() => navigate('/')}
+        {/* Mobile nav row: horizontally scrollable */}
+        {isMobile && (
+          <div
+            style={{
+              overflowX: 'auto',
+              WebkitOverflowScrolling: 'touch',
+              borderTop: '1px solid #f5f5f5',
+            }}
           >
-            {t('presentation.tryDemo')}
-          </Button>
-        </Space>
+            <Anchor
+              direction="horizontal"
+              targetOffset={96}
+              items={NAV_SECTIONS.map((s) => ({
+                key: s.id,
+                href: `#${s.id}`,
+                title: t(`presentation.${s.navKey}`),
+              }))}
+              style={{ fontSize: 12, whiteSpace: 'nowrap', padding: '0 4px' }}
+            />
+          </div>
+        )}
       </div>
 
       {/* ── PAGE CONTENT ── */}
@@ -343,7 +380,7 @@ export default function PresentationPage() {
         style={{
           maxWidth: 1100,
           margin: '0 auto',
-          padding: '80px 24px 64px',
+          padding: isMobile ? '96px 12px 48px' : '80px 24px 64px',
         }}
       >
         {/* ═══════════════════════════════════════════════════

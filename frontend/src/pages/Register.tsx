@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   Form,
+  Grid,
   Input,
   Layout,
   Select,
@@ -37,10 +38,14 @@ interface FormValues {
   plan: SubscriptionPlan;
 }
 
+const { useBreakpoint } = Grid;
+
 export default function RegisterPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { i18n } = useTranslation();
+  const screens = useBreakpoint();
+  const isMobile = !screens.sm;
 
   const handleLangChange = (lang: string) => {
     void i18n.changeLanguage(lang);
@@ -93,7 +98,7 @@ export default function RegisterPage() {
       <Header
         style={{
           background: '#fff',
-          padding: '0 40px',
+          padding: isMobile ? '0 16px' : '0 40px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',

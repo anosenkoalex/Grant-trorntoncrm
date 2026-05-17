@@ -144,6 +144,7 @@ function MyVacationsTab() {
         loading={isLoading}
         pagination={{ pageSize: 10, hideOnSinglePage: true }}
         size="small"
+        scroll={{ x: 600 }}
       />
 
       <Modal
@@ -345,6 +346,7 @@ function TeamVacationsTab() {
         columns={columns}
         loading={isLoading}
         size="small"
+        scroll={{ x: 700 }}
         pagination={{
           current: page,
           pageSize: 20,

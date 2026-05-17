@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   Col,
+  Grid,
   Layout,
   Row,
   Select,
@@ -24,11 +25,15 @@ const LANG_OPTIONS = [
   { value: 'ru', label: 'RU' },
 ];
 
+const { useBreakpoint } = Grid;
+
 export default function LandingPage() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const { login } = useAuth();
   const [demoLoading, setDemoLoading] = useState(false);
+  const screens = useBreakpoint();
+  const isMobile = !screens.sm;
 
   const handleDemoLogin = async () => {
     setDemoLoading(true);
@@ -114,7 +119,7 @@ export default function LandingPage() {
       <Header
         style={{
           background: '#fff',
-          padding: '0 40px',
+          padding: isMobile ? '0 16px' : '0 40px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -124,10 +129,13 @@ export default function LandingPage() {
           zIndex: 100,
         }}
       >
-        <Title level={4} style={{ margin: 0, color: '#1677ff' }}>
-          Grant Thornton CRM
+        <Title
+          level={isMobile ? 5 : 4}
+          style={{ margin: 0, color: '#1677ff', whiteSpace: 'nowrap' }}
+        >
+          {isMobile ? 'GT CRM' : 'Grant Thornton CRM'}
         </Title>
-        <Space size={8}>
+        <Space size={4}>
           <Select
             size="small"
             value={i18n.language.slice(0, 2)}
@@ -136,10 +144,16 @@ export default function LandingPage() {
             style={{ width: 68 }}
             variant="borderless"
           />
-          <Button type="link" onClick={() => navigate('/login')}>
-            {t('landing.signIn')}
-          </Button>
-          <Button type="primary" onClick={() => navigate('/register')}>
+          {!isMobile && (
+            <Button type="link" onClick={() => navigate('/login')}>
+              {t('landing.signIn')}
+            </Button>
+          )}
+          <Button
+            type="primary"
+            size={isMobile ? 'small' : 'middle'}
+            onClick={() => navigate('/register')}
+          >
             {t('landing.getStarted')}
           </Button>
         </Space>
@@ -150,7 +164,7 @@ export default function LandingPage() {
         <div
           style={{
             background: 'linear-gradient(135deg, #1677ff 0%, #0958d9 100%)',
-            padding: '80px 40px',
+            padding: isMobile ? '40px 16px' : '80px 40px',
             textAlign: 'center',
             color: '#fff',
           }}
