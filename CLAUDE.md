@@ -4,6 +4,57 @@
 
 ---
 
+## 2026-05-17 — Демо данные и мобильная адаптация
+
+### 1. Реалистичные демо данные (seed) — коммит `e720963`
+
+**backend/prisma/seed.ts** — полная переработка:
+
+- **Очистка**: полная очистка 20+ таблиц в правильном порядке внешних ключей (включая `notificationLog`, `auditLog`, `assignmentFile`, `workReport`, `vacationRequest`, `apiKey`, `subscription` и др.)
+- **Организация**: `onboardingCompleted: true` (чтобы Wizard не показывался)
+- **Рабочие места (6)**: HQ-001 Headquarters, HQ-002 Conference Room A, FLD-001 Field Office Moscow, FLD-002 Field Office SPb, RMT-001 Remote Workspace, RMT-002 Remote Workspace 2 — каждое со своим цветом
+- **Сотрудники (8)**: Иванов, Петрова, Сидоров, Козлова, Новиков, Морозова, Волков, Зайцева — роль USER, пароль admin123
+- **Назначения (20)**: 8 ACTIVE (май–июль 2026) + 11 ARCHIVED (январь–апрель 2026) + 1 бессрочное для admin
+- **HR заявки (6)**: APPROVED (2), PENDING (2), REJECTED (1), APPROVED (1) — типы VACATION/SICK_LEAVE/DAY_OFF
+- **Уведомления (5)**: ASSIGNMENT_CREATED, ASSIGNMENT_UPDATED, SYSTEM, REMINDER, ASSIGNMENT_CANCELLED (последнее — прочитанное)
+- Запуск через `npm run seed` (использует `tsx`); перед первым запуском на чистой БД нужно `DIRECT_URL=... npx prisma migrate deploy`
+
+**Изменённые файлы:**
+
+- `backend/prisma/seed.ts`
+
+### 2. Мобильная адаптация — коммит `20d4f1f`
+
+**HR.tsx** — добавлен `scroll={{ x: 600 }}` на таблицу «Мои заявки» и `scroll={{ x: 700 }}` на таблицу «Команда» — таблицы теперь горизонтально скроллируются на мобильном.
+
+**Presentation.tsx** — переработана шапка:
+
+- Импортирован `Grid`, добавлен `useBreakpoint()` + `isMobile`
+- На мобильном (`!screens.md`): двухстрочный хедер — верхняя строка «GT CRM» + кнопки, нижняя строка — Anchor с `overflowX: auto` и `WebkitOverflowScrolling: touch`
+- На десктопе: однострочный хедер как прежде
+- `targetOffset={96}` на мобильном Anchor (учитывает двойную высоту хедера)
+- Контент: `padding: isMobile ? '96px 12px 48px' : '80px 24px 64px'`
+
+**Landing.tsx** — адаптирован под мобильный:
+
+- Импортирован `Grid`, добавлен `useBreakpoint()` + `isMobile = !screens.sm`
+- Header: `padding: isMobile ? '0 16px' : '0 40px'`; на мобильном логотип «GT CRM», кнопка «Sign In» скрыта
+- Hero: `padding: isMobile ? '40px 16px' : '80px 40px'`
+- Карточки фич и тарифов уже имели `xs={24}` — без изменений
+
+**Register.tsx** — импортирован `Grid`, `useBreakpoint()`, `isMobile = !screens.sm`; Header: `padding: isMobile ? '0 16px' : '0 40px'`
+
+**Не изменялись** (уже были адаптированы): Dashboard (xs={24} KPI-карточки), Assignments (MobileFilters + scroll), Planner (useIsMobile + overflow:auto матрица), Statistics (MobileFilters + KPI xs={24} + scroll на таблицах), Layout (бургер-меню).
+
+**Изменённые файлы:**
+
+- `frontend/src/pages/HR.tsx`
+- `frontend/src/pages/Presentation.tsx`
+- `frontend/src/pages/Landing.tsx`
+- `frontend/src/pages/Register.tsx`
+
+---
+
 ## 2026-05-16 — Ребрендинг Armico → Grant Thornton + страница презентации
 
 ### 1. Замена Armico на Grant Thornton брендинг
