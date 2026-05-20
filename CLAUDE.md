@@ -4,6 +4,26 @@
 
 ---
 
+## 2026-05-20 — Армянский язык (HY) — коммит `6eb381e`
+
+### Добавлен армянский язык (Հայերեն)
+
+- **frontend/src/i18n.ts** — добавлен объект `hy` со всеми разделами переводов (login, layout, dashboard, workplaces, assignments, users, planner, notifications, automation, hr, landing, terms, privacy, status, register, billing, superAdmin, statistics, scheduleAdjustments, assignmentAdjustments, myPlace, fileAttachment, workReportModal, mobileFilters, common, dev, googleCalendar, orgSettings, auditLog, onboarding, presentation); инициализация расширена `hy: { translation: hy }`
+- **frontend/src/components/Layout.tsx** — добавлена опция `{ value: 'hy', label: 'ՀՅ' }` в `langOptions`
+- **frontend/src/pages/Landing.tsx** — добавлена опция HY в `LANG_OPTIONS`
+- **frontend/src/pages/Register.tsx** — добавлена опция HY в `LANG_OPTIONS`
+- **frontend/src/pages/Presentation.tsx** — добавлена опция HY в `LANG_OPTIONS`
+
+**Изменённые файлы:**
+
+- `frontend/src/i18n.ts`
+- `frontend/src/components/Layout.tsx`
+- `frontend/src/pages/Landing.tsx`
+- `frontend/src/pages/Register.tsx`
+- `frontend/src/pages/Presentation.tsx`
+
+---
+
 ## 2026-05-17 — Демо данные и мобильная адаптация
 
 ### 1. Реалистичные демо данные (seed) — коммит `e720963`
