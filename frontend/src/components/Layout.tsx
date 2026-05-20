@@ -376,6 +376,7 @@ const AppLayout = () => {
     { value: 'en', label: 'EN' },
     { value: 'tr', label: 'TR' },
     { value: 'ru', label: 'RU' },
+    { value: 'hy', label: 'ՀՅ' },
   ];
 
   const [isMobile, setIsMobile] = useState(false);

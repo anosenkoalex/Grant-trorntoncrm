@@ -46,6 +46,7 @@ const LANG_OPTIONS = [
   { value: 'en', label: 'EN' },
   { value: 'tr', label: 'TR' },
   { value: 'ru', label: 'RU' },
+  { value: 'hy', label: 'ՀՅ' },
 ];
 
 const NAV_SECTIONS = [
